@@ -21,6 +21,8 @@ namespace Puttshack.Simulation
         public int SampleEvery = 4;
         public double TreeRestitution = 0.35;
         public double TreeTangentialRetention = 0.6;
+        /// <summary>TUNE. Fraction of remaining landing spin kept after each ground impact.</summary>
+        public double SpinRetentionPerImpact = 0.35;
 
         public static readonly SolverParameters Default = new SolverParameters();
     }
@@ -75,6 +77,7 @@ namespace Puttshack.Simulation
             double roll = 0;
             bool hadContact = !airborne;
             bool lipArmed = true;
+            double spin = club.ShotType == ShotType.Putt ? 0 : club.LandingCheck;
             Vec3d lastOutsideHazard = pos;
             int step = 0;
 
@@ -152,7 +155,8 @@ namespace Puttshack.Simulation
                             SurfaceDefinition surface = SurfaceCatalog.Get(surfaceId);
                             Vec3d n = world.GroundNormal(pos.x, pos.z);
                             double vn = Vec3d.Dot(v, n);
-                            Vec3d vt = (v - n * vn) * (1 - surface.TangentialDamping);
+                            Vec3d vt = ImpactTangential(v - n * vn, vn, surface, spin);
+                            spin *= p.SpinRetentionPerImpact;
                             double rebound = -vn * surface.Restitution;
 
                             if (Vec3d.HorizontalDistance(pos, cup) <= cupProfile.CaptureRadius && vt.Length < cupProfile.CaptureSpeed)
@@ -188,13 +192,14 @@ namespace Puttshack.Simulation
 
                     if (speed < p.StopSpeed)
                     {
-                        if (downhill.Length <= surface.HoldingAcceleration)
+                        if (downhill.Length <= Math.Max(surface.HoldingAcceleration, surface.RollingResistance))
                             return Finish(result, ShotOutcome.Rest, pos, r, world, carry, roll, apexY - (origin.y + r), t, ShotEventType.Rest);
                         v += downhill * dt;
                     }
                     else
                     {
-                        Vec3d vNew = v + (downhill - v / speed * surface.RollingResistance) * dt;
+                        double decel = surface.RollingResistance + surface.RollingDrag * Math.Max(0, speed - surface.SkidSpeed);
+                        Vec3d vNew = v + (downhill - v / speed * decel) * dt;
                         v = Vec3d.Dot(vNew, v) <= 0 ? Vec3d.Zero : vNew;
                     }
 
@@ -253,6 +258,20 @@ namespace Puttshack.Simulation
                 step++;
                 if (step % p.SampleEvery == 0) result.Samples.Add(new TrajectorySample(t, Base(pos, r)));
             }
+        }
+
+        /// <summary>
+        /// Tangential velocity after a ground impact: base damping, Coulomb friction from the normal impulse (steep
+        /// landings brake more), then the club's declared landing spin scaled by the surface grip.
+        /// </summary>
+        private static Vec3d ImpactTangential(Vec3d vt, double vn, SurfaceDefinition surface, double spin)
+        {
+            double speed = vt.Length;
+            if (speed < 1e-9) return Vec3d.Zero;
+            double kept = speed * (1 - surface.TangentialDamping);
+            kept -= surface.ImpactFriction * (1 + surface.Restitution) * Math.Abs(vn);
+            kept *= 1 - spin * surface.SpinGrip;
+            return kept <= 0 ? Vec3d.Zero : vt * (kept / speed);
         }
 
         private static Vec3d ReflectOffTrunk(Vec3d v, Vec3d normal, SolverParameters p)

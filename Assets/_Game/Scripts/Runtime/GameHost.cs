@@ -580,14 +580,11 @@ namespace Puttshack.Runtime
             switch (state)
             {
                 case SessionState.SHOT_SETUP:
-                    return "LEFT/RIGHT aim (SHIFT x5)  \u00B7  UP/DOWN club  \u00B7  P putt scale  \u00B7  ENTER ready  \u00B7  TAB scorecard  \u00B7  ESC pause  \u00B7  F1 emulator";
-                case SessionState.ARMING:
+                    return "\u2190\u2192 aim   \u2191\u2193 club   ENTER ready";
                 case SessionState.SHOT_ARMED:
-                    return "1-0 = lanes 1-10, SHIFT+1-0 = lanes 11-20 (emulated target holes)  \u00B7  ESC cancel";
-                case SessionState.SHOT_PRESENTING:
-                    return "ENTER skip to result";
+                    return "1-0 / SHIFT+1-0 lane";
                 default:
-                    return "ENTER continue  \u00B7  TAB scorecard  \u00B7  F1 emulator";
+                    return null;
             }
         }
     }

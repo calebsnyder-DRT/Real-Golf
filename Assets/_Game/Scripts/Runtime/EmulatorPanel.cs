@@ -11,7 +11,7 @@ namespace Puttshack.Runtime
     public sealed class EmulatorPanel : MonoBehaviour
     {
         public GameHost Host;
-        public bool Visible = true;
+        public bool Visible;
 
         private Rect _window = new Rect(20, 220, 330, 560);
         private Vector2 _logScroll;

@@ -72,6 +72,67 @@ namespace Puttshack.Tests
             }
         }
 
+        private static HoleDefinition Carpet(SurfaceId surface)
+        {
+            HoleDefinition hole = FlatRange();
+            hole.DefaultSurface = surface;
+            return hole;
+        }
+
+        private static double RollYd(string club, double power, SurfaceId surface) =>
+            Units.MetersToYards(ShotSolver.Solve(Intent(club, power), new AnalyticWorld(Carpet(surface))).RollM);
+
+        [TestCase("driver", 15, 30)]
+        [TestCase("wood3", 8, 15)]
+        [TestCase("iron5", 8, 15)]
+        [TestCase("iron7", 3, 8)]
+        [TestCase("iron9", 3, 8)]
+        [TestCase("pw", 0, 4)]
+        [TestCase("sw", 0, 4)]
+        [TestCase("lw", 0, 4)]
+        public void FairwayRollout_IsRealistic(string club, double minYd, double maxYd)
+        {
+            foreach (double p in new[] { 0.75, 0.9, 1.0 })
+                Assert.That(RollYd(club, p, SurfaceId.Fairway), Is.InRange(minYd, maxYd), $"{club} @ {p}");
+        }
+
+        [Test]
+        public void Rough_StopsQuickly_BunkerAlmostImmediately()
+        {
+            foreach (ClubDefinition club in ClubCatalog.All)
+            {
+                if (club.ShotType == ShotType.Putt) continue;
+                foreach (double p in new[] { 0.75, 1.0 })
+                {
+                    double fairway = RollYd(club.Id, p, SurfaceId.Fairway);
+                    double light = RollYd(club.Id, p, SurfaceId.LightRough);
+                    Assert.LessOrEqual(light, 5, $"{club.Id} light rough @ {p}");
+                    Assert.LessOrEqual(light, fairway * 0.6 + 0.5, $"{club.Id} light rough vs fairway @ {p}");
+                    Assert.LessOrEqual(RollYd(club.Id, p, SurfaceId.DeepRough), 2, $"{club.Id} deep rough @ {p}");
+                    Assert.LessOrEqual(RollYd(club.Id, p, SurfaceId.Bunker), 1, $"{club.Id} bunker @ {p}");
+                }
+            }
+        }
+
+        [Test]
+        public void ApproachLandingOnGreen_ChecksUp()
+        {
+            foreach (string club in new[] { "iron5", "iron7", "iron9", "pw", "sw", "lw" })
+            {
+                foreach (double p in new[] { 0.75, 0.9, 1.0 })
+                    Assert.LessOrEqual(RollYd(club, p, SurfaceId.Green), 4, $"{club} @ {p}");
+            }
+        }
+
+        [Test]
+        public void Green_RollsAtStimpTen()
+        {
+            double decel = SurfaceCatalog.Get(SurfaceId.Green).RollingResistance;
+            double power = 1.83 * 1.83 / (2 * decel * ClubCatalog.PuttScaleMaxMeters(PuttScale.Medium));
+            ShotResult putt = ShotSolver.Solve(Intent(ClubCatalog.PutterId, power), new AnalyticWorld(Carpet(SurfaceId.Green)));
+            Assert.AreEqual(Units.FeetToMeters(10), putt.TotalM, 0.15);
+        }
+
         [Test]
         public void Putt_DistanceIncreasesWithPower_AndStaysOnScale()
         {

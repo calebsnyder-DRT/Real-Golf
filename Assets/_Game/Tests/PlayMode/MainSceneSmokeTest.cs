@@ -42,6 +42,16 @@ namespace Puttshack.Tests
 
             Accept(host.Send(CommandType.BriefingReady));
             Assert.AreEqual(SessionState.SHOT_SETUP, host.Coordinator.State);
+            EmulatorPanel panel = host.GetComponent<EmulatorPanel>();
+            Assert.IsTrue(panel == null || !panel.Visible, "The emulator dev panel must be hidden until F1.");
+
+            string capture = Environment.GetEnvironmentVariable("PUTTSHACK_HUD_CAPTURE");
+            if (!string.IsNullOrEmpty(capture))
+            {
+                yield return new WaitForSeconds(1.5f);
+                yield return CaptureWithHud(capture);
+            }
+
             Accept(host.Send(CommandType.Arm));
             yield return WaitFor(() => host.Coordinator.State == SessionState.SHOT_ARMED, 5, "armed");
 
@@ -58,6 +68,36 @@ namespace Puttshack.Tests
             Accept(host.Send(CommandType.ResultContinue));
             Assert.AreEqual(SessionState.HANDOFF, host.Coordinator.State);
             Assert.AreEqual("Maya", host.Coordinator.Snapshot.CurrentPlayer.Name);
+        }
+
+        /// <summary>Overlay canvases never reach a camera target, so the HUD is routed through the camera for one frame.</summary>
+        private static IEnumerator CaptureWithHud(string path)
+        {
+            Camera cam = Camera.main != null ? Camera.main : UnityEngine.Object.FindAnyObjectByType<Camera>();
+            Canvas hud = GameObject.Find("HUD").GetComponent<Canvas>();
+            var rt = new RenderTexture(1920, 1080, 24);
+            RenderTexture previousTarget = cam.targetTexture;
+            cam.targetTexture = rt;
+            hud.renderMode = RenderMode.ScreenSpaceCamera;
+            hud.worldCamera = cam;
+            hud.planeDistance = cam.nearClipPlane + 0.05f;
+            yield return null;
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            cam.Render();
+
+            RenderTexture.active = rt;
+            var tex = new Texture2D(rt.width, rt.height, TextureFormat.RGB24, false);
+            tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+            tex.Apply();
+            RenderTexture.active = null;
+            System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
+            System.IO.File.WriteAllBytes(path, tex.EncodeToPNG());
+
+            hud.renderMode = RenderMode.ScreenSpaceOverlay;
+            cam.targetTexture = previousTarget;
+            UnityEngine.Object.Destroy(tex);
+            rt.Release();
         }
 
         private static void Accept(CommandReply reply) => Assert.IsTrue(reply != null && reply.Accepted, reply?.ToString());

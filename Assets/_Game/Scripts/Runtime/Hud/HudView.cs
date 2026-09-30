@@ -25,24 +25,29 @@ namespace Puttshack.Runtime.Hud
     }
 
     /// <summary>
-    /// Shot HUD in the reference hierarchy (spec section 29): hole/stroke/distance top-left, roster top-center, wind
-    /// top-right, club/lie bottom-left, lanes 1-20 bottom-center, power bottom-right. Built from native components.
+    /// Minimal shot HUD (spec section 29): the course centre stays clear. Small corner chips for hole/stroke/distance,
+    /// roster, wind, club/lie and power; a thin 20-lane strip bottom-centre. Short cards sit in the lower third, and
+    /// only one overlay (card, scorecard or banner) is visible at a time.
     /// </summary>
     public sealed class HudView : MonoBehaviour
     {
         private const int RosterSlots = SessionCoordinator.MaxPlayers;
+        private const float Margin = 20f;
+        private const float StripWidth = 640f;
+        private const float StripHeight = 30f;
 
-        private Text _hole, _stroke, _distance, _assist;
+        private static readonly Color Chip = Palette.Ink.WithAlpha(0.62f);
+
+        private GameObject _top, _bottom;
+        private Text _hole, _stroke;
         private readonly Image[] _chipBg = new Image[RosterSlots];
         private readonly Image[] _chipBar = new Image[RosterSlots];
-        private readonly Text[] _chipName = new Text[RosterSlots];
-        private readonly Text[] _chipInfo = new Text[RosterSlots];
-        private Text _windValue;
+        private readonly Text[] _chipText = new Text[RosterSlots];
+        private Text _wind;
         private RectTransform _windArrow;
-        private Text _clubName, _clubRange, _lie;
+        private Text _club, _lie;
         private readonly Image[] _laneCells = new Image[LaneMapper.LaneCount];
         private readonly Text[] _laneText = new Text[LaneMapper.LaneCount];
-        private Text _laneCaption;
         private RectTransform _powerFill;
         private Text _powerValue, _status;
         private Image _statusBg;
@@ -54,7 +59,6 @@ namespace Puttshack.Runtime.Hud
         private Transform _scoreGrid;
         private long _scoreRevision = -1;
         private Text _hints;
-        private GameObject _playHud;
 
         public static HudView Create()
         {
@@ -71,93 +75,90 @@ namespace Puttshack.Runtime.Hud
             return view;
         }
 
+        private static GameObject Layer(Transform root, string name)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            var rt = (RectTransform)go.transform;
+            rt.SetParent(root, false);
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = rt.offsetMax = Vector2.zero;
+            return go;
+        }
+
+        private static Text Shadowed(Text text)
+        {
+            text.gameObject.AddComponent<Shadow>().effectColor = Palette.Ink.WithAlpha(0.8f);
+            return text;
+        }
+
         private void Build(Transform root)
         {
-            Color cream = Palette.Cream.WithAlpha(0.94f);
-            Color ink = Palette.Ink;
-            Color charcoal = Palette.Ink.WithAlpha(0.86f);
+            _top = Layer(root, "Top Row");
+            _bottom = Layer(root, "Bottom Row");
+            Transform top = _top.transform, bottom = _bottom.transform;
 
-            _playHud = new GameObject("Play HUD", typeof(RectTransform));
-            var playRt = (RectTransform)_playHud.transform;
-            playRt.SetParent(root, false);
-            playRt.anchorMin = Vector2.zero;
-            playRt.anchorMax = Vector2.one;
-            playRt.offsetMin = playRt.offsetMax = Vector2.zero;
-            Transform play = _playHud.transform;
+            Image hole = HudWidgets.Panel(top, "Hole", new Vector2(0, 1), new Vector2(0, 1), new Vector2(Margin, -Margin), new Vector2(250, 62), Chip);
+            _hole = HudWidgets.Label(hole.transform, "Hole", 22, Palette.Cream, TextAnchor.UpperLeft, Vector2.zero, Vector2.one, new Vector2(12, 0), new Vector2(-8, -6), FontStyle.Bold);
+            _stroke = HudWidgets.Label(hole.transform, "Stroke", 18, Palette.Cyan, TextAnchor.LowerLeft, Vector2.zero, Vector2.one, new Vector2(12, 6), new Vector2(-8, 0), FontStyle.Bold);
 
-            Image tl = HudWidgets.Panel(play, "Hole Panel", new Vector2(0, 1), new Vector2(0, 1), new Vector2(28, -24), new Vector2(360, 170), cream);
-            HudWidgets.Border(tl, Palette.PaleBorder);
-            _hole = HudWidgets.Label(tl.transform, "Hole", 34, ink, TextAnchor.UpperLeft, new Vector2(0, 1), new Vector2(1, 1), new Vector2(18, -58), new Vector2(-12, -10), FontStyle.Bold);
-            _stroke = HudWidgets.Label(tl.transform, "Stroke", 24, ink, TextAnchor.UpperLeft, new Vector2(0, 1), new Vector2(1, 1), new Vector2(18, -92), new Vector2(-12, -60));
-            _distance = HudWidgets.Label(tl.transform, "Distance", 24, ink, TextAnchor.UpperLeft, new Vector2(0, 1), new Vector2(1, 1), new Vector2(18, -124), new Vector2(-12, -92));
-            _assist = HudWidgets.Label(tl.transform, "Assist", 18, Palette.CyanOnLight, TextAnchor.UpperLeft, new Vector2(0, 1), new Vector2(1, 1), new Vector2(18, -158), new Vector2(-12, -128), FontStyle.Bold);
-
-            RectTransform roster = HudWidgets.Rect(play, "Roster", new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -24), new Vector2(RosterSlots * 176, 86));
+            const float chipW = 118, gap = 6;
+            RectTransform roster = HudWidgets.Rect(top, "Roster", new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -Margin), new Vector2(RosterSlots * (chipW + gap), 34));
             for (int i = 0; i < RosterSlots; i++)
             {
-                Image chip = HudWidgets.Panel(roster, $"Chip {i + 1}", new Vector2(0, 1), new Vector2(0, 1), new Vector2(i * 176, 0), new Vector2(168, 86), cream);
+                Image chip = HudWidgets.Panel(roster, $"Chip {i + 1}", new Vector2(0, 1), new Vector2(0, 1), new Vector2(i * (chipW + gap), 0), new Vector2(chipW, 34), Chip);
                 _chipBg[i] = chip;
-                _chipBar[i] = HudWidgets.Panel(chip.transform, "Identity", new Vector2(0, 0.5f), new Vector2(0, 0.5f), Vector2.zero, new Vector2(8, 86), Color.gray);
-                _chipName[i] = HudWidgets.Label(chip.transform, "Name", 24, ink, TextAnchor.UpperLeft, Vector2.zero, Vector2.one, new Vector2(18, 38), new Vector2(-6, -8), FontStyle.Bold);
-                _chipInfo[i] = HudWidgets.Label(chip.transform, "Info", 18, Palette.MutedGreenGray, TextAnchor.LowerLeft, Vector2.zero, Vector2.one, new Vector2(18, 8), new Vector2(-6, -44));
+                _chipBar[i] = HudWidgets.Panel(chip.transform, "Identity", new Vector2(0, 0.5f), new Vector2(0, 0.5f), Vector2.zero, new Vector2(5, 34), Color.gray);
+                _chipText[i] = HudWidgets.FullLabel(chip.transform, "Text", 17, Palette.Cream, TextAnchor.MiddleLeft, 0);
+                _chipText[i].rectTransform.offsetMin = new Vector2(12, 0);
             }
 
-            Image wind = HudWidgets.Panel(play, "Wind", new Vector2(1, 1), new Vector2(1, 1), new Vector2(-28, -24), new Vector2(210, 120), cream);
-            HudWidgets.Border(wind, Palette.PaleBorder);
-            HudWidgets.Label(wind.transform, "Wind Label", 18, Palette.MutedGreenGray, TextAnchor.UpperLeft, Vector2.zero, Vector2.one, new Vector2(16, 0), new Vector2(-8, -10), FontStyle.Bold).text = "WIND";
-            _windValue = HudWidgets.Label(wind.transform, "Wind Value", 30, ink, TextAnchor.LowerLeft, Vector2.zero, Vector2.one, new Vector2(16, 14), new Vector2(-70, -40), FontStyle.Bold);
-            Text arrow = HudWidgets.Label(wind.transform, "Wind Arrow", 56, Palette.CyanOnLight, TextAnchor.MiddleCenter, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-70, -34), new Vector2(-6, 30), FontStyle.Bold);
+            Image wind = HudWidgets.Panel(top, "Wind", new Vector2(1, 1), new Vector2(1, 1), new Vector2(-Margin, -Margin), new Vector2(120, 34), Chip);
+            _wind = HudWidgets.Label(wind.transform, "Value", 17, Palette.Cream, TextAnchor.MiddleLeft, Vector2.zero, Vector2.one, new Vector2(34, 0), new Vector2(-6, 0), FontStyle.Bold);
+            Text arrow = HudWidgets.Label(wind.transform, "Arrow", 24, Palette.Cyan, TextAnchor.MiddleCenter, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(4, -15), new Vector2(32, 15), FontStyle.Bold);
             arrow.text = "\u2191";
             _windArrow = arrow.rectTransform;
 
-            Image club = HudWidgets.Panel(play, "Club Panel", new Vector2(0, 0), new Vector2(0, 0), new Vector2(28, 28), new Vector2(330, 150), charcoal);
-            _clubName = HudWidgets.Label(club.transform, "Club", 34, Palette.Cream, TextAnchor.UpperLeft, Vector2.zero, Vector2.one, new Vector2(18, 70), new Vector2(-10, -12), FontStyle.Bold);
-            _clubRange = HudWidgets.Label(club.transform, "Range", 20, Palette.Cyan, TextAnchor.UpperLeft, Vector2.zero, Vector2.one, new Vector2(18, 40), new Vector2(-10, -60));
-            _lie = HudWidgets.Label(club.transform, "Lie", 22, Palette.Cream, TextAnchor.LowerLeft, Vector2.zero, Vector2.one, new Vector2(18, 12), new Vector2(-10, -96));
+            Image club = HudWidgets.Panel(bottom, "Club", new Vector2(0, 0), new Vector2(0, 0), new Vector2(Margin, Margin), new Vector2(210, 52), Chip);
+            _club = HudWidgets.Label(club.transform, "Club", 20, Palette.Cream, TextAnchor.UpperLeft, Vector2.zero, Vector2.one, new Vector2(12, 0), new Vector2(-8, -5), FontStyle.Bold);
+            _lie = HudWidgets.Label(club.transform, "Lie", 15, Palette.PaleBorder, TextAnchor.LowerLeft, Vector2.zero, Vector2.one, new Vector2(12, 5), new Vector2(-8, 0));
 
-            float stripWidth = 1920 * 0.52f;
-            RectTransform lanes = HudWidgets.Rect(play, "Lanes", new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(-40, 64), new Vector2(stripWidth, 64));
-            float cell = stripWidth / LaneMapper.LaneCount;
+            RectTransform lanes = HudWidgets.Rect(bottom, "Lanes", new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, Margin), new Vector2(StripWidth, StripHeight));
+            float cell = StripWidth / LaneMapper.LaneCount;
             for (int i = 0; i < LaneMapper.LaneCount; i++)
             {
-                Image c = HudWidgets.Panel(lanes, $"Lane {i + 1}", new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(i * cell + 2, 0), new Vector2(cell - 4, 60), charcoal);
+                Image c = HudWidgets.Panel(lanes, $"Lane {i + 1}", new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(i * cell + 1, 0), new Vector2(cell - 2, StripHeight), Chip);
                 _laneCells[i] = c;
-                _laneText[i] = HudWidgets.FullLabel(c.transform, "Number", 24, Palette.Cream, TextAnchor.MiddleCenter, 0, FontStyle.Bold);
+                _laneText[i] = HudWidgets.FullLabel(c.transform, "Number", 14, Palette.Cream, TextAnchor.MiddleCenter, 0);
                 _laneText[i].text = (i + 1).ToString();
             }
-            _laneCaption = HudWidgets.Label(play, "Lane Caption", 20, Palette.Cream, TextAnchor.LowerCenter, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(-stripWidth / 2 - 40, 132), new Vector2(stripWidth / 2 - 40, 170), FontStyle.Bold);
-            _laneCaption.gameObject.AddComponent<Shadow>().effectColor = Palette.Ink.WithAlpha(0.8f);
 
-            Image power = HudWidgets.Panel(play, "Power Panel", new Vector2(1, 0), new Vector2(1, 0), new Vector2(-28, 28), new Vector2(300, 190), charcoal);
-            HudWidgets.Label(power.transform, "Power Label", 18, Palette.PaleBorder, TextAnchor.UpperLeft, Vector2.zero, Vector2.one, new Vector2(18, 0), new Vector2(-10, -12), FontStyle.Bold).text = "POWER";
-            _powerValue = HudWidgets.Label(power.transform, "Power Value", 44, Palette.Cream, TextAnchor.UpperRight, Vector2.zero, Vector2.one, new Vector2(18, 0), new Vector2(-18, -6), FontStyle.Bold);
-            Image track = HudWidgets.Panel(power.transform, "Meter Track", new Vector2(0, 1), new Vector2(0, 1), new Vector2(18, -70), new Vector2(264, 26), Palette.MutedGreenGray);
-            Image fill = HudWidgets.Panel(track.transform, "Meter Fill", new Vector2(0, 0.5f), new Vector2(0, 0.5f), Vector2.zero, new Vector2(0, 26), Palette.Cyan);
-            _powerFill = fill.rectTransform;
-            _statusBg = HudWidgets.Panel(power.transform, "Status", new Vector2(0, 0), new Vector2(0, 0), new Vector2(18, 16), new Vector2(264, 70), Palette.MutedGreenGray);
-            _status = HudWidgets.FullLabel(_statusBg.transform, "Status Text", 30, Palette.Cream, TextAnchor.MiddleCenter, 4, FontStyle.Bold);
+            Image power = HudWidgets.Panel(bottom, "Power", new Vector2(1, 0), new Vector2(1, 0), new Vector2(-Margin, Margin), new Vector2(210, 52), Chip);
+            _powerValue = HudWidgets.Label(power.transform, "Value", 20, Palette.Cream, TextAnchor.UpperRight, Vector2.zero, Vector2.one, new Vector2(8, 0), new Vector2(-10, -5), FontStyle.Bold);
+            _statusBg = HudWidgets.Panel(power.transform, "Status", new Vector2(0, 1), new Vector2(0, 1), new Vector2(8, -6), new Vector2(122, 22), Palette.MutedGreenGray);
+            _status = HudWidgets.FullLabel(_statusBg.transform, "Text", 13, Palette.Cream, TextAnchor.MiddleCenter, 0, FontStyle.Bold);
+            Image track = HudWidgets.Panel(power.transform, "Track", new Vector2(0, 0), new Vector2(0, 0), new Vector2(8, 8), new Vector2(194, 8), Palette.MutedGreenGray);
+            _powerFill = HudWidgets.Panel(track.transform, "Fill", new Vector2(0, 0.5f), new Vector2(0, 0.5f), Vector2.zero, new Vector2(0, 8), Palette.Cyan).rectTransform;
 
-            _banner = HudWidgets.Panel(root, "Banner", new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -124), new Vector2(900, 54), Palette.Warning).gameObject;
-            _bannerText = HudWidgets.FullLabel(_banner.transform, "Banner Text", 24, Palette.Ink, TextAnchor.MiddleCenter, 6, FontStyle.Bold);
+            _banner = HudWidgets.Panel(root, "Banner", new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -64), new Vector2(620, 32), Palette.Warning.WithAlpha(0.92f)).gameObject;
+            _bannerText = HudWidgets.FullLabel(_banner.transform, "Text", 16, Palette.Ink, TextAnchor.MiddleCenter, 4, FontStyle.Bold);
 
-            Image card = HudWidgets.Panel(root, "Card", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 30), new Vector2(860, 480), cream);
-            HudWidgets.Border(card, Palette.PaleBorder, 3);
+            Image card = HudWidgets.Panel(root, "Card", new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 150), new Vector2(560, 120), Palette.Ink.WithAlpha(0.78f));
             _card = card.gameObject;
-            _cardTitle = HudWidgets.Label(card.transform, "Title", 54, ink, TextAnchor.UpperCenter, new Vector2(0, 1), new Vector2(1, 1), new Vector2(30, -110), new Vector2(-30, -24), FontStyle.Bold);
-            _cardBody = HudWidgets.Label(card.transform, "Body", 26, ink, TextAnchor.UpperCenter, Vector2.zero, Vector2.one, new Vector2(40, 80), new Vector2(-40, -120));
-            _cardFooter = HudWidgets.Label(card.transform, "Footer", 24, Palette.CyanOnLight, TextAnchor.LowerCenter, Vector2.zero, new Vector2(1, 0), new Vector2(30, 20), new Vector2(-30, 70), FontStyle.Bold);
+            _cardTitle = HudWidgets.Label(card.transform, "Title", 28, Palette.Cream, TextAnchor.UpperCenter, new Vector2(0, 1), new Vector2(1, 1), new Vector2(16, -46), new Vector2(-16, -10), FontStyle.Bold);
+            _cardBody = HudWidgets.Label(card.transform, "Body", 17, Palette.Cream, TextAnchor.UpperCenter, Vector2.zero, Vector2.one, new Vector2(16, 26), new Vector2(-16, -50));
+            _cardFooter = HudWidgets.Label(card.transform, "Footer", 13, Palette.Cyan, TextAnchor.LowerCenter, Vector2.zero, new Vector2(1, 0), new Vector2(16, 8), new Vector2(-16, 26), FontStyle.Bold);
 
-            Image sc = HudWidgets.Panel(root, "Scorecard", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1500, 520), cream);
+            Image sc = HudWidgets.Panel(root, "Scorecard", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(1500, 520), Palette.Cream.WithAlpha(0.96f));
             HudWidgets.Border(sc, Palette.PaleBorder, 3);
             _scorecard = sc.gameObject;
-            HudWidgets.Label(sc.transform, "Title", 40, ink, TextAnchor.UpperLeft, new Vector2(0, 1), new Vector2(1, 1), new Vector2(30, -70), new Vector2(-30, -16), FontStyle.Bold).text = "SCORECARD";
+            HudWidgets.Label(sc.transform, "Title", 32, Palette.Ink, TextAnchor.UpperLeft, new Vector2(0, 1), new Vector2(1, 1), new Vector2(30, -64), new Vector2(-30, -16), FontStyle.Bold).text = "SCORECARD";
             _scoreGrid = HudWidgets.Rect(sc.transform, "Grid", Vector2.zero, Vector2.one, new Vector2(0, 1), Vector2.zero, Vector2.zero);
             ((RectTransform)_scoreGrid).offsetMin = new Vector2(30, 30);
-            ((RectTransform)_scoreGrid).offsetMax = new Vector2(-30, -90);
+            ((RectTransform)_scoreGrid).offsetMax = new Vector2(-30, -80);
             _scorecard.SetActive(false);
 
-            _hints = HudWidgets.Label(root, "Hints", 18, Palette.Cream, TextAnchor.LowerCenter, new Vector2(0, 0), new Vector2(1, 0), new Vector2(360, 4), new Vector2(-360, 28));
-            _hints.gameObject.AddComponent<Shadow>().effectColor = Palette.Ink.WithAlpha(0.9f);
+            _hints = Shadowed(HudWidgets.Label(root, "Hints", 14, Palette.Cream.WithAlpha(0.7f), TextAnchor.LowerCenter, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(-StripWidth / 2, Margin + StripHeight + 4), new Vector2(StripWidth / 2, Margin + StripHeight + 24)));
         }
 
         public void Render(HudContext ctx)
@@ -165,18 +166,22 @@ namespace Puttshack.Runtime.Hud
             SessionSnapshot snap = ctx.Snapshot;
             SessionState state = snap.EffectiveState;
             bool inPlay = state >= SessionState.BRIEFING && state <= SessionState.HOLE_COMPLETE && state != SessionState.TUTORIAL;
-            _playHud.SetActive(inPlay);
+
+            bool cardShown = RenderCard(ctx, snap);
+            bool overlay = cardShown || ctx.ShowScorecard;
+
+            _top.SetActive(inPlay && !ctx.ShowScorecard);
+            _bottom.SetActive(inPlay && !overlay);
+            _hints.gameObject.SetActive(inPlay && !overlay && !string.IsNullOrEmpty(ctx.Hints));
             _hints.text = ctx.Hints ?? string.Empty;
 
-            string banner = snap.State == SessionState.FAULT ? snap.Data.FaultReason
-                : !string.IsNullOrEmpty(snap.Data.FaultReason) ? snap.Data.FaultReason
-                : ctx.Notice;
+            string banner = !string.IsNullOrEmpty(snap.Data.FaultReason) && snap.State != SessionState.FAULT ? snap.Data.FaultReason : ctx.Notice;
             if (string.IsNullOrEmpty(banner) && inPlay && !snap.CabinetReady) banner = snap.CabinetStatus;
-            _banner.SetActive(!string.IsNullOrEmpty(banner));
+            bool showBanner = !overlay && !string.IsNullOrEmpty(banner);
+            _banner.SetActive(showBanner);
             _bannerText.text = banner ?? string.Empty;
 
             if (inPlay) RenderPlay(ctx, snap, state);
-            RenderCard(ctx, snap);
             RenderScorecard(ctx, snap);
         }
 
@@ -188,17 +193,13 @@ namespace Puttshack.Runtime.Hud
             ShotRecord last = snap.LastShot;
             bool showingResult = state == SessionState.SHOT_RESOLVED || state == SessionState.SHOT_PRESENTING || state == SessionState.SHOT_RESULT;
 
-            _hole.text = $"HOLE {hole.Number}  \u00B7  PAR {hole.Par}  \u00B7  {hole.YardageYd} YD";
+            _hole.text = $"HOLE {hole.Number}  \u00B7  PAR {hole.Par}";
             if (progress != null)
             {
                 int stroke = showingResult && last != null ? last.StrokeNumber : ScoreEngine.NextStrokeNumber(progress);
-                _stroke.text = progress.Penalties > 0 ? $"STROKE {stroke}  (incl. {progress.Penalties} penalty)" : $"STROKE {stroke}";
                 double toPin = Vec3d.HorizontalDistance(progress.Ball.Position, hole.CupM);
-                double rise = hole.CupM.y - progress.Ball.Position.y;
-                string elevation = System.Math.Abs(rise) >= 1.0 ? $"  ({(rise > 0 ? "+" : "")}{rise:0} m)" : string.Empty;
-                _distance.text = $"TO PIN  {Units.FormatDistance(toPin)}{elevation}";
+                _stroke.text = $"STROKE {stroke}  \u00B7  {Units.FormatDistance(toPin).ToUpperInvariant()}";
             }
-            _assist.text = $"{AssistanceProfiles.Get(snap.Data.Settings.Assistance).Label} ASSIST  \u00B7  {(snap.Data.Settings.PaceCapEnabled ? $"MAX PAR+{snap.Data.Settings.PaceCapOverPar}" : "NO CAP")}";
 
             for (int i = 0; i < RosterSlots; i++)
             {
@@ -208,30 +209,27 @@ namespace Puttshack.Runtime.Hud
                 PlayerState p = snap.Data.Players[i];
                 HoleProgress hp = snap.ProgressFor(i);
                 bool current = player != null && p.Id == player.Id && state != SessionState.HOLE_COMPLETE;
-                _chipBar[i].color = Palette.Player(p.ColorIndex);
-                _chipBg[i].color = current ? Palette.Player(p.ColorIndex).WithAlpha(0.95f) : Palette.Cream.WithAlpha(0.9f);
-                _chipName[i].color = current ? Color.white : Palette.Ink;
-                _chipInfo[i].color = current ? Color.white : Palette.MutedGreenGray;
-                _chipName[i].text = (current ? "\u25B6 " : "") + p.Name;
-                _chipInfo[i].text = ChipInfo(hp, snap.Scorecard.Count > i ? snap.Scorecard[i] : null);
+                Color identity = Palette.Player(p.ColorIndex);
+                _chipBar[i].color = identity;
+                _chipBg[i].color = current ? identity.WithAlpha(0.9f) : Chip;
+                _chipText[i].fontStyle = current ? FontStyle.Bold : FontStyle.Normal;
+                _chipText[i].text = $"{p.Name}  {ChipScore(hp)}";
             }
 
             Vec3d aim = snap.Data.Arm?.AimForward ?? AimForward(snap);
             Vec3d windH = hole.WindMps.Horizontal;
-            _windValue.text = windH.Length < 0.1 ? "CALM" : $"{Units.MpsToMph(windH.Length):0} MPH";
-            float relative = SignedYawDeg(aim, windH);
-            _windArrow.localRotation = Quaternion.Euler(0, 0, -relative);
+            _wind.text = windH.Length < 0.1 ? "CALM" : $"{Units.MpsToMph(windH.Length):0} MPH";
+            _windArrow.localRotation = Quaternion.Euler(0, 0, -SignedYawDeg(aim, windH));
 
             string clubId = snap.Data.Arm?.ClubId ?? snap.Data.Setup.ClubId;
             if (showingResult && last != null) clubId = last.Intent.ClubId;
             if (clubId != null && ClubCatalog.TryGet(clubId, out ClubDefinition club))
             {
-                _clubName.text = club.DisplayName.ToUpperInvariant();
-                _clubRange.text = club.ShotType == ShotType.Putt
-                    ? $"PUTT SCALE: {snap.Data.Setup.PuttScale.ToString().ToUpperInvariant()} ({Units.MetersToFeet(ClubCatalog.PuttScaleMaxMeters(snap.Data.Setup.PuttScale)):0} ft max)"
-                    : $"{club.RangeLabel}{(club.RangeFromReference ? "" : " (proposed)")}";
+                _club.text = club.ShotType == ShotType.Putt
+                    ? $"PUTTER  \u00B7  {snap.Data.Setup.PuttScale.ToString().ToUpperInvariant()}"
+                    : club.DisplayName.ToUpperInvariant();
             }
-            if (progress != null) _lie.text = $"LIE  {SurfaceCatalog.Get(progress.Ball.Lie).DisplayName.ToUpperInvariant()}";
+            if (progress != null) _lie.text = SurfaceCatalog.Get(progress.Ball.Lie).DisplayName;
 
             int detected = 0;
             if (showingResult && last != null) detected = last.Intent.Lane;
@@ -240,14 +238,10 @@ namespace Puttshack.Runtime.Hud
             {
                 int lane = i + 1;
                 bool isDetected = lane == detected;
-                bool centerBand = lane == 10 || lane == 11;
-                _laneCells[i].color = isDetected ? Palette.Cyan : centerBand ? Palette.MutedGreenGray.WithAlpha(0.95f) : Palette.Ink.WithAlpha(0.8f);
-                _laneText[i].color = isDetected ? Palette.Ink : Palette.Cream;
+                bool center = lane == 10 || lane == 11;
+                _laneCells[i].color = isDetected ? Palette.Cyan : center ? Palette.MutedGreenGray.WithAlpha(0.8f) : Chip;
+                _laneText[i].color = isDetected ? Palette.Ink : Palette.Cream.WithAlpha(center ? 1f : 0.75f);
             }
-            _laneCaption.text = detected > 0
-                ? $"DETECTED LANE {detected}"
-                : state == SessionState.SHOT_ARMED ? "PUTT INTO A TARGET HOLE 1-20: THE HOLE SETS DIRECTION, ARRIVAL LOCKS POWER"
-                : "LANES 1-20: 10 AND 11 ARE STRAIGHT DOWN THE AIM LINE";
 
             double power;
             string status;
@@ -261,7 +255,7 @@ namespace Puttshack.Runtime.Hud
                     break;
                 case SessionState.ARMING:
                     power = 0;
-                    status = "WAITING...";
+                    status = "WAIT";
                     statusColor = Palette.MutedGreenGray;
                     break;
                 case SessionState.SHOT_RESERVED:
@@ -279,165 +273,131 @@ namespace Puttshack.Runtime.Hud
                     break;
                 default:
                     power = snap.Data.Settings.PreviewPower;
-                    status = snap.CabinetReady ? "SET UP" : "RECONNECTING";
+                    status = "SET UP";
                     statusColor = Palette.MutedGreenGray;
                     break;
             }
-            if (!snap.CabinetReady && (state == SessionState.SHOT_ARMED || state == SessionState.ARMING))
+            if (!snap.CabinetReady && (state == SessionState.SHOT_ARMED || state == SessionState.ARMING || state == SessionState.SHOT_SETUP))
             {
-                status = "RECONNECTING";
+                status = "OFFLINE";
                 statusColor = Palette.Danger;
             }
-            _powerFill.sizeDelta = new Vector2(264f * (float)power, 26);
-            _powerValue.text = state == SessionState.SHOT_SETUP ? $"{MeterWaveform.DisplayPercent(power)}% preview" : $"{MeterWaveform.DisplayPercent(power)}%";
-            _powerValue.fontSize = state == SessionState.SHOT_SETUP ? 30 : 44;
+            _powerFill.sizeDelta = new Vector2(194f * (float)power, 8);
+            _powerValue.text = $"{MeterWaveform.DisplayPercent(power)}%";
             _status.text = status;
             _statusBg.color = statusColor;
         }
 
-        private static string ChipInfo(HoleProgress hp, ScorecardRow row)
+        private static string ChipScore(HoleProgress hp)
         {
-            string total = row != null && row.Thru > 0 ? $"  \u00B7  {row.ToParDisplay}" : string.Empty;
-            if (hp == null) return total;
+            if (hp == null) return string.Empty;
             switch (hp.Status)
             {
-                case HoleStatus.HOLED: return $"\u2713 HOLED {hp.CompletionScore}{total}";
-                case HoleStatus.CAPPED: return $"MAX {hp.CompletionScore}{total}";
-                case HoleStatus.WITHDRAWN: return "WITHDRAWN";
-                default: return $"{hp.StrokesSoFar} so far{total}";
+                case HoleStatus.HOLED: return $"\u2713{hp.CompletionScore}";
+                case HoleStatus.CAPPED: return $"{hp.CompletionScore}M";
+                case HoleStatus.WITHDRAWN: return "WD";
+                default: return hp.StrokesSoFar.ToString();
             }
         }
 
-        private void RenderCard(HudContext ctx, SessionSnapshot snap)
+        /// <summary>Returns true when a card is visible. Cards are one or two short lines.</summary>
+        private bool RenderCard(HudContext ctx, SessionSnapshot snap)
         {
-            string title = null, body = null, footer = null;
-            SessionState state = snap.State;
+            string title = null, body = null, footer = "ENTER";
             HoleDefinition hole = snap.Hole;
             ShotRecord last = snap.LastShot;
 
-            switch (state)
+            switch (snap.State)
             {
                 case SessionState.ATTRACT:
                     title = "PUTTSHACK PRO";
-                    body = $"18-hole golf for 1-6 players.\n\n{snap.Course.Name}\n\nPutt into a numbered target hole to choose direction.\nThe moment your ball arrives locks the power meter.";
-                    footer = "PRESS ENTER TO START";
+                    body = "1-6 players  \u00B7  18 holes";
+                    footer = "PRESS ENTER";
                     break;
                 case SessionState.LOBBY:
                 {
-                    title = "PLAYERS";
-                    var sb = new StringBuilder();
-                    foreach (PlayerState p in snap.Data.Players) sb.Append($"{p.RosterIndex + 1}.  {p.Name}\n");
-                    sb.Append($"\nAssistance: {AssistanceProfiles.Get(ctx.LobbyAssistance).Label}");
-                    sb.Append($"\nFormat: modified stroke play, lowest total wins.");
-                    sb.Append($"\nPenalties: water +1 (drop), out of bounds +1 (replay).");
-                    sb.Append(ctx.LobbyPaceCap ? $"\nPace cap: par + {snap.Data.Settings.PaceCapOverPar}, shown as MAX." : "\nPace cap: off.");
-                    body = sb.ToString();
-                    footer = "UP/DOWN PLAYERS  \u00B7  LEFT/RIGHT ASSIST  \u00B7  C CAP  \u00B7  ENTER CONFIRM";
+                    var names = new List<string>();
+                    foreach (PlayerState p in snap.Data.Players) names.Add(p.Name);
+                    title = string.Join("  \u00B7  ", names);
+                    body = $"{AssistanceProfiles.Get(ctx.LobbyAssistance).Label} assist  \u00B7  {(ctx.LobbyPaceCap ? $"max par+{snap.Data.Settings.PaceCapOverPar}" : "no cap")}";
+                    footer = "\u2191\u2193 PLAYERS   \u2190\u2192 ASSIST   C CAP   ENTER START";
                     break;
                 }
-                case SessionState.HOLE_LOAD:
-                    title = $"HOLE {hole.Number}";
-                    body = "Loading...";
-                    break;
                 case SessionState.BRIEFING:
-                    title = $"HOLE {hole.Number}  \u00B7  {hole.Name.ToUpperInvariant()}";
-                    body = $"PAR {hole.Par}  \u00B7  {hole.YardageYd} YARDS\n\n{hole.Briefing.Hazard}\n\n{hole.Briefing.SafePlan}\n\nSuggested club: {ClubCatalog.Get(hole.Briefing.SuggestedClubId ?? "iron7").DisplayName}";
-                    footer = "PRESS ENTER WHEN READY";
+                    title = $"HOLE {hole.Number}  \u00B7  PAR {hole.Par}  \u00B7  {hole.YardageYd} YD";
+                    body = hole.Briefing.Hazard;
                     break;
                 case SessionState.SHOT_RESULT:
-                    if (last?.Result != null) ResultCard(snap, last, out title, out body, out footer);
+                    if (last?.Result != null) ResultCard(snap, last, out title, out body);
                     break;
                 case SessionState.HANDOFF:
                 {
-                    PlayerState p = snap.CurrentPlayer;
                     HoleProgress hp = snap.CurrentProgress;
-                    title = $"{p.Name.ToUpperInvariant()}, YOU'RE UP";
-                    body = $"Stroke {ScoreEngine.NextStrokeNumber(hp)}  \u00B7  {Units.FormatDistance(Vec3d.HorizontalDistance(hp.Ball.Position, hole.CupM))} to the pin\nLie: {SurfaceCatalog.Get(hp.Ball.Lie).DisplayName}";
-                    footer = "PRESS ENTER WHEN READY";
+                    title = $"{snap.CurrentPlayer.Name.ToUpperInvariant()}  \u00B7  STROKE {ScoreEngine.NextStrokeNumber(hp)}";
+                    body = $"{Units.FormatDistance(Vec3d.HorizontalDistance(hp.Ball.Position, hole.CupM))}  \u00B7  {SurfaceCatalog.Get(hp.Ball.Lie).DisplayName}";
                     break;
                 }
                 case SessionState.HOLE_COMPLETE:
                 {
                     title = $"HOLE {hole.Number} COMPLETE";
-                    var sb = new StringBuilder();
+                    var parts = new List<string>();
                     for (int i = 0; i < snap.Data.Players.Count; i++)
-                    {
-                        PlayerState p = snap.Data.Players[i];
-                        HoleProgress hp = snap.ProgressFor(i);
-                        sb.Append($"{p.Name}:  {HoleSummary(hp, hole.Par)}\n");
-                    }
-                    body = sb.ToString();
-                    footer = snap.Data.HoleIndex + 1 < snap.Data.HoleCount ? "PRESS ENTER FOR THE NEXT HOLE" : "PRESS ENTER FOR RESULTS";
+                        parts.Add($"{snap.Data.Players[i].Name} {ChipScore(snap.ProgressFor(i)).TrimStart('\u2713')}");
+                    body = string.Join("  \u00B7  ", parts);
                     break;
                 }
                 case SessionState.ROUND_COMPLETE:
-                    title = snap.Data.Completion == RoundCompletion.Incomplete ? "ROUND ENDED (INCOMPLETE)" : "ROUND RESULTS";
+                    title = snap.Data.Completion == RoundCompletion.Incomplete ? "ROUND ENDED" : "FINAL";
                     body = Standings(snap);
-                    footer = "PRESS ENTER TO RETURN";
                     break;
                 case SessionState.PAUSED:
                     title = "PAUSED";
-                    body = "Your round is saved.";
-                    footer = "ENTER RESUME  \u00B7  E END ROUND";
+                    body = "Round saved";
+                    footer = "ENTER RESUME   E END ROUND";
                     break;
                 case SessionState.FAULT:
                     title = "PLEASE WAIT";
                     body = snap.Data.FaultReason;
-                    footer = "STAFF: ENTER TO RETRY";
+                    footer = "STAFF: ENTER";
                     break;
             }
 
             bool show = title != null && !ctx.ShowScorecard;
             _card.SetActive(show);
-            if (!show) return;
+            if (!show) return false;
             _cardTitle.text = title;
             _cardBody.text = body ?? string.Empty;
             _cardFooter.text = footer ?? string.Empty;
+            int lines = string.IsNullOrEmpty(body) ? 0 : body.Split('\n').Length;
+            ((RectTransform)_card.transform).sizeDelta = new Vector2(560, 96 + 22 * Mathf.Max(1, lines));
+            return true;
         }
 
-        private static void ResultCard(SessionSnapshot snap, ShotRecord last, out string title, out string body, out string footer)
+        private static void ResultCard(SessionSnapshot snap, ShotRecord last, out string title, out string body)
         {
             ShotResult r = last.Result;
             HoleDefinition hole = snap.Hole;
-            PlayerState shooter = snap.Data.Players.Find(p => p.Id == last.PlayerId);
             switch (r.Outcome)
             {
-                case ShotOutcome.Holed: title = last.StrokeNumber == 1 ? "HOLE IN ONE!" : "IN THE HOLE"; break;
-                case ShotOutcome.Water: title = "WATER"; break;
-                case ShotOutcome.OutOfBounds: title = "OUT OF BOUNDS"; break;
-                case ShotOutcome.SolverFault: title = "MACHINE RETRY NEEDED"; break;
+                case ShotOutcome.Holed: title = last.StrokeNumber == 1 ? "HOLE IN ONE!" : $"HOLED  \u00B7  {ToParWord(last.ScoreSoFarAfter - hole.Par).ToUpperInvariant()}"; break;
+                case ShotOutcome.Water: title = "WATER  \u00B7  +1"; break;
+                case ShotOutcome.OutOfBounds: title = "OUT OF BOUNDS  \u00B7  +1"; break;
+                case ShotOutcome.SolverFault: title = "RETRY NEEDED"; break;
                 default: title = SurfaceCatalog.Get(r.FinalLie).DisplayName.ToUpperInvariant(); break;
             }
 
-            var sb = new StringBuilder();
-            sb.Append($"{shooter?.Name}  \u00B7  stroke {last.StrokeNumber}  \u00B7  {ClubCatalog.Get(last.Intent.ClubId).DisplayName}\n");
-            sb.Append($"Input: lane {last.Intent.Lane}  \u00B7  power {MeterWaveform.DisplayPercent(last.Intent.Power01)}%\n\n");
-            if (last.Intent.ShotType == ShotType.Putt)
-                sb.Append($"Roll {Units.FormatDistance(r.RollM)}\n");
-            else
-                sb.Append($"Carry {Units.MetersToYards(r.CarryM):0} yd  \u00B7  Roll {Units.MetersToYards(r.RollM):0} yd  \u00B7  Total {Units.MetersToYards(r.TotalM):0} yd\n");
-
-            if (last.Penalty != null) sb.Append($"\n{last.Penalty.Explanation}\n");
-            if (last.HoleStatusAfter == HoleStatus.HOLED) sb.Append($"\nHoled in {last.ScoreSoFarAfter} ({ToParWord(last.ScoreSoFarAfter - hole.Par)}).");
-            else if (last.HoleStatusAfter == HoleStatus.CAPPED) sb.Append($"\nPace cap reached: scored MAX {last.ScoreSoFarAfter}.");
+            string distance = last.Intent.ShotType == ShotType.Putt
+                ? Units.FormatDistance(r.TotalM)
+                : $"{Units.MetersToYards(r.CarryM):0} carry  \u00B7  {Units.MetersToYards(r.RollM):0} roll";
+            if (last.HoleStatusAfter == HoleStatus.CAPPED) body = $"{distance}  \u00B7  MAX {last.ScoreSoFarAfter}";
+            else if (last.HoleStatusAfter == HoleStatus.HOLED) body = distance;
             else
             {
-                HoleProgress hp = snap.Data.ProgressFor(snap.Data.Players.FindIndex(p => p.Id == last.PlayerId), snap.Data.HoleIndex);
-                sb.Append($"\n{Units.FormatDistance(Vec3d.HorizontalDistance(hp.Ball.Position, hole.CupM))} to the pin  \u00B7  score so far {hp.StrokesSoFar}");
+                int roster = snap.Data.Players.FindIndex(p => p.Id == last.PlayerId);
+                HoleProgress hp = snap.Data.ProgressFor(roster, snap.Data.HoleIndex);
+                body = $"{distance}  \u00B7  {Units.FormatDistance(Vec3d.HorizontalDistance(hp.Ball.Position, hole.CupM))} to pin";
             }
-            body = sb.ToString();
-            footer = "PRESS ENTER TO CONTINUE";
-        }
-
-        private static string HoleSummary(HoleProgress hp, int par)
-        {
-            switch (hp.Status)
-            {
-                case HoleStatus.HOLED: return $"{hp.CompletionScore}  ({ToParWord(hp.CompletionScore.Value - par)})";
-                case HoleStatus.CAPPED: return $"MAX {hp.CompletionScore}  (raw {hp.StrokesSoFar})";
-                case HoleStatus.WITHDRAWN: return "withdrawn";
-                default: return $"in progress ({hp.StrokesSoFar})";
-            }
+            if (last.Penalty != null) body += last.Penalty.Type == PenaltyType.Water && !last.Penalty.UsedFallback ? "\nDrop taken" : "\nReplay from previous spot";
         }
 
         private static string ToParWord(int diff)
@@ -469,8 +429,8 @@ namespace Puttshack.Runtime.Hud
                 bool tied = i > 0 && rows[i].Thru == rows[i - 1].Thru && rows[i].CompletedTotal == rows[i - 1].CompletedTotal;
                 if (!tied) rank = i + 1;
                 ScorecardRow r = rows[i];
-                string complete = r.Thru < snap.Data.HoleCount ? $"  (thru {r.Thru}, incomplete)" : string.Empty;
-                sb.Append($"{(tied ? "T" : "")}{rank}.  {r.Name}   {r.CompletedTotal}   {r.ToParDisplay}{complete}\n");
+                if (i > 0) sb.Append('\n');
+                sb.Append($"{(tied ? "T" : "")}{rank}. {r.Name}  {r.CompletedTotal} ({r.ToParDisplay}){(r.Thru < snap.Data.HoleCount ? $" thru {r.Thru}" : "")}");
             }
             return sb.ToString();
         }
@@ -485,7 +445,7 @@ namespace Puttshack.Runtime.Hud
 
             List<int> pars = snap.Course.Pars;
             var columns = new List<string> { "PLAYER" };
-            for (int h = 0; h < pars.Count; h++) columns.Add((snap.Course.Holes[h].Number).ToString());
+            for (int h = 0; h < pars.Count; h++) columns.Add(snap.Course.Holes[h].Number.ToString());
             columns.Add("OUT");
             columns.Add("IN");
             columns.Add("TOTAL");
@@ -494,7 +454,7 @@ namespace Puttshack.Runtime.Hud
 
             float nameWidth = 260;
             float colWidth = Mathf.Min(120, (1440 - nameWidth) / (columns.Count - 1));
-            float rowHeight = 52;
+            float rowHeight = 50;
 
             AddRow(0, rowHeight, nameWidth, colWidth, columns, Palette.Ink, FontStyle.Bold);
             var parRow = new List<string> { "PAR" };
@@ -519,8 +479,8 @@ namespace Puttshack.Runtime.Hud
                 cells.Add(row.Thru.ToString());
                 AddRow(r + 2, rowHeight, nameWidth, colWidth, cells, Palette.Ink, FontStyle.Normal);
             }
-            Text legend = HudWidgets.Label(_scoreGrid, "Legend", 18, Palette.MutedGreenGray, TextAnchor.LowerLeft, Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 26));
-            legend.text = "* in progress (not in totals)   M = pace cap (MAX)   totals count completed holes only";
+            Text legend = HudWidgets.Label(_scoreGrid, "Legend", 16, Palette.MutedGreenGray, TextAnchor.LowerLeft, Vector2.zero, new Vector2(1, 0), Vector2.zero, new Vector2(0, 24));
+            legend.text = "* in progress   M = MAX (pace cap)";
         }
 
         private static string SubtotalText(Subtotal s)
@@ -536,7 +496,7 @@ namespace Puttshack.Runtime.Hud
             {
                 float x = c == 0 ? 0 : nameWidth + (c - 1) * colWidth;
                 float w = c == 0 ? nameWidth : colWidth;
-                Text t = HudWidgets.Label(_scoreGrid, $"R{index}C{c}", 26, color, c == 0 ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter,
+                Text t = HudWidgets.Label(_scoreGrid, $"R{index}C{c}", 24, color, c == 0 ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter,
                     new Vector2(0, 1), new Vector2(0, 1), new Vector2(x, -(index + 1) * height), new Vector2(x + w, -index * height), style);
                 t.text = cells[c];
             }
@@ -554,9 +514,7 @@ namespace Puttshack.Runtime.Hud
         private static float SignedYawDeg(Vec3d aim, Vec3d wind)
         {
             if (wind.Length < 1e-6) return 0;
-            double aimAngle = System.Math.Atan2(aim.x, aim.z);
-            double windAngle = System.Math.Atan2(wind.x, wind.z);
-            double d = windAngle - aimAngle;
+            double d = System.Math.Atan2(wind.x, wind.z) - System.Math.Atan2(aim.x, aim.z);
             while (d > System.Math.PI) d -= 2 * System.Math.PI;
             while (d < -System.Math.PI) d += 2 * System.Math.PI;
             return (float)(d * 180.0 / System.Math.PI);
