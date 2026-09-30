@@ -119,6 +119,285 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1001 &281998630
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 920075076}
+    m_Modifications:
+    - target: {fileID: 8495160405857827332, guid: ab828fe2f56ea4f619ef079ad85839a3, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8495160405857827332, guid: ab828fe2f56ea4f619ef079ad85839a3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8495160405857827332, guid: ab828fe2f56ea4f619ef079ad85839a3, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8495160405857827332, guid: ab828fe2f56ea4f619ef079ad85839a3, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8495160405857827332, guid: ab828fe2f56ea4f619ef079ad85839a3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8495160405857827332, guid: ab828fe2f56ea4f619ef079ad85839a3, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8495160405857827332, guid: ab828fe2f56ea4f619ef079ad85839a3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8495160405857827332, guid: ab828fe2f56ea4f619ef079ad85839a3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8495160405857827332, guid: ab828fe2f56ea4f619ef079ad85839a3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8495160405857827332, guid: ab828fe2f56ea4f619ef079ad85839a3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9128532345659203774, guid: ab828fe2f56ea4f619ef079ad85839a3, type: 3}
+      propertyPath: m_Name
+      value: GolfBag_Tour
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: ab828fe2f56ea4f619ef079ad85839a3, type: 3}
+--- !u!114 &281998631 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2451493923342869544, guid: ab828fe2f56ea4f619ef079ad85839a3, type: 3}
+  m_PrefabInstance: {fileID: 281998630}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2bb65b5a97f342c2b9445f0669c7d39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Puttshack.Runtime::Puttshack.Runtime.Shop.BagAppearance
+--- !u!4 &281998632 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8495160405857827332, guid: ab828fe2f56ea4f619ef079ad85839a3, type: 3}
+  m_PrefabInstance: {fileID: 281998630}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &342735568
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 342735570}
+  - component: {fileID: 342735569}
+  m_Layer: 0
+  m_Name: Course Golfer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &342735569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 342735568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39de19d7013ec4c7e89935827381ef6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Puttshack.Runtime::Puttshack.Runtime.Shop.CourseGolfer
+  Appearance: {fileID: 1945762124}
+  Bag: {fileID: 920075075}
+  AddressOffset: 0.75
+  BagOffset: {x: 1.1, y: 0.9}
+--- !u!4 &342735570
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 342735568}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1945762125}
+  - {fileID: 920075076}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &666938132
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 920075076}
+    m_Modifications:
+    - target: {fileID: 5860400792041383528, guid: ad7154a6d260a43dbac81324773b29fa, type: 3}
+      propertyPath: m_Name
+      value: GolfBag_Cart
+      objectReference: {fileID: 0}
+    - target: {fileID: 5860400792041383528, guid: ad7154a6d260a43dbac81324773b29fa, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6494054138034994386, guid: ad7154a6d260a43dbac81324773b29fa, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6494054138034994386, guid: ad7154a6d260a43dbac81324773b29fa, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6494054138034994386, guid: ad7154a6d260a43dbac81324773b29fa, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6494054138034994386, guid: ad7154a6d260a43dbac81324773b29fa, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6494054138034994386, guid: ad7154a6d260a43dbac81324773b29fa, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6494054138034994386, guid: ad7154a6d260a43dbac81324773b29fa, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6494054138034994386, guid: ad7154a6d260a43dbac81324773b29fa, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6494054138034994386, guid: ad7154a6d260a43dbac81324773b29fa, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6494054138034994386, guid: ad7154a6d260a43dbac81324773b29fa, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6494054138034994386, guid: ad7154a6d260a43dbac81324773b29fa, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: ad7154a6d260a43dbac81324773b29fa, type: 3}
+--- !u!4 &666938133 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6494054138034994386, guid: ad7154a6d260a43dbac81324773b29fa, type: 3}
+  m_PrefabInstance: {fileID: 666938132}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &666938134 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1677756659108153710, guid: ad7154a6d260a43dbac81324773b29fa, type: 3}
+  m_PrefabInstance: {fileID: 666938132}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2bb65b5a97f342c2b9445f0669c7d39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Puttshack.Runtime::Puttshack.Runtime.Shop.BagAppearance
+--- !u!1 &754523878
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 754523881}
+  - component: {fileID: 754523880}
+  - component: {fileID: 754523879}
+  m_Layer: 0
+  m_Name: EventSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &754523879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754523878}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.UI.InputSystemUIInputModule
+  m_SendPointerHoverToParent: 1
+  m_MoveRepeatDelay: 0.5
+  m_MoveRepeatRate: 0.1
+  m_XRTrackingOrigin: {fileID: 0}
+  m_ActionsAsset: {fileID: -944628639613478452, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_PointAction: {fileID: -1654692200621890270, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_MoveAction: {fileID: -8784545083839296357, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_SubmitAction: {fileID: 392368643174621059, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_CancelAction: {fileID: 7727032971491509709, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_LeftClickAction: {fileID: 3001919216989983466, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_MiddleClickAction: {fileID: -2185481485913320682, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_RightClickAction: {fileID: -4090225696740746782, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_ScrollWheelAction: {fileID: 6240969308177333660, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_TrackedDevicePositionAction: {fileID: 6564999863303420839, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_TrackedDeviceOrientationAction: {fileID: 7970375526676320489, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_DeselectOnBackgroundClick: 1
+  m_PointerBehavior: 0
+  m_CursorLockBehavior: 0
+  m_ScrollDeltaPerTick: 6
+--- !u!114 &754523880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754523878}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.EventSystem
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 1
+  m_DragThreshold: 10
+--- !u!4 &754523881
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754523878}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &808812928
 GameObject:
   m_ObjectHideFlags: 0
@@ -278,6 +557,59 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1725057608187900220, guid: fdba18a9be4c5425297aacdde9cfc5c3, type: 3}
   m_PrefabInstance: {fileID: 897072149}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &920075074
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 920075076}
+  - component: {fileID: 920075075}
+  m_Layer: 0
+  m_Name: Bag Stand
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &920075075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 920075074}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72e79c8ff966547dca69f4acbdd0ad77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Puttshack.Runtime::Puttshack.Runtime.Shop.BagDisplay
+  Art: {fileID: 11400000, guid: e8f9854f523b54d528b9ddc03dad3746, type: 2}
+  Styles:
+  - {fileID: 666938134}
+  - {fileID: 1744961100}
+  - {fileID: 281998631}
+  Clubs: []
+--- !u!4 &920075076
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 920075074}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 666938133}
+  - {fileID: 1744961099}
+  - {fileID: 281998632}
+  m_Father: {fileID: 342735570}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!115 &976308319
 MonoScript:
   m_ObjectHideFlags: 0
@@ -432,6 +764,140 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1584929491
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4839905800190255303, guid: 70372c862bb5d4ff895aca7e8fb02eb6, type: 3}
+      propertyPath: m_Name
+      value: Pro Shop
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556484444480892142, guid: 70372c862bb5d4ff895aca7e8fb02eb6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 2500
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556484444480892142, guid: 70372c862bb5d4ff895aca7e8fb02eb6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556484444480892142, guid: 70372c862bb5d4ff895aca7e8fb02eb6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556484444480892142, guid: 70372c862bb5d4ff895aca7e8fb02eb6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.25881907
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556484444480892142, guid: 70372c862bb5d4ff895aca7e8fb02eb6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556484444480892142, guid: 70372c862bb5d4ff895aca7e8fb02eb6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.9659258
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556484444480892142, guid: 70372c862bb5d4ff895aca7e8fb02eb6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556484444480892142, guid: 70372c862bb5d4ff895aca7e8fb02eb6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556484444480892142, guid: 70372c862bb5d4ff895aca7e8fb02eb6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556484444480892142, guid: 70372c862bb5d4ff895aca7e8fb02eb6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 70372c862bb5d4ff895aca7e8fb02eb6, type: 3}
+--- !u!1001 &1744961098
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 920075076}
+    m_Modifications:
+    - target: {fileID: 8473034231562116911, guid: 1e7f278f766304a00bc9681935a5619f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8473034231562116911, guid: 1e7f278f766304a00bc9681935a5619f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8473034231562116911, guid: 1e7f278f766304a00bc9681935a5619f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8473034231562116911, guid: 1e7f278f766304a00bc9681935a5619f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8473034231562116911, guid: 1e7f278f766304a00bc9681935a5619f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8473034231562116911, guid: 1e7f278f766304a00bc9681935a5619f, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8473034231562116911, guid: 1e7f278f766304a00bc9681935a5619f, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8473034231562116911, guid: 1e7f278f766304a00bc9681935a5619f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8473034231562116911, guid: 1e7f278f766304a00bc9681935a5619f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8473034231562116911, guid: 1e7f278f766304a00bc9681935a5619f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9141624521186100629, guid: 1e7f278f766304a00bc9681935a5619f, type: 3}
+      propertyPath: m_Name
+      value: GolfBag_Stand
+      objectReference: {fileID: 0}
+    - target: {fileID: 9141624521186100629, guid: 1e7f278f766304a00bc9681935a5619f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1e7f278f766304a00bc9681935a5619f, type: 3}
+--- !u!4 &1744961099 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8473034231562116911, guid: 1e7f278f766304a00bc9681935a5619f, type: 3}
+  m_PrefabInstance: {fileID: 1744961098}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1744961100 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 184824563681573385, guid: 1e7f278f766304a00bc9681935a5619f, type: 3}
+  m_PrefabInstance: {fileID: 1744961098}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2bb65b5a97f342c2b9445f0669c7d39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Puttshack.Runtime::Puttshack.Runtime.Shop.BagAppearance
 --- !u!1 &1783367769
 GameObject:
   m_ObjectHideFlags: 0
@@ -480,6 +946,79 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1945762123
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 342735570}
+    m_Modifications:
+    - target: {fileID: 229532290101051287, guid: 0cb21df041322447c84283e33bd00bad, type: 3}
+      propertyPath: m_Name
+      value: Caleb_Golfer
+      objectReference: {fileID: 0}
+    - target: {fileID: 604791637784405293, guid: 0cb21df041322447c84283e33bd00bad, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 604791637784405293, guid: 0cb21df041322447c84283e33bd00bad, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 604791637784405293, guid: 0cb21df041322447c84283e33bd00bad, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 604791637784405293, guid: 0cb21df041322447c84283e33bd00bad, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 604791637784405293, guid: 0cb21df041322447c84283e33bd00bad, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 604791637784405293, guid: 0cb21df041322447c84283e33bd00bad, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 604791637784405293, guid: 0cb21df041322447c84283e33bd00bad, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 604791637784405293, guid: 0cb21df041322447c84283e33bd00bad, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 604791637784405293, guid: 0cb21df041322447c84283e33bd00bad, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 604791637784405293, guid: 0cb21df041322447c84283e33bd00bad, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0cb21df041322447c84283e33bd00bad, type: 3}
+--- !u!114 &1945762124 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5081330897416487676, guid: 0cb21df041322447c84283e33bd00bad, type: 3}
+  m_PrefabInstance: {fileID: 1945762123}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd6740d5d20744382bfe19ff2fec9c7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Puttshack.Runtime::Puttshack.Runtime.Shop.GolferAppearance
+--- !u!4 &1945762125 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 604791637784405293, guid: 0cb21df041322447c84283e33bd00bad, type: 3}
+  m_PrefabInstance: {fileID: 1945762123}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -488,3 +1027,6 @@ SceneRoots:
   - {fileID: 1314741529}
   - {fileID: 1013383308}
   - {fileID: 1783367771}
+  - {fileID: 754523881}
+  - {fileID: 1584929491}
+  - {fileID: 342735570}

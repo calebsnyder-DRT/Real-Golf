@@ -7,8 +7,10 @@ using Puttshack.Hardware;
 using Puttshack.Protocol;
 using Puttshack.Runtime.Course;
 using Puttshack.Runtime.Hud;
+using Puttshack.Runtime.Shop;
 using Puttshack.Runtime.Views;
 using Puttshack.Session;
+using Puttshack.Shop;
 using Puttshack.Storage;
 using Puttshack.Time;
 using UnityEngine;
@@ -29,6 +31,8 @@ namespace Puttshack.Runtime
         public float PlaybackSpeed = 1f;
         public bool ReducedMotion;
         public bool ShowEmulatorPanel = true;
+        [Tooltip("Skip the attract screen: launch and every finished round open the Pro Shop with the last roster and looks.")]
+        public bool HomeInProShop = true;
 
         /// <summary>Set by tests before a scene loads so they never resume a real on-disk session.</summary>
         public static bool ForceInMemoryStorage;
@@ -48,9 +52,13 @@ namespace Puttshack.Runtime
         private Material _lineMaterial;
         private Material _golferMaterial;
         private GolferView _golfer;
+        private CourseGolfer _courseGolfer;
         private AimFanView _fan;
         private GolfCameraRig _cameraRig;
         private HudView _hud;
+        private ProShopController _shop;
+        private RosterMemory _roster;
+        private int _homedSession = -1;
 
         private int _playingShotId = -1;
         private float _holdTimer = -1;
@@ -68,6 +76,8 @@ namespace Puttshack.Runtime
         public BakedHole HoleVisual => _holeVisual;
         public bool UsingFallbackVisuals { get; private set; }
         public bool Initialized => Coordinator != null;
+        public ProShopController Shop => _shop;
+        public bool ShopOpen => _shop != null && _shop.IsOpen;
 
         private void Start() => Initialize();
 
@@ -81,19 +91,70 @@ namespace Puttshack.Runtime
             if (InMemoryStorage)
             {
                 _store = new InMemorySessionStore();
+                _roster = new RosterMemory(null);
             }
             else
             {
-                _storeDirectory = Path.Combine(Application.persistentDataPath, "PuttshackPro", "sessions");
+                string root = Path.Combine(Application.persistentDataPath, "PuttshackPro");
+                _storeDirectory = Path.Combine(root, "sessions");
                 _store = new JournalSessionStore(_storeDirectory);
+                _roster = new RosterMemory(Path.Combine(root, "roster.json"));
             }
 
             Emulator = new EmulatorCabinetAdapter(_clock);
             Coordinator = SessionCoordinator.StartOrResume(_course, _store, _clock);
-            if (Coordinator.Recovered) ShowNotice("Round restored - your scores are saved.");
+            if (Coordinator.Recovered && Coordinator.State != SessionState.LOBBY) ShowNotice("Round restored - your scores are saved.");
 
             BuildPresentation();
+            GoHome(launch: true);
             Debug.Log($"[Puttshack] Session {Coordinator.Snapshot.Data.SessionId} at {Coordinator.State} (store: {(InMemoryStorage ? "memory" : _storeDirectory)}).");
+        }
+
+        /// <summary>
+        /// With <see cref="HomeInProShop"/> an idle session never waits on the attract screen: it starts, restores the
+        /// remembered roster and looks, and opens the shop. At launch a session left in the lobby reopens the shop too.
+        /// </summary>
+        private void GoHome(bool launch)
+        {
+            if (!HomeInProShop || _shop == null) return;
+            SessionSnapshot snap = Coordinator.Snapshot;
+            if (launch && snap.State == SessionState.LOBBY)
+            {
+                OpenShop();
+                return;
+            }
+            if (snap.State != SessionState.ATTRACT || _homedSession == snap.Data.SessionId) return;
+            _homedSession = snap.Data.SessionId;
+
+            IReadOnlyList<RosterMemory.Entry> last = _roster.Players;
+            if (!Accepted(Send(CommandType.Start))) return;
+            if (last.Count > 0)
+            {
+                var names = new List<string>();
+                foreach (RosterMemory.Entry e in last) names.Add(e.Name);
+                Send(CommandType.RosterSet, c => c.Names = names);
+                List<PlayerState> players = Coordinator.Snapshot.Data.Players;
+                for (int i = 0; i < players.Count && i < last.Count; i++)
+                {
+                    Loadout look = last[i].Loadout;
+                    int id = players[i].Id;
+                    if (look != null) Send(CommandType.SetLoadout, c => { c.PlayerId = id; c.Loadout = look; });
+                }
+            }
+            OpenShop();
+        }
+
+        /// <summary>Pause-menu restart: ends the round without the scorecard and returns home with the same players.</summary>
+        public bool Restart() => Accepted(Send(CommandType.EndRound)) && Accepted(Send(CommandType.ReturnToAttract));
+
+        private static bool Accepted(CommandReply reply) => reply != null && reply.Accepted;
+
+        /// <summary>A clean quit ends the round so the next launch opens at home; only a crash resumes a round.</summary>
+        private void OnApplicationQuit()
+        {
+            if (Coordinator == null) return;
+            SessionState s = Coordinator.State;
+            if (s != SessionState.ATTRACT && s != SessionState.LOBBY && s != SessionState.ROUND_COMPLETE) Send(CommandType.EndRound);
         }
 
         private void BuildPresentation()
@@ -123,8 +184,13 @@ namespace Puttshack.Runtime
             Shader lineShader = Shader.Find("Sprites/Default");
             _lineMaterial = new Material(lineShader) { name = "Lines" };
             Shader lit = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
-            _golferMaterial = CourseVisualAssets.LitMaterial(lit, "Golfer", Color.white, 0.2f);
-            _golfer = GolferView.Create(dynamicRoot, _golferMaterial, _golferMaterial);
+            _courseGolfer = FindAnyObjectByType<CourseGolfer>(FindObjectsInactive.Include);
+            if (_courseGolfer == null)
+            {
+                Debug.LogWarning("[Puttshack] No course golfer in this scene. Run Puttshack > Pro Shop > Place Course Golfer. Using a stand-in capsule.");
+                _golferMaterial = CourseVisualAssets.LitMaterial(lit, "Golfer", Color.white, 0.2f);
+                _golfer = GolferView.Create(dynamicRoot, _golferMaterial, _golferMaterial);
+            }
             _fan = AimFanView.Create(dynamicRoot, _lineMaterial);
 
             for (int i = 0; i < SessionCoordinator.MaxPlayers; i++)
@@ -142,6 +208,33 @@ namespace Puttshack.Runtime
 
             GameObject courseGo = GameObject.Find("Course");
             _courseRoot = courseGo != null ? courseGo.transform : new GameObject("Course").transform;
+
+            _shop = FindAnyObjectByType<ProShopController>(FindObjectsInactive.Include);
+            if (_shop == null) Debug.LogWarning("[Puttshack] No Pro Shop in this scene. Run Puttshack > Pro Shop > Bake Pro Shop, then Build Main Scene.");
+        }
+
+        /// <summary>
+        /// Opens the Pro Shop from the lobby (pre-round) or the pause overlay (safe setup state). In a paused round the
+        /// shop starts on the player whose turn it is, but any player can be edited; the turn itself never moves.
+        /// </summary>
+        public bool OpenShop()
+        {
+            if (_shop == null || _shop.IsOpen) return false;
+            SessionSnapshot snap = Coordinator.Snapshot;
+            if (snap.Data.Players.Count == 0) return false;
+            ShopOrigin origin;
+            int turn = -1;
+            if (snap.State == SessionState.LOBBY) origin = ShopOrigin.Lobby;
+            else if (snap.State == SessionState.PAUSED)
+            {
+                origin = ShopOrigin.Paused;
+                PlayerState current = snap.CurrentPlayer;
+                turn = current != null ? snap.Data.Players.FindIndex(p => p.Id == current.Id) : -1;
+            }
+            else return false;
+            _showScorecard = false;
+            _shop.Open(this, origin, turn, Math.Max(0, turn));
+            return true;
         }
 
         // ---------------------------------------------------------------- Loop
@@ -154,6 +247,7 @@ namespace Puttshack.Runtime
             Guarded(() => Coordinator.Tick());
             HandleKeyboard();
             DriveAutomaticTransitions();
+            GoHome(launch: false);
             UpdateViews();
         }
 
@@ -205,6 +299,8 @@ namespace Puttshack.Runtime
             CommandReply reply = null;
             Guarded(() => reply = Coordinator.Apply(cmd));
             LastReply = reply;
+            if (Accepted(reply) && (type == CommandType.RosterSet || type == CommandType.SetLoadout))
+                _roster.Remember(Coordinator.Snapshot.Data.Players);
             if (reply != null && !reply.Accepted && reply.Reason != RejectReason.WRONG_STATE)
                 ShowNotice(reply.Detail ?? reply.Reason.ToString());
             return reply;
@@ -308,7 +404,7 @@ namespace Puttshack.Runtime
         private void HandleKeyboard()
         {
             Keyboard kb = Keyboard.current;
-            if (kb == null) return;
+            if (kb == null || ShopOpen) return;
 
             bool shift = kb.leftShiftKey.isPressed || kb.rightShiftKey.isPressed;
             for (int d = 0; d < 10; d++)
@@ -333,13 +429,15 @@ namespace Puttshack.Runtime
                 return;
             }
 
+            bool shopKey = kb.pKey.wasPressedThisFrame || (Gamepad.current != null && Gamepad.current.buttonNorth.wasPressedThisFrame);
             switch (snap.State)
             {
                 case SessionState.ATTRACT:
                     if (confirm) Send(CommandType.Start);
                     break;
                 case SessionState.LOBBY:
-                    LobbyInput(kb, snap, confirm);
+                    if (shopKey) OpenShop();
+                    else LobbyInput(kb, snap, confirm);
                     break;
                 case SessionState.BRIEFING:
                     if (confirm) Send(CommandType.BriefingReady);
@@ -370,8 +468,10 @@ namespace Puttshack.Runtime
                     if (confirm) Send(CommandType.ReturnToAttract);
                     break;
                 case SessionState.PAUSED:
-                    if (confirm || back) Send(CommandType.Resume);
+                    if (shopKey) OpenShop();
+                    else if (confirm || back) Send(CommandType.Resume);
                     else if (kb.eKey.wasPressedThisFrame) Send(CommandType.EndRound);
+                    else if (kb.rKey.wasPressedThisFrame) Restart();
                     break;
                 case SessionState.FAULT:
                     if (confirm) Send(CommandType.Resume);
@@ -449,6 +549,10 @@ namespace Puttshack.Runtime
 
         private void UpdateViews()
         {
+            bool shop = ShopOpen;
+            if (_hud.gameObject.activeSelf == shop) _hud.gameObject.SetActive(!shop);
+            if (shop) return;
+
             SessionSnapshot snap = Coordinator.Snapshot;
             SessionState state = snap.EffectiveState;
             HoleDefinition hole = snap.Hole;
@@ -498,8 +602,16 @@ namespace Puttshack.Runtime
                 }
             }
 
-            _golfer.Show(golferVisible);
-            if (golferVisible) _golfer.Stand(ballPos, aim, Palette.Player(player.ColorIndex));
+            if (_courseGolfer != null)
+            {
+                _courseGolfer.Show(golferVisible);
+                if (golferVisible) _courseGolfer.Stand(ballPos, aim, player);
+            }
+            else
+            {
+                _golfer.Show(golferVisible);
+                if (golferVisible) _golfer.Stand(ballPos, aim, Palette.Player(player.ColorIndex));
+            }
 
             bool fanVisible = inHole && setup && progress?.Ball != null && snap.Data.Setup.ClubId != null;
             _fan.Show(fanVisible);
@@ -524,6 +636,7 @@ namespace Puttshack.Runtime
                 Hints = Hints(state),
                 LobbyAssistance = _lobbyAssistance,
                 LobbyPaceCap = _lobbyPaceCap,
+                HomeInProShop = HomeInProShop && _shop != null,
             });
         }
 

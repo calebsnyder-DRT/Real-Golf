@@ -1,0 +1,119 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &8222722725085542596
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: m_Name
+      value: GolfBag_Stand
+      objectReference: {fileID: 0}
+    - target: {fileID: 3663145436525386238, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 53d2bfe7dc3554ab7a77716b028c6afb, type: 2}
+    - target: {fileID: 3663145436525386238, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 6dc1de769d9f34c43904535f3d6168be, type: 2}
+    - target: {fileID: 3663145436525386238, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: 'm_Materials.Array.data[2]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 507fe976c32af4149aa2b46423b422d0, type: 2}
+    - target: {fileID: 3663145436525386238, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: 'm_Materials.Array.data[3]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 48be010a968e2421eb90f87e1d2b2384, type: 2}
+    - target: {fileID: 3663145436525386238, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: 'm_Materials.Array.data[4]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4d8a3024f839d4b749a3f24d32428ec7, type: 2}
+    - target: {fileID: 3663145436525386238, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: 'm_Materials.Array.data[5]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 78fcd18df5d8c490785271b35facee86, type: 2}
+    - target: {fileID: 3663145436525386238, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: 'm_Materials.Array.data[7]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 70925bc35037144dfae4ed02ae5e1a06, type: 2}
+    - target: {fileID: 3663145436525386238, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      propertyPath: 'm_Materials.Array.data[8]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 422b855a62e7c41d4b7c77c625050dda, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 184824563681573385}
+  m_SourcePrefab: {fileID: 100100000, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+--- !u!23 &4668792029825802554 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 3663145436525386238, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+  m_PrefabInstance: {fileID: 8222722725085542596}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &9141624521186100629 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 6ccc35b0a81424c598c4a7d3059286a0, type: 3}
+  m_PrefabInstance: {fileID: 8222722725085542596}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &184824563681573385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9141624521186100629}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2bb65b5a97f342c2b9445f0669c7d39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Puttshack.Runtime::Puttshack.Runtime.Shop.BagAppearance
+  Style: GolfBag_Stand
+  Renderers:
+  - {fileID: 4668792029825802554}

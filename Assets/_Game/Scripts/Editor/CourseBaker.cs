@@ -130,6 +130,8 @@ namespace Puttshack.EditorTools
 
             var host = new GameObject("Game Host").AddComponent<GameHost>();
             host.ShowEmulatorPanel = true;
+            ProShopBaker.PlaceInScene(scene);
+            CourseGolferBaker.PlaceInScene(scene);
 
             EnsureFolder(Path.GetDirectoryName(ScenePath).Replace('\\', '/'));
             if (!EditorSceneManager.SaveScene(scene, ScenePath)) throw new IOException($"Could not save {ScenePath}.");

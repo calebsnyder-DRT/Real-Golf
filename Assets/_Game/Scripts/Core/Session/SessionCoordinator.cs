@@ -358,7 +358,7 @@ namespace Puttshack.Session
             if (cmd == null || string.IsNullOrEmpty(cmd.CommandId))
                 return CommandReply.Reject(RejectReason.INVALID_VALUE, _data.Revision, "Missing command id.");
 
-            string fingerprint = ContentHasher.Canonical(new { cmd.Type, cmd.Names, cmd.Assistance, cmd.PaceCapEnabled, cmd.ClubId, cmd.AimYawDeltaRad, cmd.AimTargetM, cmd.PuttScale, cmd.ExpectedRevision });
+            string fingerprint = ContentHasher.Canonical(new { cmd.Type, cmd.Names, cmd.Assistance, cmd.PaceCapEnabled, cmd.ClubId, cmd.AimYawDeltaRad, cmd.AimTargetM, cmd.PuttScale, cmd.PlayerId, cmd.Loadout, cmd.ExpectedRevision });
             if (_data.AppliedCommands.TryGetValue(cmd.CommandId, out string previous))
             {
                 return previous == fingerprint
@@ -398,7 +398,18 @@ namespace Puttshack.Session
                         if (name.Length == 0 || name.Length > MaxNameLength) return Invalid("Names must be 1-16 characters.");
                         names.Add(name);
                     }
-                    return Commit(cmd, fingerprint, d => d.Players = BuildRoster(names));
+                    return Commit(cmd, fingerprint, d => d.Players = BuildRoster(names, d.Players));
+                }
+
+                case CommandType.SetLoadout:
+                {
+                    if (s != SessionState.LOBBY && s != SessionState.PAUSED) return WrongState(cmd);
+                    int roster = cmd.PlayerId.HasValue ? _data.Players.FindIndex(p => p.Id == cmd.PlayerId.Value) : -1;
+                    if (roster < 0) return Invalid("Unknown player.");
+                    string problem = CosmeticCatalog.Validate(cmd.Loadout);
+                    if (problem != null) return Invalid(problem);
+                    Loadout saved = cmd.Loadout.Clone();
+                    return Commit(cmd, fingerprint, d => d.Players[roster].Loadout = saved);
                 }
 
                 case CommandType.SettingsConfirm:
@@ -705,11 +716,22 @@ namespace Puttshack.Session
             throw new InvalidOperationException($"Unknown player {playerId}.");
         }
 
-        private static List<PlayerState> BuildRoster(List<string> names)
+        /// <summary>Roster slots keep their identity colour and any loadout already saved in that slot.</summary>
+        private static List<PlayerState> BuildRoster(List<string> names, List<PlayerState> previous = null)
         {
             var roster = new List<PlayerState>(names.Count);
             for (int i = 0; i < names.Count; i++)
-                roster.Add(new PlayerState { Id = i + 1, RosterIndex = i, Name = names[i], ColorIndex = i });
+            {
+                Loadout kept = previous != null && i < previous.Count ? previous[i].Loadout : null;
+                roster.Add(new PlayerState
+                {
+                    Id = i + 1,
+                    RosterIndex = i,
+                    Name = names[i],
+                    ColorIndex = i,
+                    Loadout = kept?.Clone() ?? CosmeticCatalog.DefaultFor(i),
+                });
+            }
             return roster;
         }
 

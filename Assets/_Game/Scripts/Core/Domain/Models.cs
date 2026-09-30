@@ -20,6 +20,8 @@ namespace Puttshack.Domain
         public string Name;
         public int ColorIndex;
         public bool Withdrawn;
+        /// <summary>Cosmetic only. Null in journals written before the Pro Shop; read it through the catalog default.</summary>
+        public Loadout Loadout;
     }
 
     [Serializable]

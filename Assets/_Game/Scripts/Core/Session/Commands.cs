@@ -26,6 +26,8 @@ namespace Puttshack.Session
         Resume,
         EndRound,
         ReturnToAttract,
+        /// <summary>Pro Shop save: replaces one player's cosmetic loadout. Lobby or paused only.</summary>
+        SetLoadout,
     }
 
     public enum RejectReason
@@ -59,6 +61,8 @@ namespace Puttshack.Session
         public double? AimYawDeltaRad;
         public Vec3d? AimTargetM;
         public PuttScale? PuttScale;
+        public int? PlayerId;
+        public Loadout Loadout;
 
         public static SessionCommand Of(CommandType type, long expectedRevision) => new SessionCommand
         {

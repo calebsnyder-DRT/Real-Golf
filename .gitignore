@@ -30,3 +30,11 @@
 .DS_Store
 
 /.verify/
+
+# Blender scratch and regenerable review captures
+*.blend1
+__pycache__/
+__pycache__/
+/ArtSource/Blender/wip/
+/ArtSource/Review/
+/Assets/InitTestScene*.unity*

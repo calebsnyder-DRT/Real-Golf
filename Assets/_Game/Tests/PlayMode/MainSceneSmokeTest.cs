@@ -32,7 +32,9 @@ namespace Puttshack.Tests
             yield return WaitFor(() => host.Initialized, 5, "host initialization");
             host.PlaybackSpeed = 25f;
 
-            Accept(host.Send(CommandType.Start));
+            Assert.AreEqual(SessionState.LOBBY, host.Coordinator.State, "Launch skips attract and lands in the lobby.");
+            Assert.IsTrue(host.ShopOpen, "Launch opens the Pro Shop.");
+            host.Shop.Back();
             Accept(host.Send(CommandType.RosterSet, c => c.Names = new List<string> { "Caleb", "Maya" }));
             Accept(host.Send(CommandType.SettingsConfirm));
             yield return WaitFor(() => host.Coordinator.State == SessionState.BRIEFING, 5, "briefing");

@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: 345dce128648f4e35b94f136cf9411ad
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - Barlow Condensed Bold
+  - Puttshack Display
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 4a226db3585544bb98a9023604decb2e, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

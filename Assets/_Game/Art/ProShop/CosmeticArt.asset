@@ -1,0 +1,326 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11087ec15a3284491a43187605124b34, type: 3}
+  m_Name: CosmeticArt
+  m_EditorClassIdentifier: Puttshack.Runtime::Puttshack.Runtime.Shop.CosmeticArt
+  Icons:
+  - Key: top.polo.royal
+    Sprite: {fileID: 21300000, guid: b9e364419857d491eafbdee977235a20, type: 3}
+  - Key: top.polo.sky
+    Sprite: {fileID: 21300000, guid: acd9ef16e63394666a7235defe03a0db, type: 3}
+  - Key: top.polo.green
+    Sprite: {fileID: 21300000, guid: 2e8e20b412bad47c2b174d78bb6f21c3, type: 3}
+  - Key: top.polo.coral
+    Sprite: {fileID: 21300000, guid: a45b79530c0284ef7a5c05960a3828b3, type: 3}
+  - Key: top.polo.cream
+    Sprite: {fileID: 21300000, guid: f3d7b0317c9844bfa99e430b81417eb0, type: 3}
+  - Key: top.polo.midnight
+    Sprite: {fileID: 21300000, guid: aab4e45843c9e43e9b1e93c101e5ebc3, type: 3}
+  - Key: top.polo.violet
+    Sprite: {fileID: 21300000, guid: 1907f2b661762406dae6443c792e165e, type: 3}
+  - Key: top.polo.gold
+    Sprite: {fileID: 21300000, guid: a3c5c76b4eb934348a19f26c7309b23f, type: 3}
+  - Key: top.polo.teal
+    Sprite: {fileID: 21300000, guid: a2537d02a195c4f6886e5d71e4e52e5c, type: 3}
+  - Key: top.polo.white
+    Sprite: {fileID: 21300000, guid: 13c7213b46c07463eafcfaad5e46284d, type: 3}
+  - Key: top.tee.white
+    Sprite: {fileID: 21300000, guid: 0c85ee874a6a54b10bbae283b1284352, type: 3}
+  - Key: top.tee.heather
+    Sprite: {fileID: 21300000, guid: d8ff684fcb23b42ff984635722247c06, type: 3}
+  - Key: top.tee.coral
+    Sprite: {fileID: 21300000, guid: 10b6c93dc36bf42ea8de300c518ac7ec, type: 3}
+  - Key: top.tee.navy
+    Sprite: {fileID: 21300000, guid: fb1d4ed90c1c54feeb0d96825d372a57, type: 3}
+  - Key: bottom.chinos.grey
+    Sprite: {fileID: 21300000, guid: bd75ee8f55a4a401db10e3975d28b04a, type: 3}
+  - Key: bottom.chinos.khaki
+    Sprite: {fileID: 21300000, guid: 6a0bc12f5af394d0eb454c33b2d3496b, type: 3}
+  - Key: bottom.chinos.navy
+    Sprite: {fileID: 21300000, guid: 94a7c7207cbec4ab9ab5ea3d1f1a6677, type: 3}
+  - Key: bottom.chinos.white
+    Sprite: {fileID: 21300000, guid: 1d4966519c22042b2b25a1410e4b9d12, type: 3}
+  - Key: bottom.chinos.black
+    Sprite: {fileID: 21300000, guid: 566a1d7ad7e724c2cb8960a3ffded7e9, type: 3}
+  - Key: bottom.shorts.khaki
+    Sprite: {fileID: 21300000, guid: dac7a8218ed31448a9aa65907eff6479, type: 3}
+  - Key: bottom.shorts.grey
+    Sprite: {fileID: 21300000, guid: 5e261d436c0d2435ba084b07e28c3ec2, type: 3}
+  - Key: bottom.shorts.navy
+    Sprite: {fileID: 21300000, guid: 7c4b4cb2bf1fc404ca7b5ceeca20085b, type: 3}
+  - Key: bottom.shorts.coral
+    Sprite: {fileID: 21300000, guid: 479a7a74eaa3142bf8561a13efac4903, type: 3}
+  - Key: bottom.shorts.white
+    Sprite: {fileID: 21300000, guid: 34409122a29b748089a47e16e1a2a435, type: 3}
+  - Key: socks.noshow.white
+    Sprite: {fileID: 21300000, guid: dc0f0f970af3a48c4a834b607dfdd591, type: 3}
+  - Key: socks.noshow.black
+    Sprite: {fileID: 21300000, guid: 7631d2b0c8c99431a9b9b7d203e51686, type: 3}
+  - Key: socks.ankle.white
+    Sprite: {fileID: 21300000, guid: 3d49ee0e343b14f1e9a487229513c912, type: 3}
+  - Key: socks.ankle.black
+    Sprite: {fileID: 21300000, guid: e1dac46aff4994751b3ddf1986c1afb9, type: 3}
+  - Key: socks.crew.white
+    Sprite: {fileID: 21300000, guid: 09a220c296f8e447a94c0e068266bb46, type: 3}
+  - Key: socks.crew.navy
+    Sprite: {fileID: 21300000, guid: 3ed8bf57dd1094bcab51821248587c9c, type: 3}
+  - Key: socks.crew.cyan
+    Sprite: {fileID: 21300000, guid: c4a7190d8a30d432c822154a48c710f0, type: 3}
+  - Key: shoes.white.cyan
+    Sprite: {fileID: 21300000, guid: e628f3867fac1458d885c9f575a81a10, type: 3}
+  - Key: shoes.white.white
+    Sprite: {fileID: 21300000, guid: 368db312b4cf64ea79f625396346c281, type: 3}
+  - Key: shoes.white.black
+    Sprite: {fileID: 21300000, guid: f324908d0cacb4db5b3c76d5a954317f, type: 3}
+  - Key: shoes.black.white
+    Sprite: {fileID: 21300000, guid: 0ca6401cc8db64cbc853f51ca5e47c8b, type: 3}
+  - Key: shoes.black.grey
+    Sprite: {fileID: 21300000, guid: 0f96ef73651c0408da0937da795bb1ca, type: 3}
+  - Key: belt.none
+    Sprite: {fileID: 21300000, guid: ab0e6bf7bf37a4b31a0da01036d5f48e, type: 3}
+  - Key: belt.brown
+    Sprite: {fileID: 21300000, guid: 3e30420d562ed4c54859ace3c856a1b4, type: 3}
+  - Key: belt.black
+    Sprite: {fileID: 21300000, guid: 59793b4ee0a094a4db7bc5c147727f15, type: 3}
+  - Key: belt.white
+    Sprite: {fileID: 21300000, guid: 22145d97f88014f518b6a7ef29bdd248, type: 3}
+  - Key: bag.tour.classic
+    Sprite: {fileID: 21300000, guid: 6edeb57f0b04f4c2dbde9229ead67e25, type: 3}
+  - Key: bag.stand.midnight
+    Sprite: {fileID: 21300000, guid: c8796d28d6e4b4b9c83213ab957761fc, type: 3}
+  - Key: bag.stand.sunset
+    Sprite: {fileID: 21300000, guid: cc3d8e2c6d31d4a44abea21450dd87b4, type: 3}
+  - Key: bag.stand.lagoon
+    Sprite: {fileID: 21300000, guid: 12389137a182d4dd2bc55c6d0a387612, type: 3}
+  - Key: bag.stand.clubhouse
+    Sprite: {fileID: 21300000, guid: bb6d86a8b236d46d1a4e06fa5f15bf6f, type: 3}
+  - Key: bag.cart.fairway
+    Sprite: {fileID: 21300000, guid: 99aa202b3b20e41a3a5497fdcedc44ce, type: 3}
+  - Key: bag.cart.harbor
+    Sprite: {fileID: 21300000, guid: b01d9bd7fd0084f33af2e4721deb07fd, type: 3}
+  - Key: bag.tour.champion
+    Sprite: {fileID: 21300000, guid: a81d5b6132f484abebb124d78d25dd74, type: 3}
+  - Key: bag.tour.twilight
+    Sprite: {fileID: 21300000, guid: 90017c38d3c434da89fdf6998affad7a, type: 3}
+  - Key: club.driver
+    Sprite: {fileID: 21300000, guid: b4a340eaa59cf4b1b9107863469ec29e, type: 3}
+  - Key: club.wood3
+    Sprite: {fileID: 21300000, guid: d4b40065a37004e77b900537f5aa14e1, type: 3}
+  - Key: club.iron5
+    Sprite: {fileID: 21300000, guid: c53945d627dd84a2999f2f74fd721a0e, type: 3}
+  - Key: club.iron7
+    Sprite: {fileID: 21300000, guid: 2bd7e333c9f2c4715a72a34b90e8cb9b, type: 3}
+  - Key: club.iron9
+    Sprite: {fileID: 21300000, guid: 68e77f4f8031a43d5af2e9bff9f55e2e, type: 3}
+  - Key: club.pw
+    Sprite: {fileID: 21300000, guid: 7642faf37b2fb46249b1e9926923a3ad, type: 3}
+  - Key: club.sw
+    Sprite: {fileID: 21300000, guid: b65e4ed7198f44370aac336551212279, type: 3}
+  - Key: club.lw
+    Sprite: {fileID: 21300000, guid: b7be61dfd3e1b45ca85cfa2f5ffcbd0f, type: 3}
+  - Key: club.putter
+    Sprite: {fileID: 21300000, guid: 17a49eeec1c554d0fa8e0afb9238116c, type: 3}
+  CategoryIcons:
+  - Key: Top
+    Sprite: {fileID: 21300000, guid: 21961cded697741c58bd42db024dff6a, type: 3}
+  - Key: Bottom
+    Sprite: {fileID: 21300000, guid: 909474c1c3018404cbd27b0f434b3961, type: 3}
+  - Key: Shoes
+    Sprite: {fileID: 21300000, guid: 0289c1830925848b38aa4bc0e9ab842c, type: 3}
+  - Key: Socks
+    Sprite: {fileID: 21300000, guid: 4118a9dfc9d384c3190a96a50465564e, type: 3}
+  - Key: Bag
+    Sprite: {fileID: 21300000, guid: fca3f0309a99a4feab7259b440e7da2a, type: 3}
+  - Key: Clubs
+    Sprite: {fileID: 21300000, guid: 46b9904704fd648688597474bfe14b9e, type: 3}
+  Materials:
+  - Key: Bag_Accent@192020
+    Material: {fileID: 2100000, guid: 6da9d12a9019a4699a894be41e6026ce, type: 2}
+  - Key: Bag_Accent@2F3A3D
+    Material: {fileID: 2100000, guid: 53d2bfe7dc3554ab7a77716b028c6afb, type: 2}
+  - Key: Bag_Accent@2F6FD6
+    Material: {fileID: 2100000, guid: 81dfc0375833c4521bcb070621c9e567, type: 2}
+  - Key: Bag_Accent@E86A58
+    Material: {fileID: 2100000, guid: 2f6a8c3a7e0a14888b908a9ae39f006a, type: 2}
+  - Key: Bag_Accent@F2EDDF
+    Material: {fileID: 2100000, guid: bffd95c1467614f5b9d7e7dba6baf670, type: 2}
+  - Key: Bag_Body@1E2426
+    Material: {fileID: 2100000, guid: 507fe976c32af4149aa2b46423b422d0, type: 2}
+  - Key: Bag_Body@1FA59A
+    Material: {fileID: 2100000, guid: 54d59e30abc1c49d58c5c622280e1eef, type: 2}
+  - Key: Bag_Body@28324A
+    Material: {fileID: 2100000, guid: cae74cb63588649c6aee043a7f813b31, type: 2}
+  - Key: Bag_Body@2F6B45
+    Material: {fileID: 2100000, guid: ee6841d8defbc40258858e9db85a9b9e, type: 2}
+  - Key: Bag_Body@8A4FC7
+    Material: {fileID: 2100000, guid: 78ae867f8b1d145a5ada9b885bce7a85, type: 2}
+  - Key: Bag_Body@D9B021
+    Material: {fileID: 2100000, guid: d0db909049a30465eacb00937e18cb77, type: 2}
+  - Key: Bag_Body@E8872A
+    Material: {fileID: 2100000, guid: 10b0bffe646ff4d44ad3e3031a5bdffb, type: 2}
+  - Key: Bag_Body@F2EDDF
+    Material: {fileID: 2100000, guid: 995a74170a63049019ce8e0a13b43224, type: 2}
+  - Key: Bag_Body@F4F2EC
+    Material: {fileID: 2100000, guid: 3300e547131d745a08daa20adb15fad2, type: 2}
+  - Key: Bag_Metal@C9CCD0
+    Material: {fileID: 2100000, guid: 48be010a968e2421eb90f87e1d2b2384, type: 2}
+  - Key: Bag_Panel@2F3A3D
+    Material: {fileID: 2100000, guid: 4d8a3024f839d4b749a3f24d32428ec7, type: 2}
+  - Key: Bag_Panel@F2EDDF
+    Material: {fileID: 2100000, guid: cc59f35b03db04b2e957a6f680802591, type: 2}
+  - Key: Bag_Panel@F4F2EC
+    Material: {fileID: 2100000, guid: 71e96e6edc44d4983bd4b6cbcef790ec, type: 2}
+  - Key: Bag_Panel@FBF8F0
+    Material: {fileID: 2100000, guid: 785117486497044b7bc269fd16bbe738, type: 2}
+  - Key: Bag_Strap@192020
+    Material: {fileID: 2100000, guid: 78fcd18df5d8c490785271b35facee86, type: 2}
+  - Key: Bag_Strap@28324A
+    Material: {fileID: 2100000, guid: ecbf520de43d6492586f92d6a2991c84, type: 2}
+  - Key: Bag_Strap@2F6FD6
+    Material: {fileID: 2100000, guid: a1a179ed8638949e985407d900c6191f, type: 2}
+  - Key: Bag_Strap@3B2A1E
+    Material: {fileID: 2100000, guid: fb6653bfe18934778ab5c42bba1c2c03, type: 2}
+  - Key: Bag_Trim@00CBE7
+    Material: {fileID: 2100000, guid: 6dc1de769d9f34c43904535f3d6168be, type: 2}
+  - Key: Bag_Trim@192020
+    Material: {fileID: 2100000, guid: 5afb3291e489846a08cb09b30cc90180, type: 2}
+  - Key: Bag_Trim@D9B021
+    Material: {fileID: 2100000, guid: 72a91b26deb654590859727f4a6aa384, type: 2}
+  - Key: Bag_Trim@F2EDDF
+    Material: {fileID: 2100000, guid: 9237f40d4108649df8a86a319a8664f2, type: 2}
+  - Key: Bag_Trim@F4F2EC
+    Material: {fileID: 2100000, guid: 207d33ccab0444dfab34010aa3e1bb9c, type: 2}
+  - Key: Belt@1F1F21
+    Material: {fileID: 2100000, guid: d0318cc2b5b1f420fbd274fad8eb260d, type: 2}
+  - Key: Belt@5A3A22
+    Material: {fileID: 2100000, guid: b6eaa636507d644aa95a55fa16ffe0a5, type: 2}
+  - Key: Belt@EDEDEA
+    Material: {fileID: 2100000, guid: 1cb65129efec14e37b93bf3186dad145, type: 2}
+  - Key: Bottom@28324A
+    Material: {fileID: 2100000, guid: c61325eb48f0042a5b587d76a7bec0bd, type: 2}
+  - Key: Bottom@2A2C2F
+    Material: {fileID: 2100000, guid: b2ffb30fd67ac46c1a20718d59bbc02b, type: 2}
+  - Key: Bottom@8C9096
+    Material: {fileID: 2100000, guid: 9aa60b4e7be7d4cb19bcce6b9c3a67ce, type: 2}
+  - Key: Bottom@B8BCC1
+    Material: {fileID: 2100000, guid: 797458c4ad32643468389f84141702be, type: 2}
+  - Key: Bottom@CDB68A
+    Material: {fileID: 2100000, guid: 0753707627e6341239398645921af182, type: 2}
+  - Key: Bottom@E86A58
+    Material: {fileID: 2100000, guid: 2f257ebc9d47e49f5b0e20882569382c, type: 2}
+  - Key: Bottom@EDEBE4
+    Material: {fileID: 2100000, guid: 31dd8fe4abd9a4407a8e6177cfea6307, type: 2}
+  - Key: Buckle@D9DCDF
+    Material: {fileID: 2100000, guid: 66bdcfe529c1642f29fe2a266321eb77, type: 2}
+  - Key: Collar@26304A
+    Material: {fileID: 2100000, guid: bd47f53eeb6384caca91b703cb0d11bd, type: 2}
+  - Key: Collar@28324A
+    Material: {fileID: 2100000, guid: f7e277ad9b62e4a6882d1952c48a59a3, type: 2}
+  - Key: Collar@86B8E8
+    Material: {fileID: 2100000, guid: 7fd98cbdd216548028a30c75a44417e2, type: 2}
+  - Key: Collar@E3B23C
+    Material: {fileID: 2100000, guid: 133008b86365d46979445977004dc3f9, type: 2}
+  - Key: Collar@E86A58
+    Material: {fileID: 2100000, guid: 821ca003b9d69476e9a6fba7fa759425, type: 2}
+  - Key: Collar@EFE6CF
+    Material: {fileID: 2100000, guid: 42fde0174e6ef4ecbb8d5a1bf82f8330, type: 2}
+  - Key: Collar@F7F4EC
+    Material: {fileID: 2100000, guid: 90e4b63939de849b5b701e6e4f781ccd, type: 2}
+  - Key: HeadCover@192020
+    Material: {fileID: 2100000, guid: 31b1e5e5589274ff784347db5bef88e0, type: 2}
+  - Key: HeadCover@1E2426
+    Material: {fileID: 2100000, guid: 70925bc35037144dfae4ed02ae5e1a06, type: 2}
+  - Key: HeadCover@1FA59A
+    Material: {fileID: 2100000, guid: 62c4bf8cae322407b9efb884fce6a2aa, type: 2}
+  - Key: HeadCover@28324A
+    Material: {fileID: 2100000, guid: 245e8eb88843242e3922cf4b9bf2ed50, type: 2}
+  - Key: HeadCover@2F6B45
+    Material: {fileID: 2100000, guid: 8bdb7751f94a84f969380f4ed204e5f4, type: 2}
+  - Key: HeadCover@2F6FD6
+    Material: {fileID: 2100000, guid: 045a38758d5264b3696477891f0461d3, type: 2}
+  - Key: HeadCover@8A4FC7
+    Material: {fileID: 2100000, guid: 14d6345fc3cc24bb589c44bdc4d24215, type: 2}
+  - Key: HeadCover@E8872A
+    Material: {fileID: 2100000, guid: fceb17e8da53f4881a22882b075e22c5, type: 2}
+  - Key: HeadCover_Accent@00CBE7
+    Material: {fileID: 2100000, guid: 422b855a62e7c41d4b7c77c625050dda, type: 2}
+  - Key: HeadCover_Accent@D9B021
+    Material: {fileID: 2100000, guid: 5e36b4dc8a6bd458890a52b5b75db1aa, type: 2}
+  - Key: HeadCover_Accent@E86A58
+    Material: {fileID: 2100000, guid: 186d8e8d0f8bc4612a075d02ac58d2fa, type: 2}
+  - Key: HeadCover_Accent@F2EDDF
+    Material: {fileID: 2100000, guid: d993676605c324ca18c8b69ef746b80e, type: 2}
+  - Key: HeadCover_Accent@F4F2EC
+    Material: {fileID: 2100000, guid: d1e0e4983eb56417a909391ba21e9acf, type: 2}
+  - Key: Logo@008CA1
+    Material: {fileID: 2100000, guid: f70bd59ec48cd454cb0e80a07f743fd9, type: 2}
+  - Key: Logo@00CBE7
+    Material: {fileID: 2100000, guid: a0c21d3645b44410db793bfc1dd5910f, type: 2}
+  - Key: Logo@192020
+    Material: {fileID: 2100000, guid: af1fab1698e5e461db1cacf8adfde58c, type: 2}
+  - Key: Logo@F28C28
+    Material: {fileID: 2100000, guid: e87e201a874e84039a1b834c2d38916d, type: 2}
+  - Key: Logo@F2EDDF
+    Material: {fileID: 2100000, guid: 6e3432b1ade1244cb83e2dbd38043f15, type: 2}
+  - Key: ShoeAccent@00CBE7
+    Material: {fileID: 2100000, guid: 3c8f64ad4ec0b4b8dae8731f45e94a95, type: 2}
+  - Key: ShoeAccent@27282B
+    Material: {fileID: 2100000, guid: 73f91e5f0baf048108e3381c0c4c4768, type: 2}
+  - Key: ShoeAccent@9A9DA3
+    Material: {fileID: 2100000, guid: 4b3a04317a8754ea1ab82a9f2faa984d, type: 2}
+  - Key: ShoeAccent@F5F5F2
+    Material: {fileID: 2100000, guid: e43d61878e69348179b26911719bc8a9, type: 2}
+  - Key: Shoes@27282B
+    Material: {fileID: 2100000, guid: 45c494419cb694f42927972d21798ca8, type: 2}
+  - Key: Shoes@F5F5F2
+    Material: {fileID: 2100000, guid: 4b98ada9f1e2144a0816d5b0f30dc439, type: 2}
+  - Key: Skin@E6DED0
+    Material: {fileID: 2100000, guid: e1950e10849394b46a570a348ddd1110, type: 2}
+  - Key: Socks@00CBE7
+    Material: {fileID: 2100000, guid: 0262598e36dd544a185248515706905f, type: 2}
+  - Key: Socks@27282B
+    Material: {fileID: 2100000, guid: 4a0631b5be94e42ffa8102de4c6ee92c, type: 2}
+  - Key: Socks@28324A
+    Material: {fileID: 2100000, guid: 53fe06c55d101438d9ba95afd28993ef, type: 2}
+  - Key: Socks@F4F4F0
+    Material: {fileID: 2100000, guid: 9c1624111ff934b66b4326f1af952263, type: 2}
+  - Key: Sole@1D1E20
+    Material: {fileID: 2100000, guid: 9a4454bfd14c94db5ae8df8a3e4c64c4, type: 2}
+  - Key: Sole@2B2D30
+    Material: {fileID: 2100000, guid: 1edcfd9d5e67343cfa5c075c562e8b99, type: 2}
+  - Key: Sole@D9D6CE
+    Material: {fileID: 2100000, guid: 573e271a1a2164cb9b1f49c395f46b77, type: 2}
+  - Key: Top@1FA3A0
+    Material: {fileID: 2100000, guid: 4457aef75e08f43438388f29c8c03a7f, type: 2}
+  - Key: Top@26304A
+    Material: {fileID: 2100000, guid: a9828f2487d324849a11db49e6482948, type: 2}
+  - Key: Top@28324A
+    Material: {fileID: 2100000, guid: 7e387284353424879acf36ee5a5d7da4, type: 2}
+  - Key: Top@2F6BD8
+    Material: {fileID: 2100000, guid: d31ce8e64057143b0bcd2c6257f515c1, type: 2}
+  - Key: Top@3E9B4F
+    Material: {fileID: 2100000, guid: 14d50ac0be618402786a32c4530ce4a6, type: 2}
+  - Key: Top@7B4FC9
+    Material: {fileID: 2100000, guid: 161d9208ece7e4247b9a3520aa8f89c3, type: 2}
+  - Key: Top@86B8E8
+    Material: {fileID: 2100000, guid: e2f982d559bdc42e49a57010f4511e61, type: 2}
+  - Key: Top@A9ADB2
+    Material: {fileID: 2100000, guid: 145546c5eb4b84ce3a4f9fc5f0ba7dcb, type: 2}
+  - Key: Top@E3B23C
+    Material: {fileID: 2100000, guid: e126a5aa0521443059594cdf4b15b7d9, type: 2}
+  - Key: Top@E86A58
+    Material: {fileID: 2100000, guid: c5b3c3176432b4068a2665a65c5b218a, type: 2}
+  - Key: Top@EFE6CF
+    Material: {fileID: 2100000, guid: d9d114018920e410ebad679e97da6b17, type: 2}
+  - Key: Top@F4F2EC
+    Material: {fileID: 2100000, guid: a9624e8e1209e487280406c5ab2f511c, type: 2}
+  Template: {fileID: 2100000, guid: ef6744b992e5e49d19b70e7fe08ed562, type: 2}

@@ -22,6 +22,7 @@ namespace Puttshack.Runtime.Hud
         public string Hints;
         public AssistanceProfileId LobbyAssistance;
         public bool LobbyPaceCap;
+        public bool HomeInProShop;
     }
 
     /// <summary>
@@ -320,7 +321,7 @@ namespace Puttshack.Runtime.Hud
                     foreach (PlayerState p in snap.Data.Players) names.Add(p.Name);
                     title = string.Join("  \u00B7  ", names);
                     body = $"{AssistanceProfiles.Get(ctx.LobbyAssistance).Label} assist  \u00B7  {(ctx.LobbyPaceCap ? $"max par+{snap.Data.Settings.PaceCapOverPar}" : "no cap")}";
-                    footer = "\u2191\u2193 PLAYERS   \u2190\u2192 ASSIST   C CAP   ENTER START";
+                    footer = "\u2191\u2193 PLAYERS   \u2190\u2192 ASSIST   C CAP   P PRO SHOP   ENTER START";
                     break;
                 }
                 case SessionState.BRIEFING:
@@ -349,11 +350,12 @@ namespace Puttshack.Runtime.Hud
                 case SessionState.ROUND_COMPLETE:
                     title = snap.Data.Completion == RoundCompletion.Incomplete ? "ROUND ENDED" : "FINAL";
                     body = Standings(snap);
+                    footer = ctx.HomeInProShop ? "ENTER PRO SHOP" : "ENTER CONTINUE";
                     break;
                 case SessionState.PAUSED:
                     title = "PAUSED";
                     body = "Round saved";
-                    footer = "ENTER RESUME   E END ROUND";
+                    footer = "ENTER RESUME   P PRO SHOP   E END ROUND   R RESTART";
                     break;
                 case SessionState.FAULT:
                     title = "PLEASE WAIT";

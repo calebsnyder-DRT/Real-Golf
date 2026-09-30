@@ -5,6 +5,8 @@
         "Puttshack.Core",
         "Puttshack.Hardware",
         "Puttshack.Runtime",
+        "UnityEngine.UI",
+        "Unity.RenderPipelines.Universal.Runtime",
         "UnityEngine.TestRunner"
     ],
     "includePlatforms": [],
