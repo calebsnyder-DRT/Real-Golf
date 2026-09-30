@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 
-namespace RealGolf.EditorTools
+namespace Puttshack.EditorTools
 {
     /// <summary>
     /// The Kenney kits ship FBX materials authored for the built-in pipeline, which

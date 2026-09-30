@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace RealGolf.EditorTools
+namespace Puttshack.EditorTools
 {
     /// <summary>
     /// Import rules for the Kenney UI art under Resources/UI. Without these the PNGs

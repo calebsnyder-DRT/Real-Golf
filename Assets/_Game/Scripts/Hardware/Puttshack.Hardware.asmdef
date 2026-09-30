@@ -1,0 +1,16 @@
+{
+    "name": "Puttshack.Hardware",
+    "rootNamespace": "Puttshack.Hardware",
+    "references": [
+        "Puttshack.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

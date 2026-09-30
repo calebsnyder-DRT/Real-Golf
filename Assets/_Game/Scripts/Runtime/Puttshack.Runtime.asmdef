@@ -1,0 +1,19 @@
+{
+    "name": "Puttshack.Runtime",
+    "rootNamespace": "Puttshack.Runtime",
+    "references": [
+        "Puttshack.Core",
+        "Puttshack.Hardware",
+        "Unity.InputSystem",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

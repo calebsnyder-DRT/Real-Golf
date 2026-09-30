@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 
-namespace RealGolf.EditorTools
+namespace Puttshack.EditorTools
 {
     /// <summary>
     /// Import rules for the photoscanned vegetation under Resources/Models/Nature.
