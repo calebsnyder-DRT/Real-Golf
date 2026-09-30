@@ -1,0 +1,21 @@
+Third-party art used in Real Golf
+=================================
+
+All models in this folder are by Kenney (www.kenney.nl) and are released under
+Creative Commons Zero (CC0 1.0 Universal), meaning they are free for personal,
+educational and commercial use with no attribution required.
+
+Crediting Kenney is optional but encouraged, so: thanks, Kenney.
+
+  Nature Kit  -  https://kenney.nl/assets/nature-kit
+    Trees/tree_*.fbx
+    Props/rock_*.fbx, grass*.fbx, flower_*.fbx
+
+  Minigolf Kit  -  https://kenney.nl/assets/minigolf-kit
+    Golf/ball-*.fbx, club-*.fbx, flag-*.fbx, hole-round.fbx
+    Golf/Textures/colormap.png
+
+License: http://creativecommons.org/publicdomain/zero/1.0/
+
+Everything else in the project (terrain meshes, materials, course layouts) is
+generated procedurally at runtime by the RealGolf scripts.

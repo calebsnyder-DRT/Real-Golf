@@ -1,0 +1,74 @@
+Real-Golf - clubhouse interior props (Models/Furniture)
+=======================================================
+
+Source
+------
+Furniture Kit, by Kenney (https://kenney.nl/assets/furniture-kit), released
+under CC0 1.0 Universal. No attribution is legally required; it is given here
+as a courtesy. The pack ships 140 models; the 57 installed here are the subset
+that a golf clubhouse actually uses.
+
+Contents
+--------
+Seating      bench, benchCushion, chair, chairCushion, chairModernCushion,
+             chairRounded, loungeChair, loungeChairRelax, loungeDesignChair,
+             loungeDesignSofa, loungeSofa, loungeSofaCorner, loungeSofaLong,
+             loungeSofaOttoman, stoolBar, stoolBarSquare
+Tables       sideTable, table, tableCloth, tableCoffee, tableCoffeeGlass,
+             tableGlass, tableRound
+Bar / pro    kitchenBar, kitchenBarEnd, kitchenCoffeeMachine
+Storage      bookcaseClosedWide, bookcaseOpen, bookcaseOpenLow, books,
+             coatRackStanding, trashcan
+Lighting     lampRoundFloor, lampSquareCeiling, lampSquareFloor, lampWall
+Greenery     plantSmall1, plantSmall2, plantSmall3, pottedPlant
+Soft goods   rugDoormat, rugRectangle, rugRound
+Shell        doorway, doorwayOpen, floorCorner, floorFull, floorHalf,
+             paneling, stairs, wall, wallCorner, wallDoorway,
+             wallDoorwayWide, wallHalf, wallWindow
+Other        televisionModern
+
+Why OBJ and not FBX
+-------------------
+Kenney ships this kit in six formats. The FBX ones are *ASCII* FBX, unlike
+every other Kenney model already in this project (Models/Golf/*.fbx are all
+binary "Kaydara FBX Binary" files). ASCII FBX cannot be opened in Blender at
+all -- the importer rejects it outright -- so the assets could not be inspected
+or previewed before shipping them, and Unity's support for the variant is not
+something this project should be betting on.
+
+The OBJ format is imported natively by Unity, loads in Blender, and carries the
+same geometry. So the .obj/.mtl pair is what lives here. Keep them together:
+the .mtl next to the .obj is what feeds DiffuseColor to the postprocessor.
+
+Materials
+---------
+There are no textures. Each .mtl defines flat diffuse colours by material name
+(wood, fabric, metal, ...), which is the same shape of input
+KenneyModelPostprocessor already handles for the golf kit: it rebuilds on URP
+Lit, carries the diffuse colour over, and applies KitAlbedoTint (0.72) so the
+props sit in the same light as the turf rather than glowing.
+
+Furniture/ falls inside that postprocessor's scope automatically -- it claims
+all of Resources/Models/ except Authored/ -- so no new import script was
+needed for this pack.
+
+Scale
+-----
+Models are authored small: heights run from 0.01 m (rugs, doormats) to 1.34 m
+(the tall bookcase and coat rack). The wall and floor pieces are built on a
+1-unit grid, so an interior can be blocked out by snapping them to whole
+metres. These are Kenney's own proportions and have not been rescaled; if the
+clubhouse interior reads as oversized next to them, the clubhouse is the thing
+to adjust, since it is the authored asset.
+
+Known gaps
+----------
+- No golf-specific props. There are no bags, carts, club racks, trophy cases or
+  scoreboards in this kit, and a clubhouse pro shop wants them. They need to be
+  authored or sourced separately.
+- No ceiling pieces. The kit has floors and walls but nothing to close the top
+  of a room, so interiors either stay open or need a flipped floorFull.
+- wallWindow is the only glazed shell piece, so a window wall longer than one
+  unit repeats visibly.
+- Nothing here is placed in a scene yet. These are library assets only; there
+  is no clubhouse interior prefab, and no code references Models/Furniture.

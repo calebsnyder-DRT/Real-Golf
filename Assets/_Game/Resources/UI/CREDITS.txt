@@ -1,0 +1,120 @@
+Real-Golf - menu and HUD art
+============================
+
+Source
+------
+All sprites, fonts and sounds in this folder are by Kenney (https://kenney.nl),
+released under CC0 1.0 Universal (Public Domain Dedication). Attribution is not
+legally required; it is given here as a courtesy.
+
+    Folder / file            Count  Kenney pack
+    ------------------------ ------ ------------------------------
+    Sprites/green_*             82  UI Pack
+    Sprites/grey_*              82  UI Pack
+    Sprites/extra_*             24  UI Pack (Extra set)
+    Icons/                     105  Game Icons
+    Bars/                       24  UI Pack: RPG Expansion
+    Fonts/Kenney Future*         2  UI Pack
+    ../../Art/Audio/UI/*.ogg     6  UI Pack
+
+License: CC0 1.0 - https://creativecommons.org/publicdomain/zero/1.0/
+
+
+What was taken, and why only this much
+--------------------------------------
+The UI Pack ships 870 sprites: 82 elements repeated across six colour themes
+(Blue, Green, Grey, Red, Yellow, Extra) in Default and Double weights. Importing
+all of it would bury the two themes this game actually uses, so only the Default
+weight of two themes came across:
+
+  green_*  the primary theme, to sit with the course palette
+  grey_*   the neutral/disabled state for the same elements
+
+Both themes carry the identical 82 element names, so any control can be swapped
+between enabled and disabled by changing only the prefix. The Extra set is
+theme-independent (text fields, dividers, play/repeat glyphs) and is included
+once.
+
+Icons are the White 2x set. White tints to any colour through Image.color,
+whereas the Black set cannot be tinted lighter, and 2x (100x100) has enough
+resolution for a 1920x1080 reference canvas.
+
+Bars are the segmented left/mid/right pieces in back, green, red and yellow.
+They are here for the three-click swing meter, which needs a fill that reads at
+a glance rather than a smooth gradient.
+
+
+Why this lives under Resources
+------------------------------
+It started in Art/UI/ and was moved here. The UI is built entirely in code --
+UIFactory, GameHUD and CourseSelectMenu have no serialised fields and there is
+no prefab anywhere -- so Resources.Load is the only way a sprite can reach a
+running Image. Under Art/ the whole set was unreachable at runtime.
+
+The cost is that everything here ships in the build whether it is referenced or
+not. That is accepted: the set is ~320 PNGs of at most 192 px, which is a few
+megabytes uncompressed.
+
+The move happened before Unity had ever imported these files, so no .meta
+existed and no GUID references were broken by it.
+
+
+Import settings
+---------------
+Owned by Assets/_Game/Scripts/Editor/UISpritePostprocessor.cs, which claims all
+of Resources/UI/. It sets the sprite type (the PNGs are unusable by Image
+without it), disables mipmaps, leaves them uncompressed, and sets nine-slice
+borders. The model postprocessors are scoped to Resources/Models/, so sharing
+the Resources tree with them causes no ordering conflict.
+
+The borders are derived from how Kenney authored the art, not guessed:
+
+    button_rectangle_*   192x64, 16 px corner radius  -> border 16
+    button_square_*      64x64,  same radius          -> border 16
+    input_rectangle/square                            -> border 16
+    *_depth_*            extra bottom lip             -> bottom border 24
+    slide_horizontal_*   96x16, 8 px caps             -> border (8,0,8,0)
+    slide_vertical_*                                  -> border (0,8,0,8)
+    button_round_*, icons, stars, checks, bar caps    -> border 0
+
+Round buttons are deliberately left unsliced: stretching the middle of a circle
+produces a capsule.
+
+
+What is wired up
+----------------
+UI/CourseSelectMenu.cs dresses the course select with these, by way of
+UI/UITheme.cs, which is the only place the raw filenames appear:
+
+    grey_button_rectangle_flat        course card, unselected
+    grey_button_rectangle_border      course card, hovered
+    green_button_rectangle_border     course card, selected
+    green_button_rectangle_depth_*    the Tee Off button
+    green_star / grey_star_outline    difficulty rating
+    extra_divider                     rule under the course name
+    Fonts/Kenney Future               title and Tee Off
+    Fonts/Kenney Future Narrow        everything else
+
+The flat variants are used for the cards rather than the gloss or gradient ones
+because a card is a large area: a stretched gradient bands visibly and the gloss
+highlight lands as a bright stripe through the text.
+
+UITheme returns null for art that has not been imported, and every caller falls
+back to a flat colour, so the menu still works before the sprites exist.
+
+
+Not wired up yet
+----------------
+    Icons/          105 glyphs, none referenced. The menu needs no icon; these
+                    are for a settings screen and the pause menu.
+    Bars/           intended for the three-click swing meter, which still draws
+                    itself from solid-colour panels in GameHUD.
+    Audio/UI/       left in Art/, deliberately unmoved. GolfAudio synthesises
+                    every sound in the game on first use, and adding six .ogg
+                    files would be the first binary audio in the project; the
+                    menu is silent rather than quietly breaking that rule.
+    Sprites/        the sliders, checkboxes, text fields and ~170 other elements
+                    have no screen to appear on yet.
+
+The HUD itself is still untouched: GameHUD builds from solid-colour Image panels
+and the built-in font. Only the course select uses this art.

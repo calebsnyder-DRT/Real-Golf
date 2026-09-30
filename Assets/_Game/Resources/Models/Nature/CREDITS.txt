@@ -1,0 +1,128 @@
+Real-Golf - photoscanned vegetation
+===================================
+
+Source
+------
+All models and textures in this folder are derived from Poly Haven
+(https://polyhaven.com), released under CC0 1.0 Universal (Public Domain
+Dedication). No attribution is legally required; it is given here as a courtesy.
+
+    Asset                Poly Haven name      Authors
+    -------------------- -------------------- ------------------------------
+    island_tree_01       Island Tree 01       Rob Tuytel, Rico Cilliers
+    jacaranda_tree       Jacaranda Tree       Rob Tuytel, Rico Cilliers
+    tree_small_02        Tree Small 02        Rico Cilliers
+    fir_tree_01_a/b/c    Fir Tree 01          Rob Tuytel, Rico Cilliers
+    shrub_01             Shrub 01             Rico Cilliers
+    shrub_03             Shrub 03             Rico Cilliers
+    shrub_04             Shrub 04             Rico Cilliers
+    grass_bermuda_01     Grass Bermuda 01     Rico Cilliers
+
+License: CC0 1.0 - https://creativecommons.org/publicdomain/zero/1.0/
+
+Modifications made for this project
+-----------------------------------
+The source scans are not usable as shipped (island_tree_01 alone is 1,599,403
+triangles and sits on a scanned rock). Every asset here has been reprocessed:
+
+1. Ground bases removed. island_tree_01 and jacaranda_tree were scanned sitting
+   on a rock/dirt slab that shares a material with the trunk, so the slab was cut
+   away geometrically rather than by material. Every asset now has a flat bottom
+   sitting exactly on z=0 with its origin at the centre of the trunk base.
+
+2. LOD chains. Each FBX contains three meshes, <asset>_LOD0/1/2. Woody geometry
+   is collapse-decimated; leaf and needle geometry is not, because collapsing
+   alpha cards destroys them. Instead each card's redundant interior tessellation
+   is dissolved (the outline and UVs survive), whole cards are then dropped at
+   random, and the survivors are scaled about their own centroids to keep the
+   canopy opaque.
+
+3. Alpha. Poly Haven ships the leaf cutout as a separate *_alpha map. It has been
+   composited into the alpha channel of the matching *_diff.png, and colour has
+   been bled outward under the cut texels so mipmaps do not darken leaf edges.
+
+4. Colour grading. The source scans are Mediterranean yellow-olive. Leaf, shrub
+   and turf diffuse maps were regraded in linear light toward the target art
+   direction (a saturated, distinctly yellow-green mid-green), and bark was warmed
+   from cold grey toward brown.
+
+5. Textures downsampled from 2K and repacked (diffuse 512-1024, normals 512,
+   roughness 256-512) to keep the whole set small.
+
+Texture suffixes are _diff / _nor / _rough. They deliberately avoid _albedo and
+_normal, which BakedTexturePostprocessor already claims across
+Resources/Models/. Import settings for this folder are owned by
+Assets/_Game/Scripts/Editor/NatureTexturePostprocessor.cs.
+
+
+Real-Golf - stylized vegetation (Nature/Stylized)
+=================================================
+
+Source
+------
+Stylized Nature MegaKit (Standard/free tier), by Quaternius
+(https://quaternius.com/packs/stylizednaturemegakit.html), released under
+CC0 1.0 Universal. No attribution is legally required; it is given here as a
+courtesy. 68 of the pack's 116 models ship in the free tier, and all 68 are
+installed here.
+
+    Folder      Models  Contents
+    ----------- ------- ----------------------------------------------
+    Trees            20 CommonTree, Pine, DeadTree, TwistedTree (5 each)
+    Shrubs           11 bushes, ferns, plants, clovers, mushrooms
+    Grass             4 common and wispy, short and tall
+    Flowers           9 flower groups/singles and loose petals
+    Rocks            24 boulders, pebbles, stepping-stone paths
+
+These are a different art direction from the photoscanned set above: flat-lit
+stylized geometry with hand-painted atlases, not regraded scans. They are kept
+in Stylized/ so the two can be chosen per hole rather than mixed by accident.
+
+Modifications made for this project
+-----------------------------------
+1. The pack's "FBX (Unity)" variants are used, not the plain FBX set, so the
+   axis conversion is already correct for Unity.
+
+2. Textures renamed onto this folder's _diff / _nor convention, keyed on the
+   FBX material names so NatureTexturePostprocessor resolves them with no new
+   code. The pack ships each leaf sheet twice: a white alpha-only mask and a
+   coloured "_C" variant. The "_C" variants are the real albedo and are the
+   ones installed as _diff:
+
+       Bark_NormalTree.png          -> Bark_NormalTree_diff.png
+       Bark_NormalTree_Normal.png   -> Bark_NormalTree_nor.png
+       Bark_DeadTree.png            -> Bark_DeadTree_diff.png
+       Bark_DeadTree_Normal.png     -> Bark_DeadTree_nor.png
+       Bark_TwistedTree.png         -> Bark_TwistedTree_diff.png
+       Bark_TwistedTree_Normal.png  -> Bark_TwistedTree_nor.png
+       Leaves_NormalTree_C.png      -> Leaves_NormalTree_diff.png
+       Leaf_Pine_C.png              -> Leaves_Pine_diff.png
+       Leaves_TwistedTree_C.png     -> Leaves_TwistedTree_diff.png
+       Leaves.png                   -> Leaves_diff.png
+       Flowers.png                  -> Flowers_diff.png
+       Grass.png                    -> Grass_diff.png
+       Mushrooms.png                -> Mushrooms_diff.png
+       Rocks_Diffuse.png            -> Rocks_diff.png
+       PathRocks_Diffuse.png        -> PathRocks_diff.png
+
+   Only the bark maps ship normals; the foliage and rock sheets are diffuse
+   only, so those materials import flat-normalled. No _rough maps exist, which
+   is what NatureTexturePostprocessor already assumes.
+
+3. No LOD chains. Unlike the photoscanned assets these are 1.6k-10k triangles
+   as shipped, so they import as a single mesh and OnPostprocessModel's
+   _LOD0/1/2 wiring is skipped. TwistedTree is the heavy one (~10k tris) and
+   wants an LOD pass before it is scattered in quantity.
+
+Known gaps
+----------
+Bush_Common.fbx carries its woody stems on a material literally named
+"Material", so there is no Material_diff.png for it to resolve and the stems
+import untextured white. The leaf half of that model is fine. Either rename the
+material in the FBX or drop a Material_diff.png alongside the others.
+
+TwistedTree's leaf atlas is autumn red, not green. That is the shipped colour,
+not an import fault; point Leaves_TwistedTree_diff.png at a green sheet if a
+summer variant is wanted.
+
+License: CC0 1.0 - https://creativecommons.org/publicdomain/zero/1.0/
