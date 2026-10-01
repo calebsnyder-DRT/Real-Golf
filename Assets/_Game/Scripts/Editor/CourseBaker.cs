@@ -23,7 +23,6 @@ namespace Puttshack.EditorTools
         public const string MeshFolder = BakedRoot + "/Meshes";
         public const string MaterialFolder = BakedRoot + "/Materials";
         public const string ScenePath = "Assets/_Game/Scenes/Main.unity";
-        private const string SkyTexturePath = "Assets/_Game/Resources/Models/Course/Sky/sky_partly_cloudy.hdr";
 
         [MenuItem("Puttshack/Bake Course", priority = 1)]
         public static void BakeCourseMenu()
@@ -103,8 +102,6 @@ namespace Puttshack.EditorTools
             sun.transform.rotation = Quaternion.Euler(48, -35, 0);
             RenderSettings.sun = sun;
 
-            ConfigureEnvironment();
-
             HoleDefinition first = course.Holes[0];
             var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
             var cam = camGo.AddComponent<Camera>();
@@ -132,6 +129,7 @@ namespace Puttshack.EditorTools
             host.ShowEmulatorPanel = true;
             ProShopBaker.PlaceInScene(scene);
             CourseGolferBaker.PlaceInScene(scene);
+            CourseEnvironmentBaker.PlaceInScene(scene);
             HudBaker.PlaceInScene(scene);
 
             EnsureFolder(Path.GetDirectoryName(ScenePath).Replace('\\', '/'));
@@ -215,40 +213,6 @@ namespace Puttshack.EditorTools
             return problems;
         }
 
-        private static void ConfigureEnvironment()
-        {
-            var sky = AssetDatabase.LoadAssetAtPath<Texture>(SkyTexturePath);
-            Shader panoramic = Shader.Find("Skybox/Panoramic");
-            if (sky != null && panoramic != null)
-            {
-                string path = $"{MaterialFolder}/Sky.mat";
-                var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
-                if (mat == null)
-                {
-                    mat = new Material(panoramic) { name = "Sky" };
-                    AssetDatabase.CreateAsset(mat, path);
-                }
-                mat.shader = panoramic;
-                mat.SetTexture("_MainTex", sky);
-                if (mat.HasProperty("_Exposure")) mat.SetFloat("_Exposure", 1.1f);
-                EditorUtility.SetDirty(mat);
-                RenderSettings.skybox = mat;
-                RenderSettings.ambientMode = AmbientMode.Skybox;
-            }
-            else
-            {
-                RenderSettings.ambientMode = AmbientMode.Trilight;
-                RenderSettings.ambientSkyColor = new Color(0.62f, 0.72f, 0.85f);
-                RenderSettings.ambientEquatorColor = new Color(0.55f, 0.6f, 0.52f);
-                RenderSettings.ambientGroundColor = new Color(0.3f, 0.32f, 0.25f);
-            }
-            RenderSettings.fog = true;
-            RenderSettings.fogMode = FogMode.Linear;
-            RenderSettings.fogColor = new Color(0.78f, 0.84f, 0.88f);
-            RenderSettings.fogStartDistance = 180f;
-            RenderSettings.fogEndDistance = 900f;
-        }
-
         /// <summary>Saves each generated material as an asset, updating an existing asset in place so references survive.</summary>
         private static void PersistMaterials(CourseVisualAssets assets)
         {
@@ -262,6 +226,8 @@ namespace Puttshack.EditorTools
             assets.Cup = Persist(assets.Cup);
             assets.TeeMarker = Persist(assets.TeeMarker);
             assets.BoundaryStake = Persist(assets.BoundaryStake);
+            assets.PenaltyStake = Persist(assets.PenaltyStake);
+            assets.Foliage = Persist(assets.Foliage);
         }
 
         private static Material Persist(Material generated)

@@ -23,6 +23,14 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _BeachNormal:
+        m_Texture: {fileID: 2800000, guid: 0288a0ce44e46423fb4a0cf6c7a2b788, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BeachTex:
+        m_Texture: {fileID: 2800000, guid: 9f7325a6623604c539784784565e1297, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BunkerTex:
         m_Texture: {fileID: 2800000, guid: f644a1e39d74f4387ac36de00abda256, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -39,19 +47,51 @@ Material:
         m_Texture: {fileID: 2800000, guid: f8265f76ee7534ea9b024453a4c0f02a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _RockNormal:
+        m_Texture: {fileID: 2800000, guid: 27039ab880b104794a9668b29dad5621, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RockTex:
+        m_Texture: {fileID: 2800000, guid: 6581a1fc0083e473ab7a0a2219eab518, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _RoughTex:
         m_Texture: {fileID: 2800000, guid: 19d5d3ae55d924f10b2f5757d32b6d19, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SandNormal:
+        m_Texture: {fileID: 2800000, guid: 6118a95140d484438ad783ce19d86824, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TurfNormal:
+        m_Texture: {fileID: 2800000, guid: 0e68b2ab6d9704990930959824e97790, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _BeachTop: -7.4
+    - _GreenStripeStrength: 0.05
+    - _GreenStripeWidth: 1.8
+    - _MacroStrength: 0.35
+    - _NormalStrength: 0.6
+    - _RockScale: 0.11
+    - _RockSlope: 0.74
+    - _SeaLevel: -10
+    - _StripeStrength: 0.09
+    - _StripeWidth: 5.5
     - _TextureStrength: 0.55
     - _Tiling: 0.12
+    - _UseMasks: 1
     m_Colors:
-    - _BunkerTint: {r: 0.93, g: 0.86, b: 0.65999997, a: 1}
-    - _DeepRoughTint: {r: 0.24999997, g: 0.41999996, b: 0.15999997, a: 1}
-    - _FairwayTint: {r: 0.45, g: 0.7, b: 0.27999997, a: 1}
-    - _GreenTint: {r: 0.41999996, g: 0.74, b: 0.29999998, a: 1}
-    - _RoughTint: {r: 0.35999998, g: 0.54999995, b: 0.21999997, a: 1}
+    - _BeachTint: {r: 0.93, g: 0.8399999, b: 0.68, a: 1}
+    - _BunkerTint: {r: 0.96, g: 0.92, b: 0.82, a: 1}
+    - _CollarTint: {r: 0.45, g: 0.7, b: 0.26999995, a: 1}
+    - _DeepRoughTint: {r: 0.35999998, g: 0.41999996, b: 0.19999996, a: 1}
+    - _FairwayTint: {r: 0.41999996, g: 0.65999997, b: 0.23999995, a: 1}
+    - _GreenTint: {r: 0.35999998, g: 0.65999997, b: 0.24999997, a: 1}
+    - _RockTint: {r: 0.6, g: 0.56999993, b: 0.53, a: 1}
+    - _RoughTint: {r: 0.35999998, g: 0.52, b: 0.19999996, a: 1}
+    - _ScrubTint: {r: 0.52, g: 0.29999998, b: 0.21999997, a: 1}
+    - _WetSandTint: {r: 0.54999995, g: 0.4699999, b: 0.36999997, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

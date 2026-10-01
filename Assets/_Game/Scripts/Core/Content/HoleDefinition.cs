@@ -21,6 +21,8 @@ namespace Puttshack.Content
         public string Id;
         public List<Vec2d> Polygon = new List<Vec2d>();
         public string DropPointId;
+        /// <summary>Flat water surface height for sea hazards (the terrain below it reads as water); null drapes water on the terrain.</summary>
+        public double? WaterLevelM;
     }
 
     [Serializable]
@@ -49,6 +51,13 @@ namespace Puttshack.Content
         Plateau,
         /// <summary>Planar tilt (rise per meter along Slope) weighted by the same smooth falloff.</summary>
         Tilt,
+        /// <summary>
+        /// Cliff or shoreline along the polyline Path: on its left side (looking along the path) the height blends to the
+        /// absolute Height, starting InnerRadius from the line and complete at OuterRadius. The end segments extend as rays.
+        /// </summary>
+        Shelf,
+        /// <summary>Depression inside the polygon Path (a bunker): Height (negative) reached InnerRadius in from the edge.</summary>
+        Bowl,
     }
 
     [Serializable]
@@ -60,6 +69,7 @@ namespace Puttshack.Content
         public double OuterRadius;
         public double Height;
         public Vec2d Slope;
+        public List<Vec2d> Path;
     }
 
     [Serializable]
@@ -145,6 +155,40 @@ namespace Puttshack.Content
                 pts.Add(new Vec2d(cx + lx * c - lz * s, cz + lx * s + lz * c));
             }
             return pts;
+        }
+
+        /// <summary>Open Catmull-Rom curve through the control points, <paramref name="samples"/> points per span.</summary>
+        public static List<Vec2d> CatmullRom(IReadOnlyList<Vec2d> control, int samples)
+        {
+            var pts = new List<Vec2d>((control.Count - 1) * samples + 1);
+            for (int i = 0; i < control.Count - 1; i++)
+            {
+                Vec2d p0 = control[Math.Max(0, i - 1)], p1 = control[i], p2 = control[i + 1], p3 = control[Math.Min(control.Count - 1, i + 2)];
+                for (int s = 0; s < samples; s++) pts.Add(CatmullRomPoint(p0, p1, p2, p3, (double)s / samples));
+            }
+            pts.Add(control[control.Count - 1]);
+            return pts;
+        }
+
+        /// <summary>Closed Catmull-Rom loop through the control points, <paramref name="samples"/> points per span.</summary>
+        public static List<Vec2d> CatmullRomLoop(IReadOnlyList<Vec2d> control, int samples)
+        {
+            int n = control.Count;
+            var pts = new List<Vec2d>(n * samples);
+            for (int i = 0; i < n; i++)
+            {
+                Vec2d p0 = control[(i + n - 1) % n], p1 = control[i], p2 = control[(i + 1) % n], p3 = control[(i + 2) % n];
+                for (int s = 0; s < samples; s++) pts.Add(CatmullRomPoint(p0, p1, p2, p3, (double)s / samples));
+            }
+            return pts;
+        }
+
+        private static Vec2d CatmullRomPoint(Vec2d p0, Vec2d p1, Vec2d p2, Vec2d p3, double t)
+        {
+            double t2 = t * t, t3 = t2 * t;
+            return new Vec2d(
+                0.5 * (2 * p1.x + (-p0.x + p2.x) * t + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3),
+                0.5 * (2 * p1.z + (-p0.z + p2.z) * t + (2 * p0.z - 5 * p1.z + 4 * p2.z - p3.z) * t2 + (-p0.z + 3 * p1.z - 3 * p2.z + p3.z) * t3));
         }
 
         public static List<Vec2d> Rect(double minX, double minZ, double maxX, double maxZ) => new List<Vec2d>

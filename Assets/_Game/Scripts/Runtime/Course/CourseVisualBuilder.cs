@@ -30,8 +30,12 @@ namespace Puttshack.Runtime.Course
 
             AddMesh(root.transform, "Ground", BuildGroundMesh(hole, world), assets.Ground, receiveShadows: true, castShadows: false);
 
+            // Sea hazards (flat WaterLevelM) are drawn by the baked coastal environment; ponds drape on the terrain.
             var hazardPolygons = new List<List<Vec2d>>();
-            foreach (HazardVolume hazard in hole.Hazards) hazardPolygons.Add(hazard.Polygon);
+            foreach (HazardVolume hazard in hole.Hazards)
+            {
+                if (!hazard.WaterLevelM.HasValue) hazardPolygons.Add(hazard.Polygon);
+            }
             Mesh water = BuildOverlayMesh($"{hole.Id}_water", hole, world, hazardPolygons, 0.05f, true);
             if (water != null) AddMesh(root.transform, "Water", water, assets.Water, receiveShadows: false, castShadows: false);
 
@@ -50,6 +54,7 @@ namespace Puttshack.Runtime.Course
             baked.Tee = BuildTee(hole, world, assets, root.transform);
             baked.Cup = BuildCupAndFlag(hole, world, assets, root.transform);
             BuildBoundaryStakes(hole, world, assets, root.transform);
+            BuildPenaltyStakes(hole, world, assets, root.transform);
             return baked;
         }
 
@@ -62,6 +67,10 @@ namespace Puttshack.Runtime.Course
             var vertices = new Vector3[nx * nz];
             var normals = new Vector3[nx * nz];
             var colors = new Color32[nx * nz];
+            var stripes = new Vector2[nx * nz];
+            var masksA = new Vector2[nx * nz];
+            var masksB = new Vector2[nx * nz];
+            var masks = new SurfaceMasks(hole);
             for (int iz = 0; iz < nz; iz++)
             {
                 for (int ix = 0; ix < nx; ix++)
@@ -72,6 +81,8 @@ namespace Puttshack.Runtime.Course
                     vertices[i] = new Vector3((float)x, (float)world.GroundHeight(x, z), (float)z);
                     normals[i] = world.GroundNormal(x, z).ToUnity();
                     colors[i] = SurfaceWeights(world.InBounds(x, z) ? world.SurfaceAt(x, z) : SurfaceId.DeepRough);
+                    stripes[i] = masks.Stripe(x, z);
+                    masks.Sample(x, z, world.InBounds(x, z), out masksA[i], out masksB[i]);
                 }
             }
 
@@ -94,9 +105,72 @@ namespace Puttshack.Runtime.Course
             mesh.vertices = vertices;
             mesh.normals = normals;
             mesh.colors32 = colors;
+            mesh.uv = stripes;
+            mesh.uv2 = masksA;
+            mesh.uv3 = masksB;
             mesh.triangles = triangles;
             mesh.RecalculateBounds();
             return mesh;
+        }
+
+        /// <summary>
+        /// Per-vertex signed distances (meters, negative inside, clamped to +-<see cref="MaskRange"/>) to the green, bunker,
+        /// fairway/tee and deep-rough regions, so the ground shader draws crisp outlines that follow the gameplay polygons
+        /// instead of the 0.8 m grid. UV0 carries mowing-stripe coordinates along and across the line of play.
+        /// </summary>
+        private sealed class SurfaceMasks
+        {
+            public const float MaskRange = 6f;
+            private readonly List<List<Vec2d>> _green = new List<List<Vec2d>>();
+            private readonly List<List<Vec2d>> _bunker = new List<List<Vec2d>>();
+            private readonly List<List<Vec2d>> _fairway = new List<List<Vec2d>>();
+            private readonly List<List<Vec2d>> _deep = new List<List<Vec2d>>();
+            private readonly Vec2d _origin;
+            private readonly Vec2d _along;
+
+            public SurfaceMasks(HoleDefinition hole)
+            {
+                foreach (SurfaceRegion region in hole.Surfaces)
+                {
+                    switch (region.Surface)
+                    {
+                        case SurfaceId.Green: _green.Add(region.Polygon); break;
+                        case SurfaceId.Bunker: _bunker.Add(region.Polygon); break;
+                        case SurfaceId.Fairway:
+                        case SurfaceId.Tee: _fairway.Add(region.Polygon); break;
+                        case SurfaceId.DeepRough: _deep.Add(region.Polygon); break;
+                    }
+                }
+                _origin = new Vec2d(hole.TeeM.x, hole.TeeM.z);
+                double dx = hole.CupM.x - hole.TeeM.x, dz = hole.CupM.z - hole.TeeM.z;
+                double len = Math.Sqrt(dx * dx + dz * dz);
+                _along = len > 1e-6 ? new Vec2d(dx / len, dz / len) : new Vec2d(0, 1);
+            }
+
+            public Vector2 Stripe(double x, double z)
+            {
+                double ox = x - _origin.x, oz = z - _origin.z;
+                return new Vector2((float)(ox * _along.x + oz * _along.z), (float)(ox * _along.z - oz * _along.x));
+            }
+
+            public void Sample(double x, double z, bool inBounds, out Vector2 a, out Vector2 b)
+            {
+                a = new Vector2(Distance(_green, x, z), Distance(_bunker, x, z));
+                b = new Vector2(Distance(_fairway, x, z), inBounds ? Distance(_deep, x, z) : -MaskRange);
+            }
+
+            private static float Distance(List<List<Vec2d>> polygons, double x, double z)
+            {
+                double best = MaskRange;
+                foreach (List<Vec2d> polygon in polygons)
+                {
+                    double d = TerrainModel.DistanceToEdge(polygon, x, z);
+                    if (d > MaskRange && !Shapes.Contains(polygon, x, z)) continue;
+                    if (Shapes.Contains(polygon, x, z)) d = -d;
+                    if (d < best) best = d;
+                }
+                return (float)Math.Max(-MaskRange, best);
+            }
         }
 
         /// <summary>Grid-cell overlay draped on the terrain for cells whose center satisfies <paramref name="inside"/>.</summary>
@@ -265,7 +339,8 @@ namespace Puttshack.Runtime.Course
         {
             var basePos = new Vector3((float)tree.Position.x, (float)world.GroundHeight(tree.Position.x, tree.Position.z), (float)tree.Position.z);
             bool pine = tree.Id.StartsWith("pine", StringComparison.Ordinal);
-            List<GameObject> models = pine ? assets.PineModels : assets.BroadleafModels;
+            bool cypress = tree.Id.StartsWith("cypress", StringComparison.Ordinal);
+            List<GameObject> models = cypress && assets.CypressModels.Count > 0 ? assets.CypressModels : pine ? assets.PineModels : assets.BroadleafModels;
 
             if (models.Count > 0)
             {
@@ -273,8 +348,11 @@ namespace Puttshack.Runtime.Course
                 GameObject instance = InstantiateModel(model, parent);
                 instance.name = tree.Id;
                 instance.transform.position = basePos;
-                instance.transform.rotation = Quaternion.Euler(0, (index * 137.5f) % 360f, 0);
+                // Cypress models lean inland (+X) like the windswept coastal trees, so they only get a small twist.
+                float yaw = cypress ? (index * 23f) % 50f - 25f : (index * 137.5f) % 360f;
+                instance.transform.rotation = Quaternion.Euler(0, yaw, 0);
                 FitHeight(instance, (float)tree.CanopyHeight);
+                if (cypress) assets.ApplyFoliage(instance);
                 return;
             }
 
@@ -295,13 +373,22 @@ namespace Puttshack.Runtime.Course
             var tee = new GameObject("Tee").transform;
             tee.SetParent(parent, false);
             tee.position = hole.TeeM.ToUnity();
-            foreach (float side in new[] { -2.5f, 2.5f })
+            foreach (float side in new[] { -3f, 3f })
             {
-                GameObject marker = Primitive(PrimitiveType.Sphere, "Tee Marker", tee, assets.TeeMarker, true);
                 double x = hole.TeeM.x + side;
-                double z = hole.TeeM.z + 1.2;
-                marker.transform.position = new Vector3((float)x, (float)world.GroundHeight(x, z) + 0.1f, (float)z);
-                marker.transform.localScale = Vector3.one * 0.22f;
+                double z = hole.TeeM.z + 2.5;
+                var ground = new Vector3((float)x, (float)world.GroundHeight(x, z), (float)z);
+                if (assets.TeeMarkerModel != null)
+                {
+                    // Turned peg ~10 cm tall with its base at the pivot.
+                    GameObject model = InstantiateModel(assets.TeeMarkerModel, tee);
+                    model.name = "Tee Marker";
+                    model.transform.position = ground;
+                    continue;
+                }
+                GameObject marker = Primitive(PrimitiveType.Cylinder, "Tee Marker", tee, assets.TeeMarker, true);
+                marker.transform.position = ground + new Vector3(0, 0.05f, 0);
+                marker.transform.localScale = new Vector3(0.06f, 0.05f, 0.06f);
             }
             return tee;
         }
@@ -346,11 +433,58 @@ namespace Puttshack.Runtime.Course
                     double f = (double)k / count;
                     double x = a.x + (b.x - a.x) * f;
                     double z = a.z + (b.z - a.z) * f;
+                    if (world.HazardAt(x, z) != null || BelowSea(hole, world, x, z)) continue;
                     GameObject stake = Primitive(PrimitiveType.Cylinder, "Stake", stakes, assets.BoundaryStake, true);
                     stake.transform.localScale = new Vector3(0.06f, 0.45f, 0.06f);
                     stake.transform.position = new Vector3((float)x, (float)world.GroundHeight(x, z) + 0.45f, (float)z);
                 }
             }
+        }
+
+        /// <summary>Red stakes along the playable edge of each hazard (inside the boundary), set just outside the line.</summary>
+        private static void BuildPenaltyStakes(HoleDefinition hole, ICollisionWorld world, CourseVisualAssets assets, Transform parent)
+        {
+            if (assets.PenaltyStake == null || hole.Hazards.Count == 0) return;
+            var stakes = new GameObject("Penalty Area Stakes").transform;
+            stakes.SetParent(parent, false);
+            const double spacing = 14.0;
+            foreach (HazardVolume hazard in hole.Hazards)
+            {
+                List<Vec2d> poly = hazard.Polygon;
+                double next = spacing * 0.5, walked = 0;
+                for (int i = 0; i < poly.Count; i++)
+                {
+                    Vec2d a = poly[i];
+                    Vec2d b = poly[(i + 1) % poly.Count];
+                    double dx = b.x - a.x, dz = b.z - a.z;
+                    double len = Math.Sqrt(dx * dx + dz * dz);
+                    double start = walked;
+                    walked += len;
+                    if (len < 1e-6) continue;
+                    for (; next < walked; next += spacing)
+                    {
+                        double s = next - start;
+                        double x = a.x + dx * s / len, z = a.z + dz * s / len;
+                        // Step off the line toward whichever side is playable.
+                        double nx = -dz / len, nz = dx / len;
+                        double px = x + nx * 0.6, pz = z + nz * 0.6;
+                        if (world.HazardAt(px, pz) != null) { px = x - nx * 0.6; pz = z - nz * 0.6; }
+                        if (!world.InBounds(px, pz) || world.HazardAt(px, pz) != null) continue;
+                        GameObject stake = Primitive(PrimitiveType.Cylinder, "Penalty Stake", stakes, assets.PenaltyStake, true);
+                        stake.transform.localScale = new Vector3(0.05f, 0.4f, 0.05f);
+                        stake.transform.position = new Vector3((float)px, (float)world.GroundHeight(px, pz) + 0.4f, (float)pz);
+                    }
+                }
+            }
+        }
+
+        private static bool BelowSea(HoleDefinition hole, ICollisionWorld world, double x, double z)
+        {
+            foreach (HazardVolume hazard in hole.Hazards)
+            {
+                if (hazard.WaterLevelM.HasValue && world.GroundHeight(x, z) < hazard.WaterLevelM.Value + 0.5) return true;
+            }
+            return false;
         }
 
         private static void AddMesh(Transform parent, string name, Mesh mesh, Material material, bool receiveShadows, bool castShadows)
