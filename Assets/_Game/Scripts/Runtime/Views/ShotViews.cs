@@ -3,6 +3,7 @@ using Puttshack.Content;
 using Puttshack.Domain;
 using Puttshack.Input;
 using Puttshack.Runtime.Course;
+using Puttshack.Simulation;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -11,9 +12,9 @@ namespace Puttshack.Runtime.Views
     /// <summary>Animates a committed trajectory. Presentation never alters the stored outcome.</summary>
     public sealed class BallView : MonoBehaviour
     {
-        /// <summary>Visual-only enlargement so the ball stays readable on a cabinet display.</summary>
-        public const float VisualScale = 2.5f;
-        private const float BallRadius = 0.02135f;
+        /// <summary>Visual-only enlargement so the ball stays readable on a cabinet display (64 mm vs. the real 42.67 mm).</summary>
+        public const float VisualScale = 1.5f;
+        private static readonly float BallRadius = (float)SolverParameters.Default.BallRadius;
 
         private ShotResult _playing;
         private float _time;

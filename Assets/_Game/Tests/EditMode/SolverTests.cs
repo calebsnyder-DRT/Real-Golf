@@ -82,14 +82,14 @@ namespace Puttshack.Tests
         private static double RollYd(string club, double power, SurfaceId surface) =>
             Units.MetersToYards(ShotSolver.Solve(Intent(club, power), new AnalyticWorld(Carpet(surface))).RollM);
 
-        [TestCase("driver", 15, 30)]
-        [TestCase("wood3", 8, 15)]
-        [TestCase("iron5", 8, 15)]
-        [TestCase("iron7", 3, 8)]
-        [TestCase("iron9", 3, 8)]
-        [TestCase("pw", 0, 4)]
-        [TestCase("sw", 0, 4)]
-        [TestCase("lw", 0, 4)]
+        [TestCase("driver", 25, 45)]
+        [TestCase("wood3", 15, 27)]
+        [TestCase("iron5", 12, 22)]
+        [TestCase("iron7", 9, 17)]
+        [TestCase("iron9", 6, 13)]
+        [TestCase("pw", 3, 9)]
+        [TestCase("sw", 1.5, 6)]
+        [TestCase("lw", 0.5, 4)]
         public void FairwayRollout_IsRealistic(string club, double minYd, double maxYd)
         {
             foreach (double p in new[] { 0.75, 0.9, 1.0 })
@@ -114,14 +114,16 @@ namespace Puttshack.Tests
             }
         }
 
-        [Test]
-        public void ApproachLandingOnGreen_ChecksUp()
+        [TestCase("iron5", 7)]
+        [TestCase("iron7", 7)]
+        [TestCase("iron9", 4)]
+        [TestCase("pw", 4)]
+        [TestCase("sw", 4)]
+        [TestCase("lw", 4)]
+        public void ApproachLandingOnGreen_ChecksUp(string club, double maxYd)
         {
-            foreach (string club in new[] { "iron5", "iron7", "iron9", "pw", "sw", "lw" })
-            {
-                foreach (double p in new[] { 0.75, 0.9, 1.0 })
-                    Assert.LessOrEqual(RollYd(club, p, SurfaceId.Green), 4, $"{club} @ {p}");
-            }
+            foreach (double p in new[] { 0.75, 0.9, 1.0 })
+                Assert.LessOrEqual(RollYd(club, p, SurfaceId.Green), maxYd, $"{club} @ {p}");
         }
 
         [Test]

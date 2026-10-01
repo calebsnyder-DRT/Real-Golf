@@ -7,7 +7,7 @@ namespace Puttshack.Domain
     public static class Versions
     {
         public const string Rules = "rules-1.0";
-        public const string Simulation = "sim-1.1";
+        public const string Simulation = "sim-1.2";
         public const int Protocol = 1;
         public const int IntentSchema = 1;
     }
