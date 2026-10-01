@@ -203,7 +203,12 @@ namespace Puttshack.Runtime
                 _balls.Add(ball);
             }
 
-            _hud = HudView.Create();
+            _hud = FindAnyObjectByType<HudView>(FindObjectsInactive.Include);
+            if (_hud == null)
+            {
+                Debug.LogWarning("[Puttshack] No baked HUD in this scene. Run Puttshack > HUD > Place HUD in Main Scene. Using the runtime fallback HUD.");
+                _hud = HudView.Create();
+            }
             if (ShowEmulatorPanel) gameObject.AddComponent<EmulatorPanel>().Host = this;
 
             GameObject courseGo = GameObject.Find("Course");
