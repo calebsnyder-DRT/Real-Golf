@@ -62,6 +62,8 @@ namespace Puttshack.Runtime
 
         private int _playingShotId = -1;
         private float _holdTimer = -1;
+        /// <summary>Seconds until the course golfer's clubhead meets the ball; the ball waits on the tee until then.</summary>
+        private float _launchDelay;
         private string _notice;
         private float _noticeUntil;
         private bool _showScorecard;
@@ -336,6 +338,11 @@ namespace Puttshack.Runtime
                 case SessionState.SHOT_PRESENTING:
                 {
                     if (_playingShotId != snap.Data.LastShotId) StartPlayback(snap);
+                    if (_launchDelay > 0f)
+                    {
+                        _launchDelay -= UnityEngine.Time.deltaTime * PlaybackSpeed;
+                        break;
+                    }
                     BallView ball = ShooterBall(snap);
                     if (ball != null && !ball.Advance(UnityEngine.Time.deltaTime * PlaybackSpeed)) break;
                     if (_holdTimer < 0) _holdTimer = ResultHoldSeconds / Mathf.Max(PlaybackSpeed, 0.01f);
@@ -361,6 +368,7 @@ namespace Puttshack.Runtime
             ball.Play(shot.Result);
             _playingShotId = shot.ShotId;
             _holdTimer = -1;
+            _launchDelay = _courseGolfer != null ? _courseGolfer.Swing(shot) : 0f;
         }
 
         public void SkipPresentation()
@@ -369,6 +377,7 @@ namespace Puttshack.Runtime
             if (snap.State != SessionState.SHOT_PRESENTING) return;
             ShooterBall(snap)?.Skip();
             _holdTimer = -1;
+            _launchDelay = 0f;
             Send(CommandType.PresentationSkip);
         }
 
@@ -597,20 +606,24 @@ namespace Puttshack.Runtime
                 toTarget.y = 0;
                 if (toTarget.sqrMagnitude > 0.01f) aim = toTarget.normalized;
             }
-            if (presenting || state == SessionState.SHOT_RESULT)
+            string golferClub = snap.Data.Arm?.ClubId ?? snap.Data.Setup.ClubId;
+            PlayerState golferPlayer = player;
+            ShotRecord shown = presenting || state == SessionState.SHOT_RESULT ? snap.LastShot : null;
+            if (shown != null)
             {
-                ShotRecord last = snap.LastShot;
-                if (last != null)
-                {
-                    aim = last.Intent.AimForward.ToUnity();
-                    ballPos = last.Intent.OriginM.ToUnity();
-                }
+                aim = shown.Intent.AimForward.ToUnity();
+                ballPos = shown.Intent.OriginM.ToUnity();
+                golferClub = shown.Intent.ClubId;
+                golferPlayer = snap.Data.Players.Find(p => p.Id == shown.PlayerId) ?? player;
             }
 
             if (_courseGolfer != null)
             {
-                _courseGolfer.Show(golferVisible);
-                if (golferVisible) _courseGolfer.Stand(ballPos, aim, player);
+                // The golfer stays through the swing and the result so the shot and the reaction are seen.
+                bool swinging = inHole && shown?.Intent != null && golferPlayer != null;
+                _courseGolfer.Show(golferVisible || swinging);
+                if (golferVisible || swinging) _courseGolfer.Stand(ballPos, aim, golferPlayer, golferClub, address: !swinging, wait: !swinging && state == SessionState.HANDOFF);
+                if (swinging && state == SessionState.SHOT_RESULT) _courseGolfer.React(shown, hole != null ? hole.CupM.ToUnity() : ballPos);
             }
             else
             {
@@ -666,7 +679,9 @@ namespace Puttshack.Runtime
                     break;
                 case SessionState.SHOT_RESOLVED:
                 case SessionState.SHOT_PRESENTING:
-                    mode = CameraMode.Follow;
+                    // Hold the address framing while the golfer swings; follow the ball once it leaves.
+                    if (_launchDelay > 0f) mode = snap.LastShot?.Intent?.ClubId == ClubCatalog.PutterId ? CameraMode.Putting : CameraMode.Setup;
+                    else mode = CameraMode.Follow;
                     break;
                 case SessionState.SHOT_RESULT:
                     mode = CameraMode.Result;

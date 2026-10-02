@@ -430,12 +430,18 @@ namespace Puttshack.Runtime.Shop
 
         // ---------------------------------------------------------------- Presentation
 
-        private static bool StandIn(PlayerState p) => GolferAppearance.IsStandIn(p);
+        private static int CharacterOf(PlayerState p) => GolferAppearance.CharacterOf(p);
 
         private void ApplyPreview()
         {
             if (Editor == null) return;
-            if (Golfer != null) Golfer.Apply(Editor.Current, StandIn(Editor.EditedPlayer));
+            if (Golfer != null)
+            {
+                int before = Golfer.Shown;
+                Golfer.Apply(Editor.Current, CharacterOf(Editor.EditedPlayer));
+                GolferMotion motion = Golfer.GetComponent<GolferMotion>();
+                if (motion != null && Golfer.Shown != before) motion.Refresh();
+            }
             ApplyPlinth();
             _dirty = true;
         }
@@ -488,7 +494,7 @@ namespace Puttshack.Runtime.Shop
                 {
                     Name = p.Name,
                     Identity = Palette.Player(p.ColorIndex),
-                    Portrait = Studio != null ? Studio.Portrait(i, Editor.Working(i), StandIn(p)) : null,
+                    Portrait = Studio != null ? Studio.Portrait(i, Editor.Working(i), CharacterOf(p)) : null,
                     Edited = i == Editor.EditedIndex,
                     Focused = Zone == ShopZone.Players && i == Editor.EditedIndex,
                     Turn = Editor.Origin == ShopOrigin.Paused && i == Editor.TurnIndex,

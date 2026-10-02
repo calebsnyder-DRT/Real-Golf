@@ -4,11 +4,23 @@ Every third-party asset used in `ArtSource/` renders and exports, with source an
 
 ## Shipped in exports
 
+### Caleb and Maya golfers (`Exports/Characters/`, `Assets/_Game/Art/Characters/`)
+
 | Asset | Used for | Source | Licence |
 |---|---|---|---|
-| Quaternius — Ultimate Modular Men (Feb 2022) | Caleb base meshes (`Casual2_Body/Legs/Feet`, `Casual_Legs`, `Casual_Head`), `CharacterArmature` rig, Idle/Walk/Wave clips. Restyled, recoloured, re-rigged to FK, split into modular parts. | https://quaternius.com/packs/ultimatemodularcharacters.html (Google Drive folder linked from that page) | CC0 1.0 |
+| Tencent Hunyuan3D-2 (shape model, run locally) | Body and face meshes of Caleb and Maya, generated from the project's own concept images (`Blender/stylized/source/`), then cleaned up, split into cosmetic parts, re-meshed hands and rigged in Blender (`Blender/scripts/pp_stylized*.py`) | https://github.com/Tencent/Hunyuan3D-2 | Tencent Hunyuan 3D 2.0 Community License. The licence does not cover the EU, the UK or South Korea; check it before shipping there. |
+| Concept views and face close-ups | Image-to-3D input and the projected head/face textures | Generated for this project (Cursor image generation) | Project-owned |
+| Adobe Mixamo animations (Y Bot, no skin, in place) | `Idle_Standard`, `Golf_Drive_Swing`, `Golf_Drive_Medium`, `Golf_Putt_Swing`, `React_FistPump`, `React_Disappointed`, `React_Victory`, re-exported with a T-pose rest by `Blender/scripts/pp_mixamo_tpose.py` (`Mixamo/YBot_TPose/`) and retargeted as Humanoid | https://www.mixamo.com | Mixamo terms: free for commercial and non-commercial use in projects; the raw files may not be redistributed on their own |
+| SegFormer (mattmdjaga/segformer_b2_clothes) | Clothing segmentation of the concept views (which pixels are top, trousers, shoes, skin, hair) | https://huggingface.co/mattmdjaga/segformer_b2_clothes | MIT |
+| rembg (isnet-general-use) | Background mattes of the concept views | https://github.com/danielgatis/rembg | MIT (tool), Apache-2.0 (IS-Net weights) |
 
-Everything else in the Caleb exports (collar, buttons, logo, belt, buckle, socks, colour variants, shoe accent split) was authored in Blender for this project.
+The clubs (`Blender/scripts/pp_golfer_clubs.py`), the polo collar, logo, belt, buckle, socks, shoe accents, garment variants and all materials are authored for this project.
+
+### Earlier Caleb (Pro Shop display items only)
+
+| Asset | Used for | Source | Licence |
+|---|---|---|---|
+| Quaternius — Ultimate Modular Men (Feb 2022) | The previous Caleb's modular parts, which the Pro Shop display items below were made from | https://quaternius.com/packs/ultimatemodularcharacters.html (Google Drive folder linked from that page) | CC0 1.0 |
 
 ## Used for review renders only (not in exports)
 

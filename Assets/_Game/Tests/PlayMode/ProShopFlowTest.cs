@@ -64,6 +64,8 @@ namespace Puttshack.Tests
             shop.SetCategory(ShopCategory.Tops);
             Assert.IsTrue(shop.TryOn("top.polo.coral"));
             shop.SelectPlayer(1);
+            Assert.AreEqual(1, shop.Golfer.Shown, "Maya's tab shows Maya.");
+            Assert.IsTrue(shop.Golfer.ShownPart("Head_Maya").gameObject.activeInHierarchy, "Maya wears her own face.");
             shop.SetCategory(ShopCategory.Bags);
             Assert.IsTrue(shop.TryOn("bag.cart.harbor"));
             Loadout calebBefore = LookOf(host, 0);

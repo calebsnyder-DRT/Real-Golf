@@ -324,3 +324,171 @@ MonoBehaviour:
   - Key: Top@F4F2EC
     Material: {fileID: 2100000, guid: a9624e8e1209e487280406c5ab2f511c, type: 2}
   Template: {fileID: 2100000, guid: ef6744b992e5e49d19b70e7fe08ed562, type: 2}
+  Bases:
+  - {fileID: 2100000, guid: bf73d59af137647ddb6ae4a5746479ab, type: 2}
+  - {fileID: 2100000, guid: 37b270c3a7abe427d97b8c5112660a39, type: 2}
+  - {fileID: 2100000, guid: d073f395f0c2d4c4fb9d0d1fbb92f5de, type: 2}
+  - {fileID: 2100000, guid: ddbecedf361b841ba80b9e20fd311b2e, type: 2}
+  - {fileID: 2100000, guid: 0b03bebe01af046e5baf92bd34990975, type: 2}
+  - {fileID: 2100000, guid: 188e1adfbc00d4e03958ed2e5119c5a0, type: 2}
+  - {fileID: 2100000, guid: d5828177cd7594febadec3a8b26fe3cb, type: 2}
+  - {fileID: 2100000, guid: 994f1cdb89c2e4c5987bcbe0540b1225, type: 2}
+  - {fileID: 2100000, guid: 990b1d34f55e64d1aafe23491dcf2faf, type: 2}
+  - {fileID: 2100000, guid: 368fdcde8b18b410c8b68f35f820ca2c, type: 2}
+  - {fileID: 2100000, guid: d2b49956b3dce4b80ab4dd076fb578b3, type: 2}
+  - {fileID: 2100000, guid: 15c75bdf2d08b4f13846d08f7499101f, type: 2}
+  - {fileID: 2100000, guid: 254bf9de8ec4e445facb8386ea08cb15, type: 2}
+  - {fileID: 2100000, guid: 47e7c5f7abfa7466db7e9ff85ccdab5a, type: 2}
+  Variants:
+  - Key: Belt@1F1F21~Mat_Belt_Leather
+    Material: {fileID: 2100000, guid: be1bfc7012cc54f84a47c221600e73ed, type: 2}
+  - Key: Belt@5A3A22~Mat_Belt_Leather
+    Material: {fileID: 2100000, guid: 35eb4e65df39444b7aa29131297bf5c0, type: 2}
+  - Key: Belt@EDEDEA~Mat_Belt_Leather
+    Material: {fileID: 2100000, guid: 114d63b6db1a248508e48dd61db8f3f4, type: 2}
+  - Key: Bottom@28324A~Mat_Bottom_Caleb
+    Material: {fileID: 2100000, guid: 44575180a3d724882bbfc2d81aae518b, type: 2}
+  - Key: Bottom@28324A~Mat_Bottom_Maya
+    Material: {fileID: 2100000, guid: c8129e28f400144fb970c8b27632c030, type: 2}
+  - Key: Bottom@2A2C2F~Mat_Bottom_Caleb
+    Material: {fileID: 2100000, guid: e503f6a94091b4873b957835ed946fa2, type: 2}
+  - Key: Bottom@2A2C2F~Mat_Bottom_Maya
+    Material: {fileID: 2100000, guid: 024af410ff2524d0c95e32e123dc6780, type: 2}
+  - Key: Bottom@8C9096~Mat_Bottom_Caleb
+    Material: {fileID: 2100000, guid: 573409bde3e9244fb88e85c80f147fbb, type: 2}
+  - Key: Bottom@8C9096~Mat_Bottom_Maya
+    Material: {fileID: 2100000, guid: 847b54471245347af9bd2086847edd6f, type: 2}
+  - Key: Bottom@B8BCC1~Mat_Bottom_Caleb
+    Material: {fileID: 2100000, guid: e3050cb9dfd764ce1b77178ce60ff002, type: 2}
+  - Key: Bottom@B8BCC1~Mat_Bottom_Maya
+    Material: {fileID: 2100000, guid: 16772e667415f4af99e4c60da94b0a40, type: 2}
+  - Key: Bottom@CDB68A~Mat_Bottom_Caleb
+    Material: {fileID: 2100000, guid: 05937968428234f45a3e957fb88a20ef, type: 2}
+  - Key: Bottom@CDB68A~Mat_Bottom_Maya
+    Material: {fileID: 2100000, guid: 3d7529783df0442728bcfe78fd0a4bf8, type: 2}
+  - Key: Bottom@E86A58~Mat_Bottom_Caleb
+    Material: {fileID: 2100000, guid: 7309c30684f41410c9f3c4e9a44bdcc1, type: 2}
+  - Key: Bottom@E86A58~Mat_Bottom_Maya
+    Material: {fileID: 2100000, guid: f6f0e328e4034413a8bc0c1c3ab4f5ef, type: 2}
+  - Key: Bottom@EDEBE4~Mat_Bottom_Caleb
+    Material: {fileID: 2100000, guid: e2143246a490d47c085c171e24e75847, type: 2}
+  - Key: Bottom@EDEBE4~Mat_Bottom_Maya
+    Material: {fileID: 2100000, guid: 361d7908fd83941a187392bed2354db6, type: 2}
+  - Key: Buckle@D9DCDF~Mat_Buckle_Metal
+    Material: {fileID: 2100000, guid: 901699a91c7bf4df093e169d47240a90, type: 2}
+  - Key: Collar@26304A~Mat_Collar_Polo
+    Material: {fileID: 2100000, guid: 9e828b412dd22493d8538354ff099bfe, type: 2}
+  - Key: Collar@28324A~Mat_Collar_Polo
+    Material: {fileID: 2100000, guid: 12ae0ad8522504a69a4c487e57f671a4, type: 2}
+  - Key: Collar@86B8E8~Mat_Collar_Polo
+    Material: {fileID: 2100000, guid: 74da68d58390f436bb1d666a32cb7ed2, type: 2}
+  - Key: Collar@E3B23C~Mat_Collar_Polo
+    Material: {fileID: 2100000, guid: 74188fccd30ff4f0f8085bc2e5af86fe, type: 2}
+  - Key: Collar@E86A58~Mat_Collar_Polo
+    Material: {fileID: 2100000, guid: 440b6ed0892174982a56a9c35211f77e, type: 2}
+  - Key: Collar@EFE6CF~Mat_Collar_Polo
+    Material: {fileID: 2100000, guid: fc90e0a04350e4d06be83878826f5388, type: 2}
+  - Key: Collar@F7F4EC~Mat_Collar_Polo
+    Material: {fileID: 2100000, guid: c8e49b6eb1f0c4692bc7693a874c5e1f, type: 2}
+  - Key: Logo@008CA1~Mat_Logo_Polo
+    Material: {fileID: 2100000, guid: e4eda5f60eb1645baa21ab669afb4c55, type: 2}
+  - Key: Logo@008CA1~Mat_Logo_Tee
+    Material: {fileID: 2100000, guid: 707131925ed254061beb448fd734fd5a, type: 2}
+  - Key: Logo@00CBE7~Mat_Logo_Polo
+    Material: {fileID: 2100000, guid: 7cd6f217a8bd04620ab53ef813233564, type: 2}
+  - Key: Logo@00CBE7~Mat_Logo_Tee
+    Material: {fileID: 2100000, guid: 4e75136fa865e4e28ae59607f9ee3d3d, type: 2}
+  - Key: Logo@192020~Mat_Logo_Polo
+    Material: {fileID: 2100000, guid: 6170295d022fb48a3be0df6c85185b71, type: 2}
+  - Key: Logo@192020~Mat_Logo_Tee
+    Material: {fileID: 2100000, guid: b5ec1dc24853047abbf17790aa310118, type: 2}
+  - Key: Logo@F28C28~Mat_Logo_Polo
+    Material: {fileID: 2100000, guid: 9c9407883ebf342fa9f7b64474ec08c5, type: 2}
+  - Key: Logo@F28C28~Mat_Logo_Tee
+    Material: {fileID: 2100000, guid: 3bbd84181dcff4e3085b235ad63a72c8, type: 2}
+  - Key: Logo@F2EDDF~Mat_Logo_Polo
+    Material: {fileID: 2100000, guid: fe7aaef3f137743b6baf509e898c6e12, type: 2}
+  - Key: Logo@F2EDDF~Mat_Logo_Tee
+    Material: {fileID: 2100000, guid: 2ce374b3a4e544575910dfbfe1ec7eb4, type: 2}
+  - Key: ShoeAccent@00CBE7~Mat_ShoeAccent_Golf
+    Material: {fileID: 2100000, guid: 94f7528bdcd1e4d4d9930a0b25e4c38f, type: 2}
+  - Key: ShoeAccent@27282B~Mat_ShoeAccent_Golf
+    Material: {fileID: 2100000, guid: ea13b1fa2abfe464ca4e4e128fc70776, type: 2}
+  - Key: ShoeAccent@9A9DA3~Mat_ShoeAccent_Golf
+    Material: {fileID: 2100000, guid: 0599231616c1349edab61b525dc425e7, type: 2}
+  - Key: ShoeAccent@F5F5F2~Mat_ShoeAccent_Golf
+    Material: {fileID: 2100000, guid: 56b9b35825bf5483caadefa094a74832, type: 2}
+  - Key: Shoes@27282B~Mat_Shoes_Golf
+    Material: {fileID: 2100000, guid: d9277d4b806d341e5825d66821255ff0, type: 2}
+  - Key: Shoes@F5F5F2~Mat_Shoes_Golf
+    Material: {fileID: 2100000, guid: 0041a4aaccbc04621a1efa6f760d07ae, type: 2}
+  - Key: Socks@00CBE7~Mat_Socks_Band
+    Material: {fileID: 2100000, guid: afa6127fa00aa4bb784705332f8a398c, type: 2}
+  - Key: Socks@00CBE7~Mat_Socks_Knit
+    Material: {fileID: 2100000, guid: 212fd4e0f4c294f2aabfc6ae2f5ec1c7, type: 2}
+  - Key: Socks@27282B~Mat_Socks_Band
+    Material: {fileID: 2100000, guid: a865e4c6880c84e08a608599e15e1b85, type: 2}
+  - Key: Socks@27282B~Mat_Socks_Knit
+    Material: {fileID: 2100000, guid: d58cc627397dc4693be77724533e87b9, type: 2}
+  - Key: Socks@28324A~Mat_Socks_Band
+    Material: {fileID: 2100000, guid: 19b5e31b7634e4944a965f7aa1b3566a, type: 2}
+  - Key: Socks@28324A~Mat_Socks_Knit
+    Material: {fileID: 2100000, guid: d9039cf3334d84dfea02cfcefa41feb4, type: 2}
+  - Key: Socks@F4F4F0~Mat_Socks_Band
+    Material: {fileID: 2100000, guid: a7e4b03af29d241afbc6627b85824174, type: 2}
+  - Key: Socks@F4F4F0~Mat_Socks_Knit
+    Material: {fileID: 2100000, guid: 05ffc0642d4ae4217ad35e663a51aabf, type: 2}
+  - Key: Sole@1D1E20~Mat_Sole_Golf
+    Material: {fileID: 2100000, guid: 1570d9b9c16034d4a988e61b1c274141, type: 2}
+  - Key: Sole@2B2D30~Mat_Sole_Golf
+    Material: {fileID: 2100000, guid: 1d86fd01b39264a2dbade72dbf456bfa, type: 2}
+  - Key: Sole@D9D6CE~Mat_Sole_Golf
+    Material: {fileID: 2100000, guid: 1a0976bfc5c5a413d927567d9cf03182, type: 2}
+  - Key: Top@1FA3A0~Mat_Top_Caleb
+    Material: {fileID: 2100000, guid: e19128d797d854be0b00a2dc8b3c0f66, type: 2}
+  - Key: Top@1FA3A0~Mat_Top_Maya
+    Material: {fileID: 2100000, guid: e40be0460b2e44386a384e0de1a99dbf, type: 2}
+  - Key: Top@26304A~Mat_Top_Caleb
+    Material: {fileID: 2100000, guid: 17cfa37d2667c4b73ad4cb87c01ba535, type: 2}
+  - Key: Top@26304A~Mat_Top_Maya
+    Material: {fileID: 2100000, guid: 54345346815ab4923a694fc7e049fded, type: 2}
+  - Key: Top@28324A~Mat_Top_Caleb
+    Material: {fileID: 2100000, guid: 3391a8d8585af42d0afa208548c38ae4, type: 2}
+  - Key: Top@28324A~Mat_Top_Maya
+    Material: {fileID: 2100000, guid: bff2f5930a47a410fa9fe7ac61c863ec, type: 2}
+  - Key: Top@2F6BD8~Mat_Top_Caleb
+    Material: {fileID: 2100000, guid: 9c802286cf6334746bb3c0d47968793f, type: 2}
+  - Key: Top@2F6BD8~Mat_Top_Maya
+    Material: {fileID: 2100000, guid: 43d13346bf13c4a82a753a15395079f4, type: 2}
+  - Key: Top@3E9B4F~Mat_Top_Caleb
+    Material: {fileID: 2100000, guid: 4baa0905f98c742b7b06a8cd39a6ea00, type: 2}
+  - Key: Top@3E9B4F~Mat_Top_Maya
+    Material: {fileID: 2100000, guid: cb2630538d56a401a96cf53fbb704984, type: 2}
+  - Key: Top@7B4FC9~Mat_Top_Caleb
+    Material: {fileID: 2100000, guid: a0b47217cc59342c49412fde583e84a0, type: 2}
+  - Key: Top@7B4FC9~Mat_Top_Maya
+    Material: {fileID: 2100000, guid: a1627868b139c4b4488e4306d0ad41a3, type: 2}
+  - Key: Top@86B8E8~Mat_Top_Caleb
+    Material: {fileID: 2100000, guid: b01f217f673cd41ec91b2e52ddf77033, type: 2}
+  - Key: Top@86B8E8~Mat_Top_Maya
+    Material: {fileID: 2100000, guid: a77f8f60f64e54f53b786e6cc9ccba92, type: 2}
+  - Key: Top@A9ADB2~Mat_Top_Caleb
+    Material: {fileID: 2100000, guid: c842c1088c4ed4a328bced2e4aa81997, type: 2}
+  - Key: Top@A9ADB2~Mat_Top_Maya
+    Material: {fileID: 2100000, guid: 201afa29e447c405f96d83ace7fd318a, type: 2}
+  - Key: Top@E3B23C~Mat_Top_Caleb
+    Material: {fileID: 2100000, guid: 51a7714c1805b40d286353e4cb38c92f, type: 2}
+  - Key: Top@E3B23C~Mat_Top_Maya
+    Material: {fileID: 2100000, guid: 5c00688cf72c74e38875b8aaca5501eb, type: 2}
+  - Key: Top@E86A58~Mat_Top_Caleb
+    Material: {fileID: 2100000, guid: eadc89ffdbbb14e16b4f127e8b6461a4, type: 2}
+  - Key: Top@E86A58~Mat_Top_Maya
+    Material: {fileID: 2100000, guid: 864051baa85514705b22349a7b4ba3c1, type: 2}
+  - Key: Top@EFE6CF~Mat_Top_Caleb
+    Material: {fileID: 2100000, guid: a9cac4ea392914430b97b6415b6bcddd, type: 2}
+  - Key: Top@EFE6CF~Mat_Top_Maya
+    Material: {fileID: 2100000, guid: aae22bde6e195475fba389bbfe28169f, type: 2}
+  - Key: Top@F4F2EC~Mat_Top_Caleb
+    Material: {fileID: 2100000, guid: 4767dc1ac8d21448889bb70e4718636f, type: 2}
+  - Key: Top@F4F2EC~Mat_Top_Maya
+    Material: {fileID: 2100000, guid: daaa00001d255489f8028e7616790876, type: 2}
