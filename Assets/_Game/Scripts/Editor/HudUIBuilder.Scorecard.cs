@@ -13,8 +13,7 @@ namespace Puttshack.EditorTools
         {
             RectTransform sc = Layer(root, "Scorecard");
             view.Scorecard = sc.gameObject;
-            Image dim = Img(sc, "Dim", null, Color.black.WithAlpha(0.35f), false);
-            Stretch(dim.rectTransform);
+            Dim(sc, 0.55f);
 
             const float paperW = 1720f, rowH = 56f, headH = 96f, gridTop = 196f;
             int rows = HudView.MaxPlayers;
@@ -25,36 +24,29 @@ namespace Puttshack.EditorTools
             view.ScoreRowHeight = rowH;
             view.ScoreHeadHeight = headH;
             view.ScorePaperMargin = 56f;
-            Image shadow = Img(paper, "Shadow", _plate, Color.black.WithAlpha(0.3f), true);
-            Inset(shadow.rectTransform, -2);
-            shadow.rectTransform.anchoredPosition = new Vector2(6, -8);
-            Image sheet = Img(paper, "Sheet", _paper, Color.white, true);
+            Image sheet = Round(paper, "Sheet", White, 40);
             Stretch(sheet.rectTransform);
-            Image frame = Img(paper, "Frame", _paperLine, Ink.WithAlpha(0.4f), true);
-            Stretch(frame.rectTransform);
 
-            Image word = Img(paper, "Wordmark", _wordInk, Color.white, false);
+            Image word = Img(paper, "Wordmark", _wordmark, Midnight, false);
             word.preserveAspect = true;
-            Place(word.rectTransform, 56, 30, 180, 66);
-            TMP_Text title = Label(paper, "Title", _display, 80, Ink, TextAnchor.MiddleLeft);
-            Place(title.rectTransform, 54, 94, 800, 88);
-            title.characterSpacing = 2f;
-            title.text = "SCORECARD";
-            view.ScoreHoleOf = Label(paper, "Hole Of", _bold, 34, Ink, TextAnchor.MiddleRight);
+            Place(word.rectTransform, 56, 40, 200, 34);
+            TextAt(paper, "Pro", _condensedBold, 18, Midnight, WidePro, 266, 44, 120, 30, 0.25f);
+            TextAt(paper, "Title", _bold, 80, Midnight, "SCORECARD", 54, 94, 800, 88);
+            view.ScoreHoleOf = Label(paper, "Hole Of", _bold, 34, Midnight, TextAnchor.MiddleRight);
             Anchor(view.ScoreHoleOf.rectTransform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-250, -114), new Vector2(320, 48));
-            view.ScoreHoleOf.characterSpacing = 2f;
-            view.ScoreHoleOf.text = "HOLE <color=#008CA1>3</color> OF 18";
-            view.ScoreHints = HintRow(paper, "Close Hint", 36f, _bold, 22f, Ink, false);
-            Anchor(view.ScoreHints.Root, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-56, -120), view.ScoreHints.Root.sizeDelta);
-            view.SetHints(view.ScoreHints, "TAB CLOSE");
+            view.ScoreHoleOf.text = "HOLE 3 OF 18";
+            HintStyle close = PlainHints(22, 36);
+            close.KeyColor = Midnight.WithAlpha(0.5f);
+            close.LegendColor = close.LabelColor = Midnight;
+            view.ScoreHints = Hints(paper, view, "Close Hint", close, "TAB CLOSE", new Vector2(1, 1), new Vector2(-56, -120));
 
             RectTransform grid = Corner(paper, "Grid", new Vector2(0, 1), new Vector2(56, -gridTop), new Vector2(paperW - 112, headH + rows * rowH));
             view.ScoreGrid = grid;
 
-            view.ScoreColumnBand = Img(grid, "Current Hole", _soft, Palette.Cyan.WithAlpha(0.14f), true);
+            view.ScoreColumnBand = Round(grid, "Current Hole", HudBrand.Pink.WithAlpha(0.16f), 16);
             Place(view.ScoreColumnBand.rectTransform, 300, -4, 70, headH + rows * rowH + 6);
 
-            Image headRule = Img(grid, "Head Rule", null, Ink.WithAlpha(0.3f), false);
+            Image headRule = Solid(grid, "Head Rule", Midnight.WithAlpha(0.3f));
             HStretch(headRule.rectTransform, headH - 4, 2f);
 
             int cols = HudView.ScoreColumns;
@@ -63,10 +55,10 @@ namespace Puttshack.EditorTools
             for (int col = 0; col < cols; col++)
             {
                 TextAnchor align = col == 0 ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter;
-                view.ScoreHeader[col] = Label(grid, $"Head {col}", _semi, 20, Ink.WithAlpha(0.7f), align);
+                view.ScoreHeader[col] = Label(grid, $"Head {col}", _condensed, 20, Midnight.WithAlpha(0.7f), align);
                 Place(view.ScoreHeader[col].rectTransform, col * 60, 0, 60, 44);
-                view.ScoreHeader[col].characterSpacing = 2f;
-                view.ScorePar[col] = Label(grid, $"Par {col}", _bold, 23, Palette.MutedGreenGray, align);
+                view.ScoreHeader[col].characterSpacing = 8f;
+                view.ScorePar[col] = Label(grid, $"Par {col}", _condensedBold, 23, Midnight.WithAlpha(0.6f), align);
                 Place(view.ScorePar[col].rectTransform, col * 60, 44, 60, 44);
                 if (col != 0) continue;
                 view.ScoreHeader[col].margin = new Vector4(22, 0, 0, 0);
@@ -79,14 +71,14 @@ namespace Puttshack.EditorTools
                 RectTransform rowRt = Layer(grid, $"Row {r + 1}");
                 HStretch(rowRt, headH + r * rowH, rowH);
                 var row = new HudScoreRow { Root = rowRt.gameObject };
-                row.Band = Img(rowRt, "Band", _soft, Ink.WithAlpha(r % 2 == 0 ? 0.05f : 0f), true);
+                row.Band = Round(rowRt, "Band", Midnight.WithAlpha(r % 2 == 0 ? 0.05f : 0f), 12);
                 Stretch(row.Band.rectTransform);
-                row.Bar = Img(rowRt, "Identity", _soft, Palette.Player(r), true);
+                row.Bar = Round(rowRt, "Identity", HudBrand.Player(r), Pill);
                 Place(row.Bar.rectTransform, 4, 11, 6, rowH - 22);
                 row.Marks = new Image[HudView.MaxHoles];
                 for (int hIndex = 0; hIndex < HudView.MaxHoles; hIndex++)
                 {
-                    Image mark = Img(rowRt, $"Mark {hIndex + 1}", _scoreMarks[0], Ink.WithAlpha(0.85f), false);
+                    Image mark = Img(rowRt, $"Mark {hIndex + 1}", _scoreMarks[0], Midnight.WithAlpha(0.85f), false);
                     Anchor(mark.rectTransform, new Vector2(0, 1), new Vector2(0.5f, 0.5f), new Vector2(0, -rowH / 2), new Vector2(42, 42));
                     mark.enabled = false;
                     row.Marks[hIndex] = mark;
@@ -95,7 +87,7 @@ namespace Puttshack.EditorTools
                 for (int col = 0; col < cols; col++)
                 {
                     bool name = col == 0;
-                    TMP_Text cell = Label(rowRt, $"Cell {col}", name ? _bold : _semi, name ? 25 : 27, Ink, name ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter);
+                    TMP_Text cell = Label(rowRt, $"Cell {col}", name ? _bold : _condensedBold, name ? 25 : 27, Midnight, name ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter);
                     Place(cell.rectTransform, col * 60, 0, 60, rowH);
                     cell.characterSpacing = name ? 2f : 0.5f;
                     if (name) cell.margin = new Vector4(22, 0, 0, 0);
@@ -119,17 +111,15 @@ namespace Puttshack.EditorTools
 
             void Mark(Sprite s)
             {
-                Image img = Img(legend, "Mark", s, Ink.WithAlpha(0.8f), false);
+                Image img = Img(legend, "Mark", s, Midnight.WithAlpha(0.8f), false);
                 img.rectTransform.sizeDelta = new Vector2(30, 30);
                 var le = img.gameObject.AddComponent<LayoutElement>();
                 le.preferredWidth = le.minWidth = 30;
             }
             void Entry(string s, Color color, float gapAfter)
             {
-                TMP_Text t = Label(legend, s, _semi, 19, color, TextAnchor.MiddleLeft);
+                TMP_Text t = Text(legend, s, _condensed, 19, color, s, 0.08f);
                 t.rectTransform.sizeDelta = new Vector2(100, 30);
-                t.characterSpacing = 2f;
-                t.text = s;
                 if (gapAfter <= 0) return;
                 var gap = new GameObject("Gap", typeof(RectTransform), typeof(LayoutElement));
                 gap.transform.SetParent(legend, false);
@@ -137,13 +127,13 @@ namespace Puttshack.EditorTools
                 ((RectTransform)gap.transform).sizeDelta = new Vector2(gapAfter, 30);
             }
 
-            Color ink = Ink.WithAlpha(0.75f);
+            Color ink = Midnight.WithAlpha(0.75f);
             Mark(_scoreMarks[1]); Entry("EAGLE", ink, 22);
             Mark(_scoreMarks[0]); Entry("BIRDIE", ink, 22);
             Mark(_scoreMarks[2]); Entry("BOGEY", ink, 22);
             Mark(_scoreMarks[3]); Entry("DOUBLE+", ink, 30);
-            Entry("2*", Palette.CyanOnLight, 0); Entry("IN PROGRESS", ink, 30);
-            Entry("M", Ink, 0); Entry("MAX (PACE CAP)", ink, 0);
+            Entry("2*", HudBrand.Plum, 0); Entry("IN PROGRESS", ink, 30);
+            Entry("M", Midnight, 0); Entry("MAX (PACE CAP)", ink, 0);
         }
     }
 }

@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Puttshack.Runtime
 {
     /// <summary>
-    /// Last roster's names and saved looks, kept outside the session journal so a new session (after a round or a
+    /// Last roster's names, golfers and saved looks, kept outside the session journal so a new session (after a round or a
     /// relaunch) opens the Pro Shop with the same players dressed as they left. A null path keeps it in memory only.
     /// </summary>
     public sealed class RosterMemory
@@ -18,6 +18,7 @@ namespace Puttshack.Runtime
         {
             public string Name;
             public Loadout Loadout;
+            public PlayerProfile Profile;
         }
 
         private readonly string _path;
@@ -41,7 +42,7 @@ namespace Puttshack.Runtime
         public void Remember(IReadOnlyList<PlayerState> players)
         {
             var entries = new List<Entry>(players.Count);
-            foreach (PlayerState p in players) entries.Add(new Entry { Name = p.Name, Loadout = p.Loadout?.Clone() });
+            foreach (PlayerState p in players) entries.Add(new Entry { Name = p.Name, Loadout = p.Loadout?.Clone(), Profile = p.Profile?.Clone() });
             Players = entries;
             if (_path == null) return;
             try

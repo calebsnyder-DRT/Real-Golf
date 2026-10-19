@@ -1,0 +1,65 @@
+{
+  "Id": "h06-headland-climb",
+  "Version": "pebble-0.1",
+  "Name": "Headland Climb",
+  "Number": 6,
+  "Par": 5,
+  "YardageYd": 444,
+  "DefaultSurface": "LightRough",
+  "WindMps": [-0.6, 0, 1.4],
+  "Briefing": {
+    "Hazard": "The Pacific runs the whole right side, and the second shot has to climb the headland over a cross bunker.",
+    "SafePlan": "Drive down the left half, lay up short of the cross bunker, then a wedge up the hill to the green.",
+    "SuggestedClubId": "driver"
+  },
+  "Terrain": [
+    { "Notes": "Tee pad.", "Kind": "Plateau", "Center": [0, -214], "Inner": 6.5, "Outer": 12, "Height": 0.9 },
+    { "Notes": "Hollow in the landing area.", "Kind": "Plateau", "Center": [-22, -400], "Inner": 15, "Outer": 45, "Height": -0.8 },
+    { "Notes": "The headland: the second shot climbs about 11 m to the green, holes 7 tee sits on it too.", "Kind": "Plateau", "Center": [-40, -600], "Inner": 55, "Outer": 150, "Height": 11 },
+    { "Notes": "Green pad, tilted back to front.", "Kind": "Plateau", "Center": [-45, -618], "Inner": 12, "Outer": 26, "Height": 0.8 },
+    { "Kind": "Tilt", "Center": [-45, -618], "Inner": 12, "Outer": 26, "Slope": [0.004, -0.012] }
+  ],
+  "Surfaces": [
+    { "Id": "deep-rough-left", "Surface": "DeepRough", "Priority": 10, "Shape": { "Kind": "Rect", "Min": [40, -560], "Max": [60, -196] } },
+    { "Id": "coastal-scrub", "Surface": "DeepRough", "Priority": 12, "Shape": { "Kind": "InlandStrip", "Path": "CliffEdge", "Width": 5.0, "MaxX": -20, "MinZ": -642, "MaxZ": -178 } },
+    {
+      "Id": "fairway", "Surface": "Fairway", "Priority": 20,
+      "Shape": { "Kind": "Loop", "Samples": 6, "Control": [[-8, -262], [12, -275], [16, -330], [8, -400], [-4, -455], [-22, -470], [-44, -455], [-52, -400], [-42, -330], [-26, -280]] }
+    },
+    {
+      "Id": "fairway-upper", "Surface": "Fairway", "Priority": 20,
+      "Shape": { "Kind": "Loop", "Samples": 6, "Control": [[-24, -505], [-8, -520], [-14, -562], [-30, -592], [-50, -598], [-64, -584], [-58, -548], [-42, -514]] }
+    },
+    { "Id": "green", "Surface": "Green", "Priority": 40, "Shape": { "Kind": "Ellipse", "Center": [-45, -618], "Radii": [11, 13], "Segments": 48, "Rotation": 0.2 } },
+    { "Id": "bunker-fairway-left", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [18, -412], "Radii": [6.0, 3.0], "Segments": 32, "Rotation": 1.4 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "bunker-cliff", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [-56, -430], "Radii": [5.0, 2.8], "Segments": 32, "Rotation": 1.3 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "bunker-cross", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [-30, -490], "Radii": [8.0, 2.6], "Segments": 36, "Rotation": 0.1 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "bunker-green-left", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [-31, -606], "Radii": [4.5, 2.5], "Segments": 32, "Rotation": 0.6 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "bunker-green-right", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [-60, -622], "Radii": [4.5, 2.6], "Segments": 32, "Rotation": 1.4 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "bunker-green-back", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [-42, -635], "Radii": [4.0, 2.0], "Segments": 28, "Rotation": 0.2 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "tee", "Surface": "Tee", "Priority": 50, "Shape": { "Kind": "Rect", "Min": [-5, -219], "Max": [5, -209] } }
+  ],
+  "Hazards": [
+    {
+      "Id": "pacific-right", "DropPointId": "drop-headland", "WaterLevelM": "Sea",
+      "Shape": { "Kind": "Sea", "Path": "CliffEdge", "MaxX": -20, "MinZ": -642, "MaxZ": -178, "Close": [[-140, -178], [-140, -642]] }
+    }
+  ],
+  "Drops": [
+    { "Id": "drop-headland", "HazardId": "pacific-right", "At": [-40, -380] }
+  ],
+  "Trees": [
+    { "Id": "cypress-cliff-1", "At": [-56, -300], "Trunk": [0.5, 3.4], "Canopy": [6, 9.5] },
+    { "Id": "cypress-cliff-2", "At": [-66, -478], "Trunk": [0.5, 3.6], "Canopy": [6.5, 10] },
+    { "Id": "cypress-cliff-3", "At": [-74, -566], "Trunk": [0.55, 3.2], "Canopy": [6, 9] },
+    { "Id": "pine-left-1", "At": [46, -250], "Trunk": [0.4, 5], "Canopy": [4.5, 15] },
+    { "Id": "pine-left-2", "At": [52, -335], "Trunk": [0.45, 5.5], "Canopy": [5, 16] },
+    { "Id": "pine-left-3", "At": [36, -430], "Trunk": [0.4, 5], "Canopy": [4.5, 15] },
+    { "Id": "oak-climb", "At": [16, -520], "Trunk": [0.55, 3.2], "Canopy": [6, 8.5] },
+    { "Id": "cypress-green-left", "At": [-14, -620], "Trunk": [0.5, 3.5], "Canopy": [5.5, 10] }
+  ],
+  "PlayableBoundary": { "Kind": "Polygon", "Points": [[-130, -178], [60, -178], [60, -560], [10, -642], [-130, -642]] },
+  "Tee": [0, -214],
+  "Route": [[-24, -430], [-34, -560]],
+  "Cup": [-44, -617]
+}

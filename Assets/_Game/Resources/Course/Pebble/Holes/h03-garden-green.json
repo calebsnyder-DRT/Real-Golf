@@ -1,0 +1,56 @@
+{
+  "Id": "h03-garden-green",
+  "Version": "pebble-0.4",
+  "Name": "Stillwater Cliffs",
+  "Number": 3,
+  "Par": 3,
+  "YardageYd": 165,
+  "DefaultSurface": "LightRough",
+  "WindMps": [1.4, 0, -0.9],
+  "Briefing": {
+    "Hazard": "The Pacific runs the whole left side: anything over the cliff edge is in the penalty area.",
+    "SafePlan": "Aim at the right half of the green. Short and right leaves an easy chip from the fairway.",
+    "SuggestedClubId": "iron5"
+  },
+  "Terrain": [
+    { "Notes": "Clifftop shelf the hole sits on.", "Kind": "Plateau", "Center": [-2, -12], "Inner": 22, "Outer": 90, "Height": 4.5 },
+    { "Notes": "Tee pad.", "Kind": "Plateau", "Center": [0, -1], "Inner": 6.5, "Outer": 12, "Height": 0.9 },
+    { "Notes": "Green pad, tilted back to front.", "Kind": "Plateau", "Center": [-5, 150], "Inner": 15, "Outer": 30, "Height": 1.0 },
+    { "Kind": "Tilt", "Center": [-5, 150], "Inner": 15, "Outer": 30, "Slope": [0.012, 0.010] }
+  ],
+  "Surfaces": [
+    { "Id": "deep-rough-right", "Surface": "DeepRough", "Priority": 10, "Shape": { "Kind": "Rect", "Min": [31, -14], "Max": [45, 190] } },
+    { "Id": "coastal-scrub", "Surface": "DeepRough", "Priority": 12, "Shape": { "Kind": "InlandStrip", "Path": "CliffEdge", "Width": 4.0, "MinZ": -20, "MaxZ": 196 } },
+    {
+      "Id": "fairway", "Surface": "Fairway", "Priority": 20,
+      "Shape": { "Kind": "Loop", "Samples": 6, "Control": [[-7, 64], [8, 62], [15, 84], [16, 108], [13, 128], [3, 137], [-9, 137], [-17, 129], [-18, 112], [-14, 86]] }
+    },
+    { "Id": "green", "Surface": "Green", "Priority": 40, "Shape": { "Kind": "Ellipse", "Center": [-5, 150], "Radii": [12, 10.5], "Segments": 48, "Rotation": -0.3 } },
+    { "Id": "bunker-front-left", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [-16, 140], "Radii": [5.0, 2.8], "Segments": 32, "Rotation": 0.9 }, "Bowl": { "Inner": 1.4, "Height": -0.5 } },
+    { "Id": "bunker-front-right", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [8, 139], "Radii": [5.5, 3.0], "Segments": 32, "Rotation": -0.4 }, "Bowl": { "Inner": 1.4, "Height": -0.5 } },
+    { "Id": "bunker-back-right", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [5, 163], "Radii": [4.5, 2.5], "Segments": 32, "Rotation": 0.3 }, "Bowl": { "Inner": 1.4, "Height": -0.5 } },
+    { "Id": "bunker-pot-left", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [-11, 124], "Radii": [3.0, 2.1], "Segments": 28, "Rotation": 0.2 }, "Bowl": { "Inner": 1.4, "Height": -0.5 } },
+    { "Id": "tee", "Surface": "Tee", "Priority": 50, "Shape": { "Kind": "Rect", "Min": [-5, -5], "Max": [5, 5] } }
+  ],
+  "Hazards": [
+    {
+      "Id": "stillwater-cove", "DropPointId": "drop-cove", "WaterLevelM": "Sea",
+      "Shape": { "Kind": "Sea", "Path": "CliffEdge", "MinZ": -20, "MaxZ": 196, "Close": [[-140, 196], [-140, -20]] }
+    }
+  ],
+  "Drops": [
+    { "Id": "drop-cove", "HazardId": "stillwater-cove", "At": [-12, 108] }
+  ],
+  "Trees": [
+    { "Id": "cypress-lone", "At": [-27.5, 30], "Trunk": [0.5, 3.5], "Canopy": [6.5, 9.5] },
+    { "Id": "cypress-cliff", "At": [-23.5, 106], "Trunk": [0.45, 3.2], "Canopy": [5.5, 8.5] },
+    { "Id": "cypress-tee-right", "At": [16, 14], "Trunk": [0.45, 3.5], "Canopy": [5, 9] },
+    { "Id": "cypress-right", "At": [28, 70], "Trunk": [0.5, 4], "Canopy": [6, 11] },
+    { "Id": "cypress-green-right", "At": [18, 121], "Trunk": [0.45, 3.5], "Canopy": [5.5, 10] },
+    { "Id": "cypress-back", "At": [9, 181], "Trunk": [0.55, 4], "Canopy": [6.5, 11] },
+    { "Id": "cypress-back-left", "At": [-19, 178], "Trunk": [0.45, 3.2], "Canopy": [5.5, 9] }
+  ],
+  "PlayableBoundary": { "Kind": "Rect", "Min": [-110, -14], "Max": [45, 190] },
+  "Tee": [0, 0],
+  "Cup": [-4, 151]
+}

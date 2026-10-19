@@ -25,11 +25,11 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: da76f0aba7ba54d1f9f6a68a15d70334, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 3d1a78949f48441ef8870402e1917595, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailNormalMap:
@@ -44,7 +44,7 @@ Material:
     m_Floats:
     - _AlphaClip: 0
     - _BumpScale: 1
-    - _CavityStrength: 0
+    - _CavityStrength: 1
     - _Cull: 2
     - _Cutoff: 0.5
     - _DetailNormalScale: 0.4
@@ -55,7 +55,7 @@ Material:
     - _SecondLobeMix: 0.15
     - _SecondLobeSmoothness: 0.45
     - _SheenRoughness: 0.5
-    - _Smoothness: 0.25
+    - _Smoothness: 0.28
     - _Transmission: 1
     - _UseDetail: 0
     - _Wrap: 0.5

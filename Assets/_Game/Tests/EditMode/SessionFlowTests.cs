@@ -200,7 +200,7 @@ namespace Puttshack.Tests
         [Test]
         public void TwoPlayers_CompleteTheHole_WithHoledAndCappedScores()
         {
-            var h = new SessionHarness();
+            var h = new SessionHarness(course: FirstHoleOnly());
             h.StartRound("Caleb", "Maya");
             HoleDefinition hole = h.Snap.Hole;
 
@@ -256,6 +256,39 @@ namespace Puttshack.Tests
 
             h.Expect(CommandType.ReturnToAttract);
             Assert.AreEqual(SessionState.ATTRACT, h.Service.State);
+        }
+
+        [Test]
+        public void HoleContinue_LoadsTheNextHole_ThenBriefsIt()
+        {
+            var h = new SessionHarness();
+            Assert.Greater(h.Course.Holes.Count, 1);
+            h.StartRound("Caleb");
+            // Short taps until the stroke cap ends the hole.
+            for (int i = 0; i < 20 && h.Service.State == SessionState.SHOT_SETUP; i++)
+            {
+                h.Shoot(10, 0.06);
+                h.FinishShot();
+            }
+            Assert.AreEqual(SessionState.HOLE_COMPLETE, h.Service.State);
+            h.Expect(CommandType.HoleContinue);
+            Assert.AreEqual(SessionState.HOLE_LOAD, h.Service.State);
+            Assert.AreEqual(1, h.Snap.Data.HoleIndex);
+            Assert.AreEqual(h.Course.Holes[1].Id, h.Snap.Hole.Id);
+            h.Expect(CommandType.HoleReady);
+            Assert.AreEqual(SessionState.BRIEFING, h.Service.State);
+            h.Expect(CommandType.BriefingReady);
+            Assert.AreEqual(SessionState.SHOT_SETUP, h.Service.State);
+            Assert.AreEqual(h.Course.Holes[1].TeeM, h.Snap.CurrentProgress.Ball.Position);
+        }
+
+        /// <summary>The authored course cut down to its first hole, so a round ends after one hole.</summary>
+        private static CourseDefinition FirstHoleOnly()
+        {
+            CourseDefinition course = GrayboxCourse.Create();
+            course.Holes.RemoveRange(1, course.Holes.Count - 1);
+            ContentHasher.Seal(course);
+            return course;
         }
 
         [Test]

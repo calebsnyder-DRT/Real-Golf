@@ -70,6 +70,9 @@ namespace Puttshack.Content
         public double Height;
         public Vec2d Slope;
         public List<Vec2d> Path;
+
+        /// <summary>Bounds of <see cref="Path"/> that <see cref="TerrainModel"/> builds on first use (not content: never serialized or hashed).</summary>
+        [NonSerialized, JsonIgnore] internal object PathIndex;
     }
 
     [Serializable]
@@ -117,6 +120,15 @@ namespace Puttshack.Content
         public Vec3d WindMps;
         public HoleBriefing Briefing = new HoleBriefing();
         public string ContentHash;
+        /// <summary>
+        /// Authored hole this one replays as a stand-in (<see cref="CourseRouting"/>): its baked visuals are looked up by
+        /// this id. Null when the hole is its own layout. Left out of the content hash so authored bakes stay valid.
+        /// </summary>
+        [JsonIgnore]
+        public string LayoutId;
+
+        [JsonIgnore]
+        public string VisualId => LayoutId ?? Id;
     }
 
     [Serializable]

@@ -12,8 +12,8 @@ namespace Puttshack.EditorTools
 {
     /// <summary>
     /// Bakes the in-round HUD (<see cref="HudUIBuilder"/>) into HUD.prefab and places it in Main.unity, where GameHost
-    /// finds it. Also owns the import settings of the HUD sprites (ArtSource/UI/HUD/make_hud_ui.py): uncompressed,
-    /// no mipmaps, alpha as transparency, and the 9-slice borders below, which mirror BORDERS in the generator.
+    /// finds it. Also owns the import settings of the HUD sprites (ArtSource/UI/HUD/make_hud_flat.py and make_hud_ui.py):
+    /// uncompressed, no mipmaps, alpha as transparency, and the 9-slice borders below, which mirror BORDERS in the generators.
     /// </summary>
     public static class HudBaker
     {
@@ -36,6 +36,12 @@ namespace Puttshack.EditorTools
             { "hud_lane_frame", new Vector4(14, 16, 14, 14) },
             { "hud_lane_glow", new Vector4(38, 38, 38, 38) },
             { "key_blank", new Vector4(22, 26, 22, 22) },
+            // ArtSource/UI/HUD/make_hud_flat.py
+            { "flat_round", new Vector4(128, 128, 128, 128) },
+            { "flat_line_r10", new Vector4(22, 22, 22, 22) },
+            { "flat_line_pill", new Vector4(48, 48, 48, 48) },
+            { "flat_line_r28", new Vector4(58, 58, 58, 58) },
+            { "flat_line_r24", new Vector4(52, 52, 52, 52) },
         };
 
         [MenuItem("Puttshack/HUD/Bake HUD", priority = 60)]

@@ -6,6 +6,8 @@
         "Puttshack.Hardware",
         "Puttshack.Runtime",
         "Puttshack.Editor",
+        "UnityEngine.UI",
+        "Unity.TextMeshPro",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

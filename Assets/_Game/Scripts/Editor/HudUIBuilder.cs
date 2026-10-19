@@ -5,10 +5,11 @@ using UnityEngine.UI;
 namespace Puttshack.EditorTools
 {
     /// <summary>
-    /// Builds HUD.prefab: the in-round HUD and overlay cards on the 1920x1080 reference grid, drawn with the HUD sprites
-    /// (ArtSource/UI/HUD/make_hud_ui.py), the Pro Shop paper and club icons, and the Pro Shop's static TMP fonts.
-    /// Rebuilt by <see cref="HudBaker"/>; once baked it is an ordinary prefab, so spacing, fonts and colours can be
-    /// adjusted in the editor (re-baking overwrites those edits).
+    /// Builds HUD.prefab from the Claude Design "Puttshack Pro HUD" (round 1) on the 1920x1080 reference grid: a single
+    /// Midnight rail in the shot, full-screen overlay cards for everything else, the flat brand sprites
+    /// (ArtSource/UI/HUD/make_hud_flat.py) and the Ringside fonts (<see cref="HudFonts"/>). Rebuilt by <see cref="HudBaker"/>;
+    /// once baked it is an ordinary prefab, so spacing, fonts and colours can be adjusted in the editor (re-baking
+    /// overwrites those edits).
     /// </summary>
     public static partial class HudUIBuilder
     {
@@ -27,11 +28,8 @@ namespace Puttshack.EditorTools
             AssignArt(view);
             Transform t = root.transform;
 
-            BuildPlayTop(t, view);
-            BuildPlayBottom(t, view);
-            view.PlayHints = HintRow(t, "Hints", 32f, _bold, 21f, Cream, true);
-            Anchor(view.PlayHints.Root, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, 142), view.PlayHints.Root.sizeDelta);
-            view.SetHints(view.PlayHints, "\u2190\u2192 aim   \u2191\u2193 club   ENTER ready");
+            BuildRail(t, view);
+            BuildPlayHints(t, view);
             BuildBanner(t, view);
 
             RectTransform cards = Layer(t, "Cards");
@@ -39,18 +37,26 @@ namespace Puttshack.EditorTools
             BuildLobby(cards, view);
             BuildBriefing(cards, view);
             BuildResult(cards, view);
+            BuildCelebrate(cards, view);
             BuildHandoff(cards, view);
             BuildHoleComplete(cards, view);
             BuildRoundComplete(cards, view);
             BuildPaused(cards, view);
             BuildFault(cards, view);
             BuildScorecard(t, view);
+            FinishPills(root);
 
-            foreach (HudCard c in new[] { view.Attract, view.Briefing, view.Result, view.Handoff, view.HoleComplete, view.RoundComplete, view.Paused, view.Fault })
+            foreach (HudCard c in new[] { view.Attract, view.Lobby, view.Briefing, view.Result, view.Celebrate, view.Handoff, view.HoleComplete, view.RoundComplete, view.Paused, view.Fault })
                 c.Root.SetActive(false);
             view.Scorecard.SetActive(false);
             view.Banner.SetActive(false);
             return root;
+        }
+
+        private static HudCard FullCard(Transform parent, string name, out RectTransform rt)
+        {
+            rt = Layer(parent, name);
+            return new HudCard { Root = rt.gameObject };
         }
     }
 }

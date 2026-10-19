@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dca71117b91e47dbb13e17c127b0cd5, type: 3}
+  m_Name: GoldenHour
+  m_EditorClassIdentifier: Puttshack.Runtime::Puttshack.Runtime.Course.CourseLightingPreset
+  SunAzimuth: -105
+  SunElevation: 20
+  SunColor: {r: 1, g: 0.74, b: 0.5, a: 1}
+  SunIntensity: 3.3
+  ShadowStrength: 0.9
+  FlareIntensity: 1
+  SkyTexture: {fileID: 2800000, guid: a820c17bf2f1847f68233d2e346bca27, type: 3}
+  SkySunAzimuth: 40.3
+  SkyExposure: 1.15
+  HazeColor: {r: 0.8, g: 0.78, b: 0.74, a: 1}
+  HazeSunColor: {r: 1, g: 0.84, b: 0.66, a: 1}
+  HazeHeight: 0.09
+  HazeStrength: 0.8
+  AmbientIntensity: 0.72
+  ReflectionIntensity: 1
+  FogColor: {r: 0.8, g: 0.78, b: 0.74, a: 1}
+  FogDensity: 0.0008
+  HeightFogColor: {r: 0.78, g: 0.77, b: 0.75, a: 1}
+  HeightFogSunColor: {r: 1.1, g: 0.72, b: 0.42, a: 1}
+  HeightFogDensity: 0.0011
+  HeightFogFalloff: 0.03
+  HeightFogBaseHeight: -10
+  HeightFogStart: 25
+  HeightFogMaxOpacity: 0.85
+  HeightFogSunExponent: 8
+  HeightFogSkyAmount: 0.55
+  CloudShadowStrength: 0.35
+  CloudScale: 700
+  CloudWind: {x: 2.4, y: 1.1}
+  PostExposure: 0.3
+  Contrast: 20
+  Saturation: 16
+  Temperature: 14
+  Tint: 0
+  SplitShadows: {r: 0.42, g: 0.52, b: 0.62, a: 1}
+  SplitHighlights: {r: 0.78, g: 0.62, b: 0.46, a: 1}
+  SplitBalance: -12
+  BloomIntensity: 0.45
+  BloomTint: {r: 1, g: 0.9, b: 0.78, a: 1}
+  VignetteIntensity: 0.24

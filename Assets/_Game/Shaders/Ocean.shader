@@ -47,7 +47,10 @@ Shader "Puttshack/Ocean"
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BOX_PROJECTION
             #pragma multi_compile _ _CLUSTER_LIGHT_LOOP
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
             #pragma multi_compile_fog
+            #pragma multi_compile_instancing
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
@@ -80,17 +83,20 @@ Shader "Puttshack/Ocean"
                 float _FoamScale;
             CBUFFER_END
 
-            struct Attributes { float4 positionOS : POSITION; };
+            struct Attributes { float4 positionOS : POSITION; UNITY_VERTEX_INPUT_INSTANCE_ID };
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
                 float3 positionWS : TEXCOORD0;
                 half fogFactor : TEXCOORD1;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             Varyings vert(Attributes input)
             {
                 Varyings output;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
                 VertexPositionInputs positions = GetVertexPositionInputs(input.positionOS.xyz);
                 output.positionCS = positions.positionCS;
                 output.positionWS = positions.positionWS;
@@ -105,6 +111,7 @@ Shader "Puttshack/Ocean"
 
             half4 frag(Varyings input) : SV_Target
             {
+                UNITY_SETUP_INSTANCE_ID(input);
                 float3 p = input.positionWS;
                 float3 toCam = _WorldSpaceCameraPos - p;
                 float dist = length(toCam);
@@ -124,7 +131,7 @@ Shader "Puttshack/Ocean"
                 float thickness = max(0, sceneEye - waterEye);
                 float depth = thickness * max(V.y, 0.08);
 
-                Light mainLight = GetMainLight(TransformWorldToShadowCoord(p));
+                Light mainLight = GetMainLight(TransformWorldToShadowCoord(p), p, half4(1, 1, 1, 1));
                 half shadow = lerp(0.55, 1, mainLight.shadowAttenuation);
 
                 half depth01 = saturate(depth / _DepthRange);

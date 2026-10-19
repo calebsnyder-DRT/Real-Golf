@@ -63,6 +63,30 @@ namespace Puttshack.EditorTools
             EditorUtility.DisplayDialog("Puttshack", notes.Count == 0 ? "Pro Shop baked." : "Pro Shop baked with notes:\n" + string.Join("\n", notes), "OK");
         }
 
+        [MenuItem("Puttshack/Pro Shop/Rebuild Shop UI", priority = 44)]
+        public static void RebuildUIMenu() => RebuildUI();
+
+        /// <summary>
+        /// Rebuilds only ProShopUI.prefab (no room, golfer or icon bake) and re-links the controller in ProShop.prefab to
+        /// the rebuilt view, whose object ids change with every build.
+        /// </summary>
+        public static void RebuildUI()
+        {
+            SavePrefab(ProShopUIBuilder.Build(), ProShopUIBuilder.PrefabPath);
+            GameObject shop = PrefabUtility.LoadPrefabContents(ShopPrefabPath);
+            try
+            {
+                var controller = shop.GetComponentInChildren<ProShopController>(true);
+                controller.View = shop.GetComponentInChildren<ProShopView>(true);
+                if (controller.View == null) throw new IOException($"{ShopPrefabPath} has no {nameof(ProShopView)}; run Bake Pro Shop.");
+                PrefabUtility.SaveAsPrefabAsset(shop, ShopPrefabPath);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(shop);
+            }
+        }
+
         [MenuItem("Puttshack/Pro Shop/Open Preview Scene", priority = 41)]
         public static void OpenPreviewMenu()
         {
@@ -424,7 +448,7 @@ namespace Puttshack.EditorTools
             }
             foreach (ClubDefinition club in ClubCatalog.All)
             {
-                GameObject subject = ClubSubject(BagDisplay.ClubKind(club.Id));
+                GameObject subject = ClubArtBaker.IconSubject(club.Id) ?? ClubSubject(BagDisplay.ClubKind(club.Id));
                 if (subject == null) continue;
                 written.Add(("club." + club.Id, WritePng(ProShopIconRenderer.Render(subject, size, ClubShot(0.17f)), "club." + club.Id), false));
             }

@@ -33,8 +33,8 @@ namespace Puttshack.Tests
             host.PlaybackSpeed = 25f;
 
             Assert.AreEqual(SessionState.LOBBY, host.Coordinator.State, "Launch skips attract and lands in the lobby.");
-            Assert.IsTrue(host.ShopOpen, "Launch opens the Pro Shop.");
-            host.Shop.Back();
+            Assert.IsTrue(host.SetupOpen, "Launch opens Player Setup.");
+            host.Setup.Back();
             Accept(host.Send(CommandType.RosterSet, c => c.Names = new List<string> { "Caleb", "Maya" }));
             Accept(host.Send(CommandType.SettingsConfirm));
             yield return WaitFor(() => host.Coordinator.State == SessionState.BRIEFING, 5, "briefing");

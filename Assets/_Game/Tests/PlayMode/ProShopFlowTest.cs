@@ -44,9 +44,8 @@ namespace Puttshack.Tests
 
             ProShopController shop = host.Shop;
             Assert.AreEqual(SessionState.LOBBY, host.Coordinator.State, "Launch skips attract and lands in the lobby.");
-            Assert.IsTrue(shop.IsOpen && shop.View.Visible, "Launch opens the Pro Shop.");
-            Assert.AreEqual(ShopOrigin.Lobby, shop.Editor.Origin);
-            shop.Back();
+            Assert.IsTrue(host.SetupOpen && !shop.IsOpen, "Launch opens Player Setup, not the shop.");
+            host.Setup.Back();
             Accept(host.Send(CommandType.RosterSet, c => c.Names = new List<string>(Roster)));
             Assert.AreEqual(SessionState.LOBBY, host.Coordinator.State);
             UnityEngine.Rendering.AmbientMode courseAmbient = RenderSettings.ambientMode;

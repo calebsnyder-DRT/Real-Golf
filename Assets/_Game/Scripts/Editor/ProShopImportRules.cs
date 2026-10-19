@@ -17,7 +17,9 @@ namespace Puttshack.EditorTools
     /// - The Mixamo clips (ArtSource/Mixamo/YBot_TPose, copied to Art/Characters/Animations) import as Humanoid clips on the
     ///   Y Bot skeleton, named after their file, root motion baked into the pose with the feet on the ground, looping
     ///   where they idle; the Humanoid avatars retarget them onto every golfer. Mixamo's golf clips face the target at
-    ///   rest and turn side-on to address, so they are turned to the golfer frame (ball at +Z, target at -X).
+    ///   rest and turn side-on to address, so they are turned to the golfer frame (ball at +Z, target at -X). Unity poses a
+    ///   model at the first frame of its take before building its avatar, so a clip's own avatar would take the address
+    ///   crouch for the T-pose; every clip copies the one avatar built from the static YBot_Reference.fbx skeleton instead.
     /// - The Barlow fonts fall back to Puttshack Display for arrow glyphs.
     /// </summary>
     public sealed class ProShopImportRules : AssetPostprocessor
@@ -31,6 +33,9 @@ namespace Puttshack.EditorTools
         public const string CalebModel = CharacterRoot + "Caleb/Caleb_Modular.fbx";
         public const string MayaModel = CharacterRoot + "Maya/Maya_Modular.fbx";
         public const string AnimationRoot = CharacterRoot + "Animations/";
+        /// <summary>The Y Bot skeleton at its T-pose rest with no take (ArtSource/Blender/scripts/pp_mixamo_tpose.py).</summary>
+        public const string MixamoReferenceFile = "YBot_Reference.fbx";
+        public const string MixamoReference = AnimationRoot + MixamoReferenceFile;
 
         public static bool IsGolferModel(string path) => path == CalebModel || path == MayaModel;
 
@@ -44,11 +49,17 @@ namespace Puttshack.EditorTools
 
         public static bool IsGolfClip(string clipName) => clipName.StartsWith("Golf_", StringComparison.Ordinal);
 
-        /// <summary>Whether a Mixamo clip was imported with the current root settings (bumping the version would reimport every texture).</summary>
+        /// <summary>
+        /// Whether a Mixamo clip was imported with the current root settings and the reference avatar (bumping the version
+        /// would reimport every texture).
+        /// </summary>
         public static bool MixamoClipCurrent(AnimationClip clip)
         {
             AnimationClipSettings s = AnimationUtility.GetAnimationClipSettings(clip);
-            return s.heightFromFeet && !s.keepOriginalPositionY && Mathf.Approximately(s.orientationOffsetY, IsGolfClip(clip.name) ? GolfClipYaw : 0f);
+            var importer = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(clip)) as ModelImporter;
+            Avatar reference = AssetDatabase.LoadAssetAtPath<Avatar>(MixamoReference);
+            bool avatar = importer != null && reference != null && importer.avatarSetup == ModelImporterAvatarSetup.CopyFromOther && importer.sourceAvatar == reference;
+            return avatar && s.heightFromFeet && !s.keepOriginalPositionY && Mathf.Approximately(s.orientationOffsetY, IsGolfClip(clip.name) ? GolfClipYaw : 0f);
         }
 
         public override uint GetVersion() => 6;
@@ -169,7 +180,7 @@ namespace Puttshack.EditorTools
             }
         }
 
-        /// <summary>Golfer rig bone map (ArtSource/Blender/scripts/pp_stylized_rig.py PARENTS). Eyes and jaw are not rigged.</summary>
+        /// <summary>Golfer rig bone map (ArtSource/Blender/scripts/pp_golfer.py BONES). Eyes and jaw are not rigged.</summary>
         private static HumanBone[] CalebHumanBones()
         {
             var map = new System.Collections.Generic.List<(string Human, string Bone)>
@@ -201,7 +212,10 @@ namespace Puttshack.EditorTools
             return bones;
         }
 
-        /// <summary>Mixamo "without skin" export: the Y Bot skeleton (mixamorig names) and one take.</summary>
+        /// <summary>
+        /// Mixamo "without skin" export: the Y Bot skeleton (mixamorig names) and one take. Clips copy the reference
+        /// skeleton's avatar; until that is imported they fall back to their own and GolferCharacterBaker reimports them.
+        /// </summary>
         private void PreprocessMixamoClip(ModelImporter importer)
         {
             importer.globalScale = 1f;
@@ -212,11 +226,28 @@ namespace Puttshack.EditorTools
             importer.importLights = false;
             importer.materialImportMode = ModelImporterMaterialImportMode.None;
             importer.bakeAxisConversion = false;
-            importer.importAnimation = true;
             importer.animationType = ModelImporterAnimationType.Human;
-            importer.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
             importer.optimizeGameObjects = false;
             importer.animationCompression = ModelImporterAnimationCompression.Optimal;
+            bool reference = Path == MixamoReference;
+            importer.importAnimation = !reference;
+            if (!reference && File.Exists(MixamoReference))
+            {
+                context.DependsOnArtifact(MixamoReference);
+                Avatar source = AssetDatabase.LoadAssetAtPath<Avatar>(MixamoReference);
+                if (source != null && source.isHuman && source.isValid && MixamoPrefix(Path) == MixamoPrefix(MixamoReference))
+                {
+                    // The setter copies the reference importer's saved description, which lacks the bone map these rules
+                    // apply at import time, and keeps this file's own skeleton, which a first import doesn't have yet.
+                    importer.sourceAvatar = source;
+                    HumanDescription copied = importer.humanDescription;
+                    copied.human = MixamoHumanBones(MixamoPrefix(Path));
+                    copied.skeleton = source.humanDescription.skeleton;
+                    importer.humanDescription = copied;
+                    return;
+                }
+            }
+            importer.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
             HumanDescription desc = importer.humanDescription;
             desc.skeleton = new SkeletonBone[0];
             desc.human = MixamoHumanBones(MixamoPrefix(Path));

@@ -7,7 +7,7 @@ namespace Puttshack.Domain
     public static class Versions
     {
         public const string Rules = "rules-1.0";
-        public const string Simulation = "sim-1.2";
+        public const string Simulation = "sim-1.3";
         public const int Protocol = 1;
         public const int IntentSchema = 1;
     }
@@ -22,6 +22,8 @@ namespace Puttshack.Domain
         public bool Withdrawn;
         /// <summary>Cosmetic only. Null in journals written before the Pro Shop; read it through the catalog default.</summary>
         public Loadout Loadout;
+        /// <summary>Body, skin and hair. Null in journals written before Player Setup; read it through the catalog default.</summary>
+        public PlayerProfile Profile;
     }
 
     [Serializable]

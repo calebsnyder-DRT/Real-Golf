@@ -39,6 +39,13 @@ Shader "Puttshack/CourseGround"
         _StripeStrength ("Fairway Stripe Strength", Range(0, 0.3)) = 0.09
         _GreenStripeWidth ("Green Stripe Width (m)", Float) = 1.8
         _GreenStripeStrength ("Green Stripe Strength", Range(0, 0.3)) = 0.05
+        _StripeViewGain ("Stripe View Dependence", Range(0, 4)) = 1.8
+        _FirstCutTint ("First Cut Tint", Color) = (0.4, 0.6, 0.23, 1)
+        _FirstCutWidth ("First Cut Width (m)", Float) = 1.8
+        _DryTint ("Dry Patch Tint", Color) = (0.62, 0.55, 0.3, 1)
+        _DryStrength ("Dry Patches", Range(0, 1)) = 0.35
+        _GrassSheen ("Backlit Grass Sheen", Range(0, 1)) = 0.35
+        _RakeStrength ("Bunker Rake Lines", Range(0, 0.2)) = 0.07
         _NormalStrength ("Turf Normal Strength", Range(0, 2)) = 0.6
         _RockScale ("Rock Scale (1/m)", Float) = 0.11
         _RockSlope ("Rock Below Normal Y", Range(0, 1)) = 0.74
@@ -76,6 +83,13 @@ Shader "Puttshack/CourseGround"
             half _StripeStrength;
             float _GreenStripeWidth;
             half _GreenStripeStrength;
+            half _StripeViewGain;
+            half4 _FirstCutTint;
+            float _FirstCutWidth;
+            half4 _DryTint;
+            half _DryStrength;
+            half _GrassSheen;
+            half _RakeStrength;
             half _NormalStrength;
             float _RockScale;
             half _RockSlope;
@@ -97,9 +111,14 @@ Shader "Puttshack/CourseGround"
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
             #pragma multi_compile_fragment _ _REFLECTION_PROBE_BLENDING
             #pragma multi_compile _ _CLUSTER_LIGHT_LOOP
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
             #pragma multi_compile_fog
+            #pragma multi_compile_instancing
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ProbeVolumeVariants.hlsl"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "CourseGI.hlsl"
 
             TEXTURE2D(_RoughTex); SAMPLER(sampler_RoughTex);
             TEXTURE2D(_FairwayTex);
@@ -121,6 +140,8 @@ Shader "Puttshack/CourseGround"
                 float2 stripe : TEXCOORD0;
                 float2 masksA : TEXCOORD1;
                 float2 masksB : TEXCOORD2;
+                float2 mow : TEXCOORD3;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct Varyings
@@ -130,20 +151,23 @@ Shader "Puttshack/CourseGround"
                 half3 normalWS : TEXCOORD1;
                 half4 weights : TEXCOORD2;
                 float4 masks : TEXCOORD3;
-                float2 stripe : TEXCOORD4;
+                float4 stripe : TEXCOORD4; // xy stripe coordinates, zw mowing direction
                 half fogFactor : TEXCOORD5;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             Varyings vert(Attributes input)
             {
                 Varyings output;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
                 VertexPositionInputs positions = GetVertexPositionInputs(input.positionOS.xyz);
                 output.positionCS = positions.positionCS;
                 output.positionWS = positions.positionWS;
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
                 output.weights = input.color;
                 output.masks = float4(input.masksA, input.masksB);
-                output.stripe = input.stripe;
+                output.stripe = float4(input.stripe, input.mow);
                 output.fogFactor = ComputeFogFactor(positions.positionCS.z);
                 return output;
             }
@@ -171,6 +195,7 @@ Shader "Puttshack/CourseGround"
 
             half4 frag(Varyings input) : SV_Target
             {
+                UNITY_SETUP_INSTANCE_ID(input);
                 float3 p = input.positionWS;
                 half3 n = normalize(input.normalWS);
                 float2 uv = p.xz * _Tiling;
@@ -199,18 +224,41 @@ Shader "Puttshack/CourseGround"
                 half wGreen = smoothstep(0.035, -0.035, sdG);
                 half wBunker = smoothstep(0.03, -0.03, sdB);
 
-                half3 rough = Layer(TEXTURE2D_ARGS(_RoughTex, sampler_RoughTex), uv, _RoughTint);
+                // Mowing stripes read light or dark depending on whether the grass is bent toward or away from the
+                // viewer, so they swap as the camera turns; a little of the pattern stays from the side.
+                float2 mow = input.stripe.zw;
+                half3 V0 = GetWorldSpaceNormalizeViewDir(p);
+                float2 vh = V0.xz / max(length(V0.xz), 1e-3);
+                half facing = dot(mow, mow) > 0.25 ? dot(vh, mow) : 0;
+                half viewGain = 0.35 + _StripeViewGain * abs(facing);
+                half viewSign = facing < 0 ? -1 : 1;
+
+                // Two scales of the rough texture break up visible tiling across the big lawns.
+                half3 roughNear = Layer(TEXTURE2D_ARGS(_RoughTex, sampler_RoughTex), uv, _RoughTint);
+                half3 roughFar = Layer(TEXTURE2D_ARGS(_RoughTex, sampler_RoughTex), uv * 0.31 + 0.17, _RoughTint);
+                half3 rough = lerp(roughNear, roughFar, 0.35 + 0.3 * wobble);
+                half dry = saturate((macroA - 0.55) * 4) * saturate((macroB - 0.35) * 3) * _DryStrength;
+                rough = lerp(rough, rough * _DryTint.rgb * 2.0, dry);
                 half3 deep = Layer(TEXTURE2D_ARGS(_DeepRoughTex, sampler_RoughTex), uv * 0.8, _DeepRoughTint);
                 deep = lerp(deep, deep * _ScrubTint.rgb * 2.2, saturate(macroA * 1.8 - 0.6) * 0.5);
+                deep = lerp(deep, deep * _DryTint.rgb * 2.0, dry * 0.8);
                 half3 fairway = Layer(TEXTURE2D_ARGS(_FairwayTex, sampler_RoughTex), uv * 1.5, _FairwayTint);
-                fairway *= 1 + Bands(input.stripe.y, _StripeWidth) * _StripeStrength;
+                fairway *= 1 + Bands(input.stripe.y, _StripeWidth) * _StripeStrength * viewGain * viewSign;
+                half3 firstCut = Layer(TEXTURE2D_ARGS(_FairwayTex, sampler_RoughTex), uv * 1.1, _FirstCutTint);
                 half3 collar = Layer(TEXTURE2D_ARGS(_FairwayTex, sampler_RoughTex), uv * 2.0, _CollarTint);
                 half3 green = Layer(TEXTURE2D_ARGS(_GreenTex, sampler_RoughTex), uv * 2.0, _GreenTint);
-                green *= 1 + Bands(input.stripe.y, _GreenStripeWidth) * _GreenStripeStrength;
+                green *= 1 + Bands(input.stripe.y, _GreenStripeWidth) * _GreenStripeStrength * viewGain * viewSign;
+                green *= 1 + Bands(input.stripe.x, _GreenStripeWidth * 1.3) * _GreenStripeStrength * 0.35;
                 half3 sand = Layer(TEXTURE2D_ARGS(_BunkerTex, sampler_RoughTex), uv * 1.2, _BunkerTint);
+                // Rake furrows along the line of play, fading out before they alias.
+                float rake = (input.stripe.y + sin(input.stripe.x * 0.45) * 0.35) * 40.0;
+                half rakeFade = saturate(1 - fwidth(rake) * 0.6);
+                sand *= 1 + sin(rake) * _RakeStrength * rakeFade;
 
+                half wFirst = smoothstep(_FirstCutWidth + 0.15, _FirstCutWidth - 0.15, sdF + wobble * 0.2) * (1 - wFair);
                 half3 albedo = rough * lerp(1 - _MacroStrength * 0.5, 1 + _MacroStrength * 0.35, macro);
                 albedo = lerp(albedo, deep, wDeep);
+                albedo = lerp(albedo, firstCut * lerp(0.95, 1.03, macro), wFirst * (1 - wDeep));
                 albedo = lerp(albedo, fairway * lerp(0.94, 1.04, macro), wFair);
                 albedo = lerp(albedo, collar, wCollar * (1 - wGreen));
                 albedo = lerp(albedo, green, wGreen);
@@ -269,7 +317,7 @@ Shader "Puttshack/CourseGround"
                     inputData.shadowCoord = TransformWorldToShadowCoord(p);
                 #endif
                 inputData.fogCoord = InitializeInputDataFog(float4(p, 1), input.fogFactor);
-                inputData.bakedGI = SampleSH(normalWS);
+                inputData.bakedGI = CourseBakedGI(p, normalWS, inputData.viewDirectionWS, input.positionCS.xy);
                 inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(input.positionCS);
                 inputData.shadowMask = half4(1, 1, 1, 1);
 
@@ -283,6 +331,11 @@ Shader "Puttshack/CourseGround"
                 surface.alpha = 1;
 
                 half4 color = UniversalFragmentPBR(inputData, surface);
+                // Low sun behind the grass: blades glow at grazing angles (turf only, not sand, rock or beach).
+                Light sun = GetMainLight(inputData.shadowCoord, p, inputData.shadowMask);
+                half turf = (1 - wBunker) * (1 - wRock) * (1 - wBeach);
+                half backlit = pow(saturate(dot(-inputData.viewDirectionWS, sun.direction)), 3) * pow(1 - saturate(dot(n, inputData.viewDirectionWS)), 2);
+                color.rgb += albedo * sun.color * backlit * sun.shadowAttenuation * turf * _GrassSheen * lerp(1, 0.6, wGreen);
                 color.rgb = MixFog(color.rgb, inputData.fogCoord);
                 return half4(color.rgb, 1);
             }
@@ -301,17 +354,20 @@ Shader "Puttshack/CourseGround"
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+            #pragma multi_compile_instancing
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
             float3 _LightDirection;
             float3 _LightPosition;
 
-            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; };
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; UNITY_VERTEX_INPUT_INSTANCE_ID };
             struct Varyings { float4 positionCS : SV_POSITION; };
 
             Varyings vert(Attributes input)
             {
                 Varyings output;
+                UNITY_SETUP_INSTANCE_ID(input);
                 float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
                 float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
                 #if _CASTING_PUNCTUAL_LIGHT_SHADOW
@@ -337,13 +393,16 @@ Shader "Puttshack/CourseGround"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_instancing
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
 
-            struct Attributes { float4 positionOS : POSITION; };
+            struct Attributes { float4 positionOS : POSITION; UNITY_VERTEX_INPUT_INSTANCE_ID };
             struct Varyings { float4 positionCS : SV_POSITION; };
 
             Varyings vert(Attributes input)
             {
                 Varyings output;
+                UNITY_SETUP_INSTANCE_ID(input);
                 output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 return output;
             }
@@ -361,13 +420,16 @@ Shader "Puttshack/CourseGround"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_instancing
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
 
-            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; };
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; UNITY_VERTEX_INPUT_INSTANCE_ID };
             struct Varyings { float4 positionCS : SV_POSITION; half3 normalWS : TEXCOORD0; };
 
             Varyings vert(Attributes input)
             {
                 Varyings output;
+                UNITY_SETUP_INSTANCE_ID(input);
                 output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
                 return output;
@@ -376,6 +438,38 @@ Shader "Puttshack/CourseGround"
             half4 frag(Varyings input) : SV_Target
             {
                 return half4(NormalizeNormalPerPixel(input.normalWS), 0);
+            }
+            ENDHLSL
+        }
+
+        // Probe-volume bake albedo. UV1 carries surface masks rather than lightmap UVs, so the ground is probe-lit
+        // (receive GI = light probes) and bounces one average turf colour instead of a rasterised albedo.
+        Pass
+        {
+            Name "Meta"
+            Tags { "LightMode" = "Meta" }
+            Cull Off
+
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MetaInput.hlsl"
+
+            struct Attributes { float4 positionOS : POSITION; float2 uv1 : TEXCOORD1; float2 uv2 : TEXCOORD2; };
+            struct Varyings { float4 positionCS : SV_POSITION; };
+
+            Varyings vert(Attributes input)
+            {
+                Varyings output;
+                output.positionCS = UnityMetaVertexPosition(input.positionOS.xyz, input.uv1, input.uv2);
+                return output;
+            }
+
+            half4 frag(Varyings input) : SV_Target
+            {
+                UnityMetaInput meta = (UnityMetaInput)0;
+                meta.Albedo = lerp(_RoughTint.rgb, _FairwayTint.rgb, 0.3) * 0.85;
+                return UnityMetaFragment(meta);
             }
             ENDHLSL
         }

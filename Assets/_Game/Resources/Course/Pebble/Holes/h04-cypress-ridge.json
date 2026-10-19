@@ -1,0 +1,53 @@
+{
+  "Id": "h04-cypress-ridge",
+  "Version": "pebble-0.4",
+  "Name": "Cypress Ridge",
+  "Number": 4,
+  "Par": 4,
+  "YardageYd": 289,
+  "DefaultSurface": "LightRough",
+  "WindMps": [1.0, 0, 0.6],
+  "Briefing": {
+    "Hazard": "Bunkers pinch the fairway at the landing area and the pines on the left ridge block any hook.",
+    "SafePlan": "Lay up with the 3-wood short of the bunkers, then a short iron to the raised green.",
+    "SuggestedClubId": "wood3"
+  },
+  "Terrain": [
+    { "Notes": "Raised tee box above the hole 3 green.", "Kind": "Plateau", "Center": [66, 214], "Inner": 10, "Outer": 42, "Height": 3.0 },
+    { "Notes": "Tee pad.", "Kind": "Plateau", "Center": [66, 212], "Inner": 6.5, "Outer": 12, "Height": 0.9 },
+    { "Kind": "Plateau", "Center": [82, 140], "Inner": 6, "Outer": 30, "Height": 1.0 },
+    { "Notes": "Landing-area swale.", "Kind": "Plateau", "Center": [110, 30], "Inner": 8, "Outer": 36, "Height": -1.4 },
+    { "Notes": "Pine ridge on the left.", "Kind": "Plateau", "Center": [150, 80], "Inner": 20, "Outer": 60, "Height": 3.5 },
+    { "Notes": "Raised green, tilted.", "Kind": "Plateau", "Center": [122, -50], "Inner": 14, "Outer": 30, "Height": 1.6 },
+    { "Kind": "Tilt", "Center": [120, -48], "Inner": 14, "Outer": 30, "Slope": [0.005, -0.014] }
+  ],
+  "Surfaces": [
+    { "Id": "deep-rough-ridge", "Surface": "DeepRough", "Priority": 10, "Shape": { "Kind": "Rect", "Min": [150, -80], "Max": [182, 236] } },
+    {
+      "Id": "fairway", "Surface": "Fairway", "Priority": 20,
+      "Shape": { "Kind": "Loop", "Samples": 6, "Control": [[70, 170], [66, 140], [70, 100], [80, 62], [90, 30], [97, 0], [107, -28], [118, -34], [127, -28], [127, 0], [121, 32], [111, 64], [102, 100], [96, 140], [88, 172], [79, 178]] }
+    },
+    { "Id": "green", "Surface": "Green", "Priority": 40, "Shape": { "Kind": "Ellipse", "Center": [120, -48], "Radii": [12.5, 13.5], "Segments": 48, "Rotation": 0.25 } },
+    { "Id": "bunker-fairway-left", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [117, 38], "Radii": [6.0, 3.2], "Segments": 32, "Rotation": 1.2 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "bunker-fairway-right", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [80, 70], "Radii": [5.5, 3.0], "Segments": 32, "Rotation": 1.3 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "bunker-green-left", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [138, -42], "Radii": [5.5, 2.8], "Segments": 32, "Rotation": 1.4 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "bunker-green-right", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [102, -42], "Radii": [5.0, 2.8], "Segments": 32, "Rotation": 1.7 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "bunker-green-back", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [121, -65], "Radii": [5.0, 2.4], "Segments": 32, "Rotation": 0.1 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "tee", "Surface": "Tee", "Priority": 50, "Shape": { "Kind": "Rect", "Min": [61, 207], "Max": [71, 217] } }
+  ],
+  "Trees": [
+    { "Id": "cypress-tee-back", "At": [80, 228], "Trunk": [0.5, 3.6], "Canopy": [6, 10.5] },
+    { "Id": "pine-ridge-1", "At": [138, 182], "Trunk": [0.4, 5], "Canopy": [4.5, 15] },
+    { "Id": "pine-ridge-2", "At": [132, 122], "Trunk": [0.4, 5.5], "Canopy": [4.5, 16] },
+    { "Id": "pine-ridge-3", "At": [141, 66], "Trunk": [0.45, 5], "Canopy": [5, 15] },
+    { "Id": "pine-ridge-4", "At": [146, 14], "Trunk": [0.4, 5.5], "Canopy": [4.5, 16] },
+    { "Id": "pine-green-left", "At": [150, -26], "Trunk": [0.45, 5], "Canopy": [5, 15] },
+    { "Id": "oak-right-1", "At": [63, 112], "Trunk": [0.6, 3.4], "Canopy": [6.5, 9] },
+    { "Id": "oak-right-2", "At": [79, 36], "Trunk": [0.55, 3.2], "Canopy": [6, 8.5] },
+    { "Id": "cypress-green-back", "At": [138, -72], "Trunk": [0.5, 3.5], "Canopy": [5.5, 10] }
+  ],
+  "PlayableBoundary": { "Kind": "Rect", "Min": [48, -80], "Max": [182, 236] },
+  "Tee": [66, 212],
+  "Route": [[106, 6]],
+  "Cup": [119, -47]
+}

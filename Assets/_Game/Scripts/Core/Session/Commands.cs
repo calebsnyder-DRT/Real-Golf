@@ -54,6 +54,8 @@ namespace Puttshack.Session
         public CommandType Type;
 
         public List<string> Names;
+        /// <summary>RosterSet: one profile per name (null entries, or a null list, keep the slot's current golfer).</summary>
+        public List<PlayerProfile> Profiles;
         public AssistanceProfileId? Assistance;
         public bool? PaceCapEnabled;
         public string ClubId;

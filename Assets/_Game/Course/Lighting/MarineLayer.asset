@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dca71117b91e47dbb13e17c127b0cd5, type: 3}
+  m_Name: MarineLayer
+  m_EditorClassIdentifier: Puttshack.Runtime::Puttshack.Runtime.Course.CourseLightingPreset
+  SunAzimuth: -120
+  SunElevation: 32
+  SunColor: {r: 0.94, g: 0.92, b: 0.9, a: 1}
+  SunIntensity: 1.7
+  ShadowStrength: 0.5
+  FlareIntensity: 0
+  SkyTexture: {fileID: 2800000, guid: a820c17bf2f1847f68233d2e346bca27, type: 3}
+  SkySunAzimuth: 40.3
+  SkyExposure: 1
+  HazeColor: {r: 0.74, g: 0.77, b: 0.8, a: 1}
+  HazeSunColor: {r: 0.86, g: 0.86, b: 0.86, a: 1}
+  HazeHeight: 0.2
+  HazeStrength: 1
+  AmbientIntensity: 1.05
+  ReflectionIntensity: 1
+  FogColor: {r: 0.72, g: 0.75, b: 0.78, a: 1}
+  FogDensity: 0.0016
+  HeightFogColor: {r: 0.72, g: 0.75, b: 0.78, a: 1}
+  HeightFogSunColor: {r: 0.25, g: 0.24, b: 0.22, a: 1}
+  HeightFogDensity: 0.004
+  HeightFogFalloff: 0.045
+  HeightFogBaseHeight: -10
+  HeightFogStart: 10
+  HeightFogMaxOpacity: 0.95
+  HeightFogSunExponent: 8
+  HeightFogSkyAmount: 0.8
+  CloudShadowStrength: 0.25
+  CloudScale: 1100
+  CloudWind: {x: 2.4, y: 1.1}
+  PostExposure: 0.35
+  Contrast: 6
+  Saturation: -6
+  Temperature: -6
+  Tint: 0
+  SplitShadows: {r: 0.46, g: 0.52, b: 0.58, a: 1}
+  SplitHighlights: {r: 0.6, g: 0.6, b: 0.58, a: 1}
+  SplitBalance: 0
+  BloomIntensity: 0.25
+  BloomTint: {r: 1, g: 1, b: 1, a: 1}
+  VignetteIntensity: 0.2

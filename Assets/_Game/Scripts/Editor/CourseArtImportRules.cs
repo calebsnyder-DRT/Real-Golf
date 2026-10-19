@@ -21,8 +21,9 @@ namespace Puttshack.EditorTools
         public const string TextureRoot = SceneryRoot + "PebbleBeach/Textures/";
         public const string CourseModelRoot = "Assets/_Game/Resources/Models/Course/";
         public const string GroundTextureRoot = CourseModelRoot + "Textures/";
+        public const string VegetationRoot = CourseModelRoot + "Vegetation/";
 
-        public override uint GetVersion() => 1;
+        public override uint GetVersion() => 2;
 
         public override int GetPostprocessOrder() => 110;
 
@@ -95,6 +96,8 @@ namespace Puttshack.EditorTools
             importer.materialLocation = ModelImporterMaterialLocation.InPrefab;
             importer.preserveHierarchy = true;
             importer.sortHierarchyByName = false;
+            // Ground cover is merged into tile meshes, which needs the vertex data on the CPU.
+            importer.isReadable = Path.StartsWith(VegetationRoot, StringComparison.Ordinal);
         }
 
         private void OnPreprocessMaterialDescription(MaterialDescription description, Material material, AnimationClip[] clips)
@@ -139,6 +142,17 @@ namespace Puttshack.EditorTools
                 material.SetFloat("_Smoothness", 0.62f);
             }
             if (name == "PB_Window") material.SetFloat("_Smoothness", 0.88f);
+            if (name == "Cart_Rim" || name == "Prop_Metal")
+            {
+                material.SetFloat("_Metallic", 0.85f);
+                material.SetFloat("_Smoothness", 0.6f);
+            }
+            if (name == "Cart_Paint") material.SetFloat("_Smoothness", 0.55f);
+            if (name == "Cart_Light")
+            {
+                material.SetColor("_EmissionColor", new Color(1f, 0.92f, 0.75f) * 0.6f);
+                material.EnableKeyword("_EMISSION");
+            }
         }
     }
 }

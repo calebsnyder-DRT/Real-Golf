@@ -1,6 +1,7 @@
-"""Puttshack Pro - Pebble Beach (Stillwater Cove) scenery for the par-3 "Stillwater Cliffs".
+"""Puttshack Pro - Pebble Beach (Stillwater Cove) scenery around the course (holes 3 "Stillwater Cliffs",
+4 "Cypress Ridge" and 5 "Arrowhead Point", read from ArtSource/Blender/pebble_course.json).
 
-Builds everything around the gameplay hole that the analytic ground mesh does not cover: the surround terrain
+Builds everything around the gameplay holes that the analytic ground mesh does not cover: the surround terrain
 (continuing cliffs, beach and sea floor of the cove, the far shore with the 18th hole and the Lodge), rocks and sea
 stacks, the pier and boats, houses, Monterey cypress (three hero variants used for the gameplay trees plus scenery
 instances), distant forest and the hazy headlands across Carmel Bay, and the ocean plane.
@@ -29,11 +30,16 @@ ROOT = "/Users/calebsnyder/Real-Golf"
 sys.path.insert(0, os.path.join(ROOT, "ArtSource/Blender/scripts"))
 import pp_pebble_terrain as T  # noqa: E402
 
-HOLE = json.load(open(os.path.join(ROOT, "ArtSource/Blender/pebble_hole.json")))
+# Written by Unity (Puttshack > Export Course Layout For Blender): every hole, the shared ground grid, coast and cart path.
+COURSE = json.load(open(os.path.join(ROOT, "ArtSource/Blender/pebble_course.json")))
+HOLE = COURSE["Holes"][0]
+# All holes share one terrain (GrayboxCourse.CourseTerrain), so any hole's features describe the whole course.
 FEATS = T.features(HOLE)
-SEA = -10.0
-GX0, GZ0, GX1, GZ1, GNX, GNZ = T.ground_grid(HOLE)
-STEP = 0.8
+SEA = COURSE["SeaLevelM"]
+_G = COURSE["Grid"]
+GX0, GZ0, GX1, GZ1, GNX, GNZ = _G["MinX"], _G["MinZ"], _G["MaxX"], _G["MaxZ"], _G["Nx"], _G["Nz"]
+STEP = _G["Spacing"]
+HOLE_BOUNDS = [[(p["x"], p["z"]) for p in h["PlayableBoundary"]] for h in COURSE["Holes"]]
 SCENERY_DIR = os.path.join(ROOT, "Assets/_Game/Art/Course/PebbleBeach")
 CYPRESS_DIR = os.path.join(ROOT, "Assets/_Game/Resources/Models/Course/Cypress")
 TEE_MARKER_DIR = os.path.join(ROOT, "Assets/_Game/Resources/Models/Course/TeeMarker")
@@ -51,15 +57,21 @@ def smooth(a, b, x):
 
 
 # ================================================================ coastline (Unity xz, sea on the left of travel)
-CLIFF_CTRL = [(-160, -520), (-110, -430), (-75, -330), (-55, -220)] + [
-    (-42, -110), (-38, -60), (-34, -25), (-32, 5), (-31.5, 30), (-33, 52), (-37, 70), (-34, 88), (-28.5, 104),
-    (-24.5, 120), (-23.5, 136), (-25, 152), (-29, 166), (-35, 178), (-41, 192), (-45, 210), (-44, 235), (-38, 260)] + [
+# The course's own cliff edge (GrayboxCourse.CliffEdge, also the terrain shelf) comes in from Carmel Bay at (430, -300),
+# rounds the hole 6-8 headland and its chasm, then runs north past holes 5, 3 and 4; the scenery extends it east along
+# Carmel Bay and north around Stillwater Cove.
+_CLIFF_PREFIX = [(820, -420), (700, -360), (560, -320)]
+_CLIFF_COURSE = [(p["x"], p["z"]) for p in COURSE["CliffEdgeControl"]]
+_SHORE_COURSE = [(p["x"], p["z"]) for p in COURSE["ShoreControl"]]
+assert len(_SHORE_COURSE) == len(_CLIFF_COURSE)
+CLIFF_CTRL = _CLIFF_PREFIX + _CLIFF_COURSE + [
     (-31, 284), (-30, 306), (-40, 326), (-62, 342), (-96, 352), (-132, 360), (-168, 366), (-205, 370), (-242, 368),
     (-280, 362), (-320, 358), (-360, 360), (-400, 358), (-440, 348), (-478, 330), (-508, 304), (-530, 272),
     (-552, 262), (-575, 285), (-605, 345), (-640, 430), (-675, 540), (-710, 680), (-750, 860), (-790, 1060)]
+_N_PRE, _N_COURSE = len(_CLIFF_PREFIX), len(_CLIFF_COURSE)
 
 # the shore line sits further out where the cove has a beach (north shore by the Beach Club and pier)
-SHORE_OFFSET = [10, 10, 10, 10] + [10, 9, 9, 9, 8.5, 8.5, 8, 8, 6.5, 5.5, 5, 5, 6, 8, 11, 15, 18, 20] + [
+SHORE_OFFSET = [10] * _N_PRE + [10] * _N_COURSE + [
     18, 16, 18, 24, 30, 34, 30, 22, 14, 10, 9, 9, 9, 10, 10, 9, 8, 8, 9, 10, 10, 10, 10, 10, 10]
 assert len(SHORE_OFFSET) == len(CLIFF_CTRL)
 
@@ -77,13 +89,24 @@ def offset_left(ctrl, offsets):
     return out
 
 
-HOLE_SHORE = [(-52, -110), (-47, -60), (-43, -25), (-41, 5), (-40, 30), (-41.5, 52), (-45, 70), (-42, 88), (-35, 104),
-              (-30, 120), (-28.5, 136), (-30, 152), (-35, 166), (-43, 178), (-52, 192), (-60, 210), (-62, 235),
-              (-58, 260)]
 _shore_ext = offset_left(CLIFF_CTRL, SHORE_OFFSET)
-SHORE_CTRL = _shore_ext[:4] + HOLE_SHORE + _shore_ext[22:]
-CLIFF_PATH = T.catmull_rom(CLIFF_CTRL, 4)
-SHORE_PATH = T.catmull_rom(SHORE_CTRL, 4)
+SHORE_CTRL = _shore_ext[:_N_PRE] + _SHORE_COURSE + _shore_ext[_N_PRE + _N_COURSE:]
+
+
+def _extended_path(ctrl, course_key):
+    """The course's exact shelf samples (several Catmull-Rom pieces in Unity) with the scenery prefix and suffix sampled
+    on either side, so the scenery cliff follows the gameplay shelf exactly inside the ground grid."""
+    pre, course, post = ctrl[:_N_PRE], ctrl[_N_PRE:_N_PRE + _N_COURSE], ctrl[_N_PRE + _N_COURSE:]
+    assert course_key in COURSE, ("pebble_course.json predates the hole 6-8 coast; re-run Unity's "
+                                  "Puttshack > Export Course Layout For Blender")
+    samples = [(p["x"], p["z"]) for p in COURSE[course_key]]
+    head = T.catmull_rom(pre + course[:2], 4)[:4 * len(pre)]
+    tail = T.catmull_rom(course[-2:] + post, 4)[5:]
+    return head + samples + tail
+
+
+CLIFF_PATH = _extended_path(CLIFF_CTRL, "CliffEdge")
+SHORE_PATH = _extended_path(SHORE_CTRL, "Shore")
 
 
 # ================================================================ free-form height field
@@ -385,16 +408,12 @@ def surround_regions(x, z, d):
             401 + 15 * math.cos(a) * math.sin(0.3) + 11 * math.sin(a) * math.cos(0.3))
            for a in np.linspace(0, 2 * math.pi, 28, endpoint=False)]
     b18 = [(-276 + 5 * math.cos(a), 388 + 3 * math.sin(a)) for a in np.linspace(0, 2 * math.pi, 16, endpoint=False)]
-    # previous hole's green and fairway behind our tee; a parallel hole to the right
-    g6 = [(-14 + 13 * math.cos(a), -96 + 10 * math.sin(a)) for a in np.linspace(0, 2 * math.pi, 28, endpoint=False)]
-    f6 = [(-30, -112), (2, -112), (8, -170), (6, -260), (-18, -300), (-40, -260), (-44, -170)]
-    f8 = [(112, -120), (150, -120), (156, 40), (152, 230), (128, 260), (106, 230), (100, 40)]
-    g8 = [(130 + 13 * math.cos(a), 282 + 11 * math.sin(a)) for a in np.linspace(0, 2 * math.pi, 28, endpoint=False)]
-    for poly in (f18, f6, f8):
+    # (the neighbouring holes 4 and 5 are real course holes inside the gameplay grid now)
+    for poly in (f18,):
         w = poly_mask(poly)
         col[:, 0] = np.maximum(col[:, 0], w)
         col[:, 3] *= 1 - w
-    for poly in (g18, g6, g8):
+    for poly in (g18,):
         w = poly_mask(poly, 0.6)
         col[:, 1] = np.maximum(col[:, 1], w)
         col[:, 0] *= 1 - w
@@ -790,27 +809,48 @@ def build_cypress_models(coll):
 
 
 SCENERY_CYPRESS = [
-    # right of the hole, beyond the white stakes
-    (58, -30), (66, 4), (55, 28), (72, 46), (60, 88), (78, 112), (63, 140), (70, 176), (58, 204), (84, 226),
-    (92, 60), (96, 150),
-    # behind the green and along the cliff top past it
-    (-22, 238), (-6, 252), (14, 244), (30, 232), (-30, 268), (40, 262),
-    # behind the tee
-    (-30, -62), (-8, -70), (22, -58), (40, -84), (-40, -86),
     # far shore by the Lodge and the 18th
     (-120, 400), (-150, 410), (-190, 440), (-240, 445), (-292, 420), (-330, 405), (-380, 398), (-430, 392),
     (-480, 376), (-520, 350), (-96, 380), (-70, 360), (-50, 330),
+    # cliff top north of hole 3's green
+    (-30, 288), (-8, 296), (18, 284), (44, 290),
 ]
+
+
+def ring_cypress(seed=29, spacing=26.0):
+    """Cypress dotted just outside the gameplay grid (whose own trees belong to the holes), skipping the sea."""
+    rnd = random.Random(seed)
+    out = []
+    x0, z0, x1, z1 = GX0, GZ0, GX1, GZ1
+    perim = [((x0, z0), (x1, z0)), ((x1, z0), (x1, z1)), ((x1, z1), (x0, z1)), ((x0, z1), (x0, z0))]
+    for (ax, az), (bx, bz) in perim:
+        L = math.hypot(bx - ax, bz - az)
+        nx, nz = (bz - az) / L, -(bx - ax) / L  # outward for this CCW rectangle
+        t = rnd.uniform(0, spacing)
+        while t < L:
+            o = rnd.uniform(8, 26)
+            x, z = ax + (bx - ax) * t / L + nx * o, az + (bz - az) * t / L + nz * o
+            out.append((x, z))
+            t += spacing * rnd.uniform(0.7, 1.3)
+    return out
 
 
 def build_scenery_trees(coll, seed=9):
     rnd = random.Random(seed)
     b = Builder("PB_Trees")
-    for i, (x, z) in enumerate(SCENERY_CYPRESS):
+    blocked = [(x, z, max(w, d) * 0.75 + 4) for (x, z, _, w, d, *_r) in LODGE + HOUSES]
+    n = 0
+    for i, (x, z) in enumerate(SCENERY_CYPRESS + ring_cypress()):
         H = rnd.uniform(8.5, 13.0)
+        yaw = rnd.uniform(-35, 35)
         y = height_at(x, z)
-        cypress_into(b, M_at(x, y, z, rnd.uniform(-35, 35)), 1000 + i * 17, H)
-    print("[trees] %d scenery cypress" % len(SCENERY_CYPRESS))
+        if rect_distance(np.array([x]), np.array([z]))[0] < 6 or y < SEA + 2.5:
+            continue
+        if any((x - bx) ** 2 + (z - bz) ** 2 < r * r for bx, bz, r in blocked):
+            continue
+        cypress_into(b, M_at(x, y, z, yaw), 1000 + i * 17, H)
+        n += 1
+    print("[trees] %d scenery cypress" % n)
     return b.finish(coll, smooth_shade=True, box_uv=0.5)
 
 
@@ -878,12 +918,12 @@ HOUSES = [
     (-498, 396, (0.5, -1), 22, 14, 2, "PB_Stucco", "PB_Roof", "hip"),
     (-540, 370, (0.8, -1), 18, 12, 2, "PB_StuccoWarm", "PB_RoofRed", "hip"),
     (-600, 420, (1, -0.3), 20, 12, 2, "PB_Stucco", "PB_Roof", "hip"),
-    (210, 150, (-1, 0), 18, 12, 2, "PB_StuccoWarm", "PB_RoofRed", "hip"),
+    (248, 150, (-1, 0), 18, 12, 2, "PB_StuccoWarm", "PB_RoofRed", "hip"),
     (252, 40, (-1, 0.2), 20, 13, 2, "PB_Stucco", "PB_Roof", "hip"),
     (236, 300, (-1, -0.2), 16, 11, 2, "PB_StuccoWarm", "PB_Roof", "gable"),
     (300, 220, (-1, 0), 22, 14, 2, "PB_Stucco", "PB_RoofRed", "hip"),
     (330, 390, (-1, -0.4), 18, 12, 2, "PB_StuccoWarm", "PB_Roof", "hip"),
-    (130, -210, (-0.5, 1), 18, 12, 2, "PB_Stucco", "PB_Roof", "hip"),
+    (130, -236, (-0.5, 1), 18, 12, 2, "PB_Stucco", "PB_Roof", "hip"),
     (170, -320, (-0.6, 1), 20, 12, 2, "PB_StuccoWarm", "PB_RoofRed", "hip"),
     (60, -380, (-1, 1), 16, 11, 2, "PB_Stucco", "PB_Roof", "gable"),
 ]
@@ -1002,7 +1042,7 @@ def build_boats(coll, seed=21):
 
 # ================================================================ Del Monte Forest and the far headlands
 def forest_density(x, z, h, d):
-    if h < SEA + 2.5 or d < 14:
+    if h < SEA + 2.5 or d < 18:
         return 0.0
     dens = 0.0
     if x > 168:
@@ -1027,8 +1067,6 @@ def build_forest(coll, seed=17, cap=1450.0):
     fairways = [
         [(-505, 340), (-470, 352), (-420, 366), (-360, 378), (-310, 386), (-275, 392), (-262, 410), (-300, 418),
          (-360, 412), (-420, 400), (-470, 384), (-500, 366)],
-        [(-30, -112), (2, -112), (8, -170), (6, -260), (-18, -300), (-40, -260), (-44, -170)],
-        [(112, -120), (150, -120), (156, 40), (152, 230), (128, 260), (106, 230), (100, 40)],
     ]
     cand = []
     for gx in np.arange(-1290, 1225, 16.0):
@@ -1138,16 +1176,22 @@ SCENERY_PARTS = [("Terrain", build_terrain), ("Ocean", build_ocean), ("Rocks", b
                  ("Pier", build_pier), ("Boats", build_boats)]
 
 
-def build_all(export=True):
-    """Rebuild every collection from scratch and export the scenery, cypress and tee-marker FBX files."""
+def build_all(export=True, models=True):
+    """Rebuild every collection from scratch and export the scenery, cypress and tee-marker FBX files
+    (with models=False only the scenery is rebuilt and exported; the cypress and tee marker are left as they are)."""
     make_materials()
-    make_textures()
-    make_foliage_textures()
+    if models:
+        make_textures()
+        make_foliage_textures()
     scenery = []
     for name, fn in SCENERY_PARTS:
         c = new_coll(name)
         clear_coll(c)
         scenery.append(fn(c))
+    if not models:
+        if export:
+            export_fbx(scenery, os.path.join(SCENERY_DIR, "PebbleBeach_Scenery.fbx"))
+        return scenery, []
     c = new_coll("CypressModels")
     clear_coll(c)
     cypress = build_cypress_models(c)

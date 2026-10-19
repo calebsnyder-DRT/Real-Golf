@@ -20,17 +20,36 @@ namespace Puttshack.Runtime.Course
         public Material BoundaryStake;
         public Material PenaltyStake;
         public Material Foliage;
+        public Material Grass;
+        public Material CupInterior;
         public readonly List<GameObject> BroadleafModels = new List<GameObject>();
         public readonly List<GameObject> PineModels = new List<GameObject>();
         public readonly List<GameObject> CypressModels = new List<GameObject>();
         public GameObject TeeMarkerModel;
 
+        // Course furniture and ground cover from ArtSource/Blender/scripts/pp_course_props.py (null/empty when not imported).
+        public GameObject BenchModel;
+        public GameObject BallWasherModel;
+        public GameObject TrashBinModel;
+        public GameObject TeeSignModel;
+        public GameObject YardagePostModel;
+        public GameObject RakeModel;
+        public readonly List<GameObject> ShrubModels = new List<GameObject>();
+        public readonly List<GameObject> GrassModels = new List<GameObject>();
+        public readonly List<GameObject> IcePlantModels = new List<GameObject>();
+        public readonly List<GameObject> FlowerModels = new List<GameObject>();
+        /// <summary>Tee sign lettering; the baker sets the HUD's condensed face, the runtime fallback uses the TMP default.</summary>
+        public TMPro.TMP_FontAsset SignFont;
+
         public const string TextureRoot = "Models/Course/Textures/";
 
         /// <summary>Name prefix of the Blender canopy materials that <see cref="Foliage"/> replaces.</summary>
         public const string BlenderFoliagePrefix = "PB_Foliage";
+        public const string BlenderGrassPrefix = "PB_Grass";
 
         private const string TeeMarkerPath = "Models/Course/TeeMarker/TeeMarker";
+        private const string PropRoot = "Models/Course/Props/";
+        private const string VegetationRoot = "Models/Course/Vegetation/";
 
         private static readonly string[] BroadleafPaths =
         {
@@ -44,6 +63,10 @@ namespace Puttshack.Runtime.Course
             "Models/Nature/Stylized/Trees/Pine_1",
             "Models/Nature/Stylized/Trees/Pine_2",
         };
+
+        /// <summary>Course-made Monterey pines and coast live oaks; preferred over the stylized pack when present.</summary>
+        private static readonly string[] CoursePinePaths = { VegetationRoot + "Pine_A", VegetationRoot + "Pine_B" };
+        private static readonly string[] CourseOakPaths = { VegetationRoot + "Oak_A", VegetationRoot + "Oak_B" };
 
         /// <summary>Monterey cypress prefabs baked from ArtSource/Blender/PuttshackPro_PebbleBeach.blend.</summary>
         private static readonly string[] CypressPaths =
@@ -61,6 +84,9 @@ namespace Puttshack.Runtime.Course
             Shader groundShader = Shader.Find("Puttshack/CourseGround");
             Shader waterShader = Shader.Find("Puttshack/CourseWater");
             Shader foliageShader = Shader.Find("Puttshack/Foliage");
+            Shader pathShader = Shader.Find("Puttshack/CartPath");
+            Shader cupShader = Shader.Find("Puttshack/CupInterior");
+            Shader flagShader = Shader.Find("Puttshack/Flag");
             Shader lit = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
 
             assets.Ground = new Material(groundShader != null ? groundShader : lit) { name = "CourseGround" };
@@ -86,11 +112,22 @@ namespace Puttshack.Runtime.Course
             assets.Water = new Material(waterShader != null ? waterShader : lit) { name = "CourseWater" };
             if (waterShader == null) SetColor(assets.Water, new Color(0.2f, 0.48f, 0.6f));
 
-            assets.CartPath = LitMaterial(lit, "CartPath", new Color(0.72f, 0.70f, 0.64f), 0.2f);
+            if (pathShader != null)
+            {
+                assets.CartPath = new Material(pathShader) { name = "CartPath" };
+                SetTexture(assets.CartPath, "_NoiseTex", "rough_albedo");
+            }
+            else
+            {
+                assets.CartPath = LitMaterial(lit, "CartPath", new Color(0.72f, 0.70f, 0.64f), 0.2f);
+            }
             assets.Trunk = LitMaterial(lit, "Trunk", new Color(0.36f, 0.26f, 0.18f), 0.1f);
             assets.Canopy = LitMaterial(lit, "Canopy", new Color(0.22f, 0.45f, 0.2f), 0.1f);
             assets.FlagPole = LitMaterial(lit, "FlagPole", new Color(0.95f, 0.95f, 0.92f), 0.5f);
-            assets.FlagCloth = LitMaterial(lit, "FlagCloth", new Color(0.86f, 0.18f, 0.16f), 0.2f);
+            assets.FlagCloth = flagShader != null
+                ? new Material(flagShader) { name = "FlagCloth" }
+                : LitMaterial(lit, "FlagCloth", new Color(0.86f, 0.18f, 0.16f), 0.2f);
+            if (cupShader != null) assets.CupInterior = new Material(cupShader) { name = "CupInterior" };
             assets.Cup = LitMaterial(lit, "Cup", new Color(0.06f, 0.07f, 0.07f), 0f);
             assets.TeeMarker = LitMaterial(lit, "TeeMarker", new Color(0.16f, 0.24f, 0.19f), 0.45f);
             assets.BoundaryStake = LitMaterial(lit, "BoundaryStake", new Color(0.97f, 0.97f, 0.97f), 0.3f);
@@ -107,10 +144,43 @@ namespace Puttshack.Runtime.Course
                 assets.Foliage = LitMaterial(lit, "Foliage", new Color(0.2f, 0.29f, 0.14f), 0.05f);
             }
 
-            LoadModels(BroadleafPaths, assets.BroadleafModels);
-            LoadModels(PinePaths, assets.PineModels);
+            if (foliageShader != null)
+            {
+                assets.Grass = new Material(foliageShader) { name = "FescueGrass" };
+                SetTexture(assets.Grass, "_ClumpNormal", "foliage_normal");
+                SetTexture(assets.Grass, "_ClumpNoise", "foliage_noise");
+                assets.Grass.SetColor("_BaseColor", new Color(0.13f, 0.19f, 0.07f));
+                assets.Grass.SetColor("_TipColor", new Color(0.46f, 0.46f, 0.2f));
+                assets.Grass.SetColor("_TranslucencyColor", new Color(0.55f, 0.5f, 0.18f));
+                assets.Grass.SetFloat("_ClumpStrength", 0.25f);
+                assets.Grass.SetFloat("_CreviceStrength", 0.15f);
+                assets.Grass.SetFloat("_OcclusionStrength", 0.7f);
+                assets.Grass.SetFloat("_Translucency", 0.9f);
+                assets.Grass.SetFloat("_WindStrength", 0.07f);
+                assets.Grass.SetFloat("_WindSpeed", 1.6f);
+            }
+            else
+            {
+                assets.Grass = LitMaterial(lit, "FescueGrass", new Color(0.36f, 0.4f, 0.17f), 0.05f);
+            }
+
+            LoadModels(CourseOakPaths, assets.BroadleafModels);
+            if (assets.BroadleafModels.Count == 0) LoadModels(BroadleafPaths, assets.BroadleafModels);
+            LoadModels(CoursePinePaths, assets.PineModels);
+            if (assets.PineModels.Count == 0) LoadModels(PinePaths, assets.PineModels);
             LoadModels(CypressPaths, assets.CypressModels);
             assets.TeeMarkerModel = Resources.Load<GameObject>(TeeMarkerPath);
+
+            assets.BenchModel = Resources.Load<GameObject>(PropRoot + "Bench");
+            assets.BallWasherModel = Resources.Load<GameObject>(PropRoot + "BallWasher");
+            assets.TrashBinModel = Resources.Load<GameObject>(PropRoot + "TrashBin");
+            assets.TeeSignModel = Resources.Load<GameObject>(PropRoot + "TeeSign");
+            assets.YardagePostModel = Resources.Load<GameObject>(PropRoot + "YardagePost");
+            assets.RakeModel = Resources.Load<GameObject>(PropRoot + "BunkerRake");
+            LoadModels(new[] { VegetationRoot + "Shrub_A", VegetationRoot + "Shrub_B", VegetationRoot + "Shrub_C" }, assets.ShrubModels);
+            LoadModels(new[] { VegetationRoot + "Grass_A", VegetationRoot + "Grass_B" }, assets.GrassModels);
+            LoadModels(new[] { VegetationRoot + "IcePlant_A" }, assets.IcePlantModels);
+            LoadModels(new[] { VegetationRoot + "Flowers_A" }, assets.FlowerModels);
             return assets;
         }
 
@@ -124,12 +194,22 @@ namespace Puttshack.Runtime.Course
                 bool changed = false;
                 for (int i = 0; i < materials.Length; i++)
                 {
-                    if (materials[i] == null || !materials[i].name.StartsWith(BlenderFoliagePrefix, System.StringComparison.Ordinal)) continue;
-                    materials[i] = Foliage;
+                    Material swapped = ResolveScatterMaterial(materials[i]);
+                    if (swapped == materials[i]) continue;
+                    materials[i] = swapped;
                     changed = true;
                 }
                 if (changed) renderer.sharedMaterials = materials;
             }
+        }
+
+        /// <summary>The course material that stands in for a Blender-imported one (foliage and grass get the wind shader).</summary>
+        public Material ResolveScatterMaterial(Material imported)
+        {
+            if (imported == null) return null;
+            if (Foliage != null && imported.name.StartsWith(BlenderFoliagePrefix, System.StringComparison.Ordinal)) return Foliage;
+            if (Grass != null && imported.name.StartsWith(BlenderGrassPrefix, System.StringComparison.Ordinal)) return Grass;
+            return imported;
         }
 
         public IEnumerable<Material> AllMaterials()
@@ -146,6 +226,8 @@ namespace Puttshack.Runtime.Course
             yield return BoundaryStake;
             yield return PenaltyStake;
             yield return Foliage;
+            if (Grass != null) yield return Grass;
+            if (CupInterior != null) yield return CupInterior;
         }
 
         public static Material LitMaterial(Shader lit, string name, Color color, float smoothness)

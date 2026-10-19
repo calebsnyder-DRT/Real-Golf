@@ -39,10 +39,13 @@ Material:
     - _OcclusionStrength: 0.85
     - _Sheen: 0.035
     - _Translucency: 0.6
+    - _WindSpeed: 1.1
+    - _WindStrength: 0.09
     - _Wrap: 0.35
     m_Colors:
     - _BaseColor: {r: 0.08499997, g: 0.12999997, b: 0.064999975, a: 1}
     - _TipColor: {r: 0.20999995, g: 0.28999996, b: 0.11999995, a: 1}
     - _TranslucencyColor: {r: 0.45, g: 0.54999995, b: 0.14999998, a: 1}
+    - _WindDirection: {r: 1, g: 0, b: 0.35, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

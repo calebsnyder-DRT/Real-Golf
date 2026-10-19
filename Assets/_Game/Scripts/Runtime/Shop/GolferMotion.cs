@@ -9,8 +9,10 @@ namespace Puttshack.Runtime.Shop
     /// <summary>
     /// Plays the golfer's clips on whichever body <see cref="GolferAppearance"/> shows: idle (shop and waiting), address
     /// with the selected club, the swing (whose impact time the course presentation waits for before launching the ball),
-    /// and the reaction to the result. Also blinks and sets the face expression on heads that have the shapes. Impact
-    /// times and ball placement are written at bake time (<c>Puttshack > Characters > Bake Golfers</c>).
+    /// and the reaction to the result. The body's <see cref="GolferHandIK"/> keeps both hands on the club from address to
+    /// the end of the swing and brings the clubface back to the ball at impact. Also blinks and sets the face expression on
+    /// the head pieces that have the shapes. Impact
+    /// times and ball placement are measured at bake time (<c>Puttshack > Characters > Bake Golfers</c>).
     /// </summary>
     public sealed class GolferMotion : MonoBehaviour
     {
@@ -21,10 +23,13 @@ namespace Puttshack.Runtime.Shop
             public string Model;
             public string Address;
             public string Swing;
-            [Tooltip("Seconds from the start of Swing to impact.")]
-            public float Contact;
-            [Tooltip("Ball centre in golfer-root space at address, per character (index = character).")]
+            [Tooltip("Seconds from the start of Swing to impact, per character (index = character).")]
+            public float[] Contact;
+            [Tooltip("Ball centre in golfer-root space where the clubhead meets it at impact, per character (index = character).")]
             public Vector3[] Ball;
+
+            /// <summary>Seconds from the start of Swing to impact for a body (0 if not measured).</summary>
+            public float ContactOf(int body) => Contact == null || Contact.Length == 0 ? 0f : Contact[Mathf.Clamp(body, 0, Contact.Length - 1)];
         }
 
         public enum Reaction
@@ -55,6 +60,11 @@ namespace Puttshack.Runtime.Shop
         private float _smile, _frown, _open;
         private float _smileGoal, _frownGoal, _openGoal;
         private float _expressionUntil;
+        private readonly List<SkinnedMeshRenderer> _face = new List<SkinnedMeshRenderer>();
+        private int _faceBody = int.MinValue;
+
+        /// <summary>Head pieces carrying the expression shapes (Body_Arms carries the neck under the jaw).</summary>
+        private static readonly string[] ExpressionPieces = { "Head_", "Brows_", "Lashes_" };
 
         public string State => _state;
 
@@ -95,10 +105,11 @@ namespace Puttshack.Runtime.Shop
         {
             offset = default;
             if (!TryGet(ClubModel(clubId), out ClubMotion m) || m.Ball == null || m.Ball.Length == 0) return false;
-            int body = Appearance != null ? Mathf.Max(0, Appearance.Shown) : 0;
-            offset = m.Ball[Mathf.Min(body, m.Ball.Length - 1)];
+            offset = m.Ball[Mathf.Min(Body, m.Ball.Length - 1)];
             return true;
         }
+
+        private int Body => Appearance != null ? Mathf.Max(0, Appearance.Shown) : 0;
 
         public void Idle()
         {
@@ -125,7 +136,7 @@ namespace Puttshack.Runtime.Shop
             string model = ClubModel(clubId);
             if (_club != model) Address(clubId);
             if (!TryGet(model, out ClubMotion m)) return 0f;
-            return Play(m.Swing, 0.06f) ? m.Contact : 0f;
+            return Play(m.Swing, 0.06f) ? m.ContactOf(Body) : 0f;
         }
 
         public void React(Reaction reaction)
@@ -195,7 +206,17 @@ namespace Puttshack.Runtime.Shop
             }
             _state = state;
             _stateBody = Appearance.Shown;
+            Grip(animator, state);
             return true;
+        }
+
+        /// <summary>Both hands on the club from address through the finish; the right hand lets go for idles and reactions.</summary>
+        private void Grip(Animator animator, string state)
+        {
+            var ik = animator.GetComponent<GolferHandIK>();
+            if (ik == null) return;
+            if (_club != null && TryGet(_club, out ClubMotion m) && (state == m.Address || state == m.Swing)) ik.Hold(_club);
+            else ik.Release();
         }
 
         private void Express(float smile, float frown, float open, float seconds)
@@ -242,13 +263,28 @@ namespace Puttshack.Runtime.Shop
                 }
             }
 
-            if (!(Appearance.ShownPart("Head_" + Appearance.ShownName) is SkinnedMeshRenderer head) || head.sharedMesh == null) return;
-            Mesh mesh = head.sharedMesh;
-            SetShape(head, mesh, "Blink_L", blink);
-            SetShape(head, mesh, "Blink_R", blink);
-            SetShape(head, mesh, "Smile", _smile);
-            SetShape(head, mesh, "Frown", _frown);
-            SetShape(head, mesh, "Open", _open);
+            foreach (SkinnedMeshRenderer piece in FacePieces())
+            {
+                Mesh mesh = piece.sharedMesh;
+                SetShape(piece, mesh, "Blink_L", blink);
+                SetShape(piece, mesh, "Blink_R", blink);
+                SetShape(piece, mesh, "Smile", _smile);
+                SetShape(piece, mesh, "Frown", _frown);
+                SetShape(piece, mesh, "Open", _open);
+            }
+        }
+
+        private List<SkinnedMeshRenderer> FacePieces()
+        {
+            if (_faceBody == Appearance.Shown && _face.TrueForAll(r => r != null)) return _face;
+            _face.Clear();
+            foreach (string piece in ExpressionPieces)
+            {
+                if (Appearance.ShownPart(piece + Appearance.ShownName) is SkinnedMeshRenderer smr && smr.sharedMesh != null) _face.Add(smr);
+            }
+            if (Appearance.ShownPart("Body_Arms") is SkinnedMeshRenderer neck && neck.sharedMesh != null) _face.Add(neck);
+            _faceBody = Appearance.Shown;
+            return _face;
         }
 
         private static void SetShape(SkinnedMeshRenderer smr, Mesh mesh, string shape, float weight01)

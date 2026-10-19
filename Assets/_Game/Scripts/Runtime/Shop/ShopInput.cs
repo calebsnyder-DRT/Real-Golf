@@ -35,6 +35,9 @@ namespace Puttshack.Runtime.Shop
         private ShopAction? _held;
         private float _nextRepeat;
 
+        /// <summary>Raised for every action any menu polls (the audio layer's UI clicks listen here).</summary>
+        public static event System.Action<ShopAction> ActionPolled;
+
         /// <summary>-1..1, positive turns the golfer to their left (clockwise seen from above).</summary>
         public float Rotate { get; private set; }
 
@@ -93,6 +96,7 @@ namespace Puttshack.Runtime.Shop
                 if (Mathf.Abs(x) > 0.2f) rotate -= x;
             }
             Rotate = Mathf.Clamp(rotate, -1f, 1f);
+            if (ActionPolled != null) foreach (ShopAction a in _actions) ActionPolled(a);
             return _actions;
         }
 

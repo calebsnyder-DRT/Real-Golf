@@ -80,6 +80,7 @@ namespace Puttshack.Runtime.Shop
         private (AmbientMode Mode, Color Sky, Color Equator, Color Ground, float Intensity, SphericalHarmonicsL2 Probe)? _courseAmbient;
         private bool _dirty;
         private bool _wired;
+        private bool _fromSetup;
         private int _openedFrame = -1;
 
         private struct Entry
@@ -91,10 +92,16 @@ namespace Puttshack.Runtime.Shop
 
         // ---------------------------------------------------------------- Open / close
 
-        public void Open(GameHost host, ShopOrigin origin, int turnIndex, int editIndex)
+        /// <summary>
+        /// <paramref name="fromSetup"/>: opened from Player Setup, so Back is labelled as returning there (the host reopens
+        /// it once the shop closes).
+        /// </summary>
+        public void Open(GameHost host, ShopOrigin origin, int turnIndex, int editIndex, bool fromSetup = false)
         {
             if (IsOpen) return;
+            if (Staged) EndStage();
             _host = host;
+            _fromSetup = fromSetup;
             Editor = new LoadoutEditor(host.Coordinator.Snapshot.Data.Players, origin, turnIndex, editIndex);
             Category = ShopCategory.Tops;
             Zone = ShopZone.Items;
@@ -104,18 +111,7 @@ namespace Puttshack.Runtime.Shop
             FocusEquipped();
             WireClicks();
             EnsureEventSystem();
-
-            Camera cam = Camera.main;
-            _courseRig = cam != null ? cam.GetComponent<GolfCameraRig>() : null;
-            if (_courseRig != null) _courseRig.enabled = false;
-            if (cam != null && CameraRig != null) CameraRig.Begin(cam, host.ReducedMotion);
-            _cameraData = cam != null ? cam.GetUniversalAdditionalCameraData() : null;
-            if (_cameraData != null)
-            {
-                _cameraPost = _cameraData.renderPostProcessing;
-                _cameraData.renderPostProcessing = true;
-            }
-            UseShopAmbient(true);
+            EnterStage(host.ReducedMotion);
 
             if (Studio != null) Studio.Invalidate();
             View.ReducedMotion = host.ReducedMotion;
@@ -124,6 +120,80 @@ namespace Puttshack.Runtime.Shop
             _openedFrame = UnityEngine.Time.frameCount;
             ApplyPreview();
             Refresh();
+        }
+
+        // ---------------------------------------------------------------- Stage (Player Setup's live preview)
+
+        /// <summary>True while Player Setup holds the shop floor (camera, lights, turntable golfer) without the shop UI.</summary>
+        public bool Staged { get; private set; }
+
+        public void BeginStage(GameHost host)
+        {
+            if (IsOpen || Staged) return;
+            _host = host;
+            _yaw = 0f;
+            EnsureEventSystem();
+            EnterStage(host.ReducedMotion);
+            Staged = true;
+        }
+
+        public void EndStage()
+        {
+            if (!Staged) return;
+            LeaveStage();
+            Staged = false;
+        }
+
+        /// <summary>Dresses the turntable golfer as one player (outfit and profile) and puts their bag on the plinth.</summary>
+        public void Preview(PlayerState player)
+        {
+            if (player == null) return;
+            Loadout look = CosmeticCatalog.LoadoutOf(player);
+            if (Golfer != null)
+            {
+                int before = Golfer.Shown;
+                Golfer.Apply(look, ProfileCatalog.ProfileOf(player));
+                GolferMotion motion = Golfer.GetComponent<GolferMotion>();
+                if (motion != null && Golfer.Shown != before) motion.Refresh();
+            }
+            if (Plinth == null) return;
+            Plinth.ClubSet = player.ColorIndex;
+            Plinth.ShowBag(look.Bag);
+        }
+
+        /// <summary>Turns the turntable by <paramref name="degrees"/>; zero faces the golfer to the camera.</summary>
+        public void Spin(float degrees, bool reset = false)
+        {
+            _yaw = reset ? 0f : Mathf.Repeat(_yaw + degrees + 180f, 360f) - 180f;
+            if (Turntable != null) Turntable.localRotation = Quaternion.Euler(0f, _yaw, 0f);
+        }
+
+        private void EnterStage(bool reducedMotion)
+        {
+            Camera cam = Camera.main;
+            _courseRig = cam != null ? cam.GetComponent<GolfCameraRig>() : null;
+            if (_courseRig != null) _courseRig.enabled = false;
+            if (cam != null && CameraRig != null) CameraRig.Begin(cam, reducedMotion);
+            _cameraData = cam != null ? cam.GetUniversalAdditionalCameraData() : null;
+            if (_cameraData != null)
+            {
+                _cameraPost = _cameraData.renderPostProcessing;
+                _cameraData.renderPostProcessing = true;
+            }
+            UseShopAmbient(true);
+        }
+
+        private void LeaveStage()
+        {
+            if (CameraRig != null) CameraRig.End();
+            if (_cameraData != null) _cameraData.renderPostProcessing = _cameraPost;
+            _cameraData = null;
+            UseShopAmbient(false);
+            if (_courseRig != null)
+            {
+                _courseRig.enabled = true;
+                _courseRig.Snap();
+            }
         }
 
         /// <summary>Back: unsaved edits for every player are discarded.</summary>
@@ -139,15 +209,7 @@ namespace Puttshack.Runtime.Shop
         private void Close()
         {
             View.Show(false);
-            if (CameraRig != null) CameraRig.End();
-            if (_cameraData != null) _cameraData.renderPostProcessing = _cameraPost;
-            _cameraData = null;
-            UseShopAmbient(false);
-            if (_courseRig != null)
-            {
-                _courseRig.enabled = true;
-                _courseRig.Snap();
-            }
+            LeaveStage();
             IsOpen = false;
             ApplyPreview();
         }
@@ -438,7 +500,7 @@ namespace Puttshack.Runtime.Shop
             if (Golfer != null)
             {
                 int before = Golfer.Shown;
-                Golfer.Apply(Editor.Current, CharacterOf(Editor.EditedPlayer));
+                Golfer.Apply(Editor.Current, ProfileCatalog.ProfileOf(Editor.EditedPlayer));
                 GolferMotion motion = Golfer.GetComponent<GolferMotion>();
                 if (motion != null && Golfer.Shown != before) motion.Refresh();
             }
@@ -449,6 +511,7 @@ namespace Puttshack.Runtime.Shop
         private void ApplyPlinth()
         {
             if (Plinth == null || Editor == null) return;
+            if (Editor.EditedPlayer != null) Plinth.ClubSet = Editor.EditedPlayer.ColorIndex;
             if (IsOpen && Category == ShopCategory.Clubs) Plinth.ShowClub(FocusedEntry.Id);
             else Plinth.ShowBag(Editor.Current.Bag);
         }
@@ -461,7 +524,7 @@ namespace Puttshack.Runtime.Shop
             bool clubs = Category == ShopCategory.Clubs;
 
             View.SetTitle(clubs || Category == ShopCategory.Bags ? "PRO SHOP" : "PLAYER LOADOUT");
-            View.SetBack(Editor.Origin == ShopOrigin.Lobby ? "BACK TO LOBBY" : "BACK TO ROUND", Zone == ShopZone.Back);
+            View.SetBack(Editor.Origin == ShopOrigin.Paused ? "BACK TO ROUND" : _fromSetup ? "BACK TO PLAYERS" : "BACK TO LOBBY", Zone == ShopZone.Back);
 
             for (int c = 0; c < View.Categories.Length; c++)
             {
@@ -494,7 +557,7 @@ namespace Puttshack.Runtime.Shop
                 {
                     Name = p.Name,
                     Identity = Palette.Player(p.ColorIndex),
-                    Portrait = Studio != null ? Studio.Portrait(i, Editor.Working(i), CharacterOf(p)) : null,
+                    Portrait = Studio != null ? Studio.Portrait(i, Editor.Working(i), CharacterOf(p), ProfileCatalog.ProfileOf(p)) : null,
                     Edited = i == Editor.EditedIndex,
                     Focused = Zone == ShopZone.Players && i == Editor.EditedIndex,
                     Turn = Editor.Origin == ShopOrigin.Paused && i == Editor.TurnIndex,

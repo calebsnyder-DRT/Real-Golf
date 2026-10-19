@@ -1,0 +1,39 @@
+{
+  "Format": 1,
+  "Notes": "Frozen: the world frame of course graybox-0.3 (holes 3-5 only) as GrayboxCourse.cs hand-authored it. With the live hole files it must reproduce the hashes Unity baked from that code (CourseDataTests). Do not edit.",
+  "Id": "puttshack-pro-graybox",
+  "Version": "graybox-0.3",
+  "Name": "Puttshack Pro - Graybox",
+  "SeaLevelM": -10,
+  "ProposedPars": [4, 4, 3, 4, 5, 4, 3, 4, 5, 4, 3, 5, 4, 4, 3, 4, 5, 4],
+  "Paths": {
+    "CliffEdge": {
+      "Samples": 4,
+      "Control": [[-62, -230], [-50, -178], [-34, -150], [-26.5, -128], [-29, -104], [-38, -60], [-34, -25], [-32, 5], [-31.5, 30], [-33, 52], [-37, 70], [-34, 88], [-28.5, 104], [-24.5, 120], [-23.5, 136], [-25, 152], [-29, 166], [-35, 178], [-41, 192], [-45, 210], [-44, 235], [-38, 260]]
+    },
+    "Shore": {
+      "Samples": 4,
+      "Control": [[-74, -230], [-62, -180], [-44, -152], [-36, -128], [-38, -104], [-47, -60], [-43, -25], [-41, 5], [-40, 30], [-41.5, 52], [-45, 70], [-42, 88], [-35, 104], [-30, 120], [-28.5, 136], [-30, 152], [-35, 166], [-43, 178], [-52, 192], [-60, 210], [-62, 235], [-58, 260]]
+    }
+  },
+  "Shelves": [
+    { "Path": "CliffEdge", "Inner": 0, "Outer": 7, "Height": -8.6 },
+    { "Path": "Shore", "Inner": 0, "Outer": 24, "Height": -12.5 }
+  ],
+  "CartPaths": [
+    {
+      "Id": "loop",
+      "Closed": true,
+      "Control": [[16, -20], [21.5, -8], [22.6, 20], [23.4, 45], [25, 80], [25.4, 110], [24.4, 145], [22.5, 170], [21.5, 186], [26, 199], [38, 207], [50, 209], [55.5, 199], [55, 178], [54, 140], [56, 100], [62, 60], [72, 22], [84, -12], [93, -40], [98, -62], [99, -79], [93, -90], [72, -93], [44, -92], [20, -96], [8, -94], [2, -82], [6, -60], [11, -38]]
+    }
+  ],
+  "Holes": ["h03-garden-green", "h04-cypress-ridge", "h05-arrowhead-point"],
+  "Routing": [
+    "h04-cypress-ridge", "h05-arrowhead-point", "h03-garden-green",
+    "h04-cypress-ridge", "h05-arrowhead-point", "h03-garden-green",
+    "h04-cypress-ridge", "h05-arrowhead-point", "h03-garden-green",
+    "h04-cypress-ridge", "h05-arrowhead-point", "h03-garden-green",
+    "h04-cypress-ridge", "h05-arrowhead-point", "h03-garden-green",
+    "h04-cypress-ridge", "h05-arrowhead-point", "h03-garden-green"
+  ]
+}

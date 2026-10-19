@@ -11,12 +11,15 @@ using UnityEngine.UI;
 namespace Puttshack.EditorTools
 {
     /// <summary>
-    /// Renders ProShopUI.prefab on its own (flat backdrop, no shop) to a 1920x1080 PNG and logs every label's mesh, for
+    /// Renders ProShopUI.prefab on its own (over the design's shop frame, no 3D shop) to a 1920x1080 PNG and logs every label's mesh, for
     /// checking typography without entering Play mode. Batch: <c>-executeMethod Puttshack.EditorTools.ProShopUIPreview.CaptureBatch</c>
     /// with PUTTSHACK_UI_PREVIEW set to the output file.
     /// </summary>
     public static class ProShopUIPreview
     {
+        /// <summary>The design's captured shop frame (Claude Design "Puttshack Pro HUD" 1o), drawn behind the UI.</summary>
+        private const string Backdrop = "ArtSource/UI/HUD/Brand/Backdrops/bg_shop.png";
+
         [MenuItem("Puttshack/Pro Shop/Capture UI Preview", priority = 45)]
         public static void CaptureMenu()
         {
@@ -36,6 +39,9 @@ namespace Puttshack.EditorTools
             cam.scene = scene;
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.36f, 0.27f, 0.2f);
+            var backdrop = new Texture2D(2, 2);
+            if (File.Exists(Backdrop)) backdrop.LoadImage(File.ReadAllBytes(Backdrop));
+            HudUIPreview.Backdrop(scene, cam).texture = backdrop;
 
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(ProShopUIBuilder.PrefabPath);
             var ui = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
@@ -71,6 +77,7 @@ namespace Puttshack.EditorTools
             File.WriteAllBytes(path, tex.EncodeToPNG());
             cam.targetTexture = null;
             UnityEngine.Object.DestroyImmediate(tex);
+            UnityEngine.Object.DestroyImmediate(backdrop);
             rt.Release();
             EditorSceneManager.ClosePreviewScene(scene);
             Debug.Log("[Puttshack] Pro Shop UI preview written to " + path);

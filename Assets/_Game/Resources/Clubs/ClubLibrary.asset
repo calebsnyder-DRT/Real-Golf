@@ -1,0 +1,101 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 170e7744400ba49d8828c5fd6a724e2c, type: 3}
+  m_Name: ClubLibrary
+  m_EditorClassIdentifier: Puttshack.Runtime::Puttshack.Runtime.Clubs.ClubLibrary
+  Models:
+  - {fileID: 3357245844409019474, guid: 27c4b0d1461564304a185d798bae7f20, type: 3}
+  - {fileID: 3312907936998329371, guid: b9082274dab7644c4a66bf36fac0e731, type: 3}
+  - {fileID: 8922815707432118526, guid: 3b031671c7d6a41e8ba6210f25faea19, type: 3}
+  - {fileID: 5682011277535490824, guid: cd9fc155c3d694c4eb600266ea3f669c, type: 3}
+  - {fileID: 1584521871856540768, guid: 6d78fd1fd831f427797a23c16644b40a, type: 3}
+  - {fileID: 3766467436734921364, guid: a2b9dcfc8c592408bb007d07f395ed71, type: 3}
+  - {fileID: 6461718001834237767, guid: e302c5cbea85a4f2a9b525eb318c3990, type: 3}
+  - {fileID: 2896558503775696904, guid: 9d601dc9f080f4e8e9da3c45b6df0e11, type: 3}
+  - {fileID: 7145274518476526743, guid: 6cbf5a822d9fc43c8b1e3855fdad6e5a, type: 3}
+  - {fileID: 3043330722615193626, guid: a1100e8d7c793442b98fa263257fb393, type: 3}
+  - {fileID: 8684278686115553809, guid: 570379733b46b40c1a0532078213a00f, type: 3}
+  - {fileID: 3225918932859355825, guid: 9f581e59d67dd49c6b894c055c16be2e, type: 3}
+  - {fileID: 7592332488271759597, guid: c3e79e852a7424af4ba46e7b62686814, type: 3}
+  - {fileID: 7089882272603869168, guid: 24cfd304c080e420a8c168074511dd28, type: 3}
+  - {fileID: 4136641309514134940, guid: c1911dd98392545ef8d6a4e31402c07a, type: 3}
+  Palettes:
+  - {fileID: 11400000, guid: 9100e4841922741618619ed01eff7b46, type: 2}
+  - {fileID: 11400000, guid: be8c3ab4fad5e45c5a736affa5150101, type: 2}
+  - {fileID: 11400000, guid: 596460d0f4721412e98e40a97f91f1a6, type: 2}
+  Sets:
+  - Id: cyan
+    DisplayName: Puttshack Cyan
+    Palette: {fileID: 11400000, guid: 9100e4841922741618619ed01eff7b46, type: 2}
+    Clubs:
+    - ClubId: driver
+      Model: {fileID: 3357245844409019474, guid: 27c4b0d1461564304a185d798bae7f20, type: 3}
+    - ClubId: wood3
+      Model: {fileID: 3312907936998329371, guid: b9082274dab7644c4a66bf36fac0e731, type: 3}
+    - ClubId: iron5
+      Model: {fileID: 8922815707432118526, guid: 3b031671c7d6a41e8ba6210f25faea19, type: 3}
+    - ClubId: iron7
+      Model: {fileID: 1584521871856540768, guid: 6d78fd1fd831f427797a23c16644b40a, type: 3}
+    - ClubId: iron9
+      Model: {fileID: 3766467436734921364, guid: a2b9dcfc8c592408bb007d07f395ed71, type: 3}
+    - ClubId: pw
+      Model: {fileID: 3043330722615193626, guid: a1100e8d7c793442b98fa263257fb393, type: 3}
+    - ClubId: sw
+      Model: {fileID: 8684278686115553809, guid: 570379733b46b40c1a0532078213a00f, type: 3}
+    - ClubId: lw
+      Model: {fileID: 3225918932859355825, guid: 9f581e59d67dd49c6b894c055c16be2e, type: 3}
+    - ClubId: putter
+      Model: {fileID: 4136641309514134940, guid: c1911dd98392545ef8d6a4e31402c07a, type: 3}
+  - Id: midnight
+    DisplayName: Midnight
+    Palette: {fileID: 11400000, guid: be8c3ab4fad5e45c5a736affa5150101, type: 2}
+    Clubs:
+    - ClubId: driver
+      Model: {fileID: 3357245844409019474, guid: 27c4b0d1461564304a185d798bae7f20, type: 3}
+    - ClubId: wood3
+      Model: {fileID: 3312907936998329371, guid: b9082274dab7644c4a66bf36fac0e731, type: 3}
+    - ClubId: iron5
+      Model: {fileID: 5682011277535490824, guid: cd9fc155c3d694c4eb600266ea3f669c, type: 3}
+    - ClubId: iron7
+      Model: {fileID: 1584521871856540768, guid: 6d78fd1fd831f427797a23c16644b40a, type: 3}
+    - ClubId: iron9
+      Model: {fileID: 3766467436734921364, guid: a2b9dcfc8c592408bb007d07f395ed71, type: 3}
+    - ClubId: pw
+      Model: {fileID: 3043330722615193626, guid: a1100e8d7c793442b98fa263257fb393, type: 3}
+    - ClubId: sw
+      Model: {fileID: 8684278686115553809, guid: 570379733b46b40c1a0532078213a00f, type: 3}
+    - ClubId: lw
+      Model: {fileID: 3225918932859355825, guid: 9f581e59d67dd49c6b894c055c16be2e, type: 3}
+    - ClubId: putter
+      Model: {fileID: 7089882272603869168, guid: 24cfd304c080e420a8c168074511dd28, type: 3}
+  - Id: tour
+    DisplayName: Tour Chrome
+    Palette: {fileID: 11400000, guid: 596460d0f4721412e98e40a97f91f1a6, type: 2}
+    Clubs:
+    - ClubId: driver
+      Model: {fileID: 3357245844409019474, guid: 27c4b0d1461564304a185d798bae7f20, type: 3}
+    - ClubId: wood3
+      Model: {fileID: 3312907936998329371, guid: b9082274dab7644c4a66bf36fac0e731, type: 3}
+    - ClubId: iron5
+      Model: {fileID: 6461718001834237767, guid: e302c5cbea85a4f2a9b525eb318c3990, type: 3}
+    - ClubId: iron7
+      Model: {fileID: 2896558503775696904, guid: 9d601dc9f080f4e8e9da3c45b6df0e11, type: 3}
+    - ClubId: iron9
+      Model: {fileID: 7145274518476526743, guid: 6cbf5a822d9fc43c8b1e3855fdad6e5a, type: 3}
+    - ClubId: pw
+      Model: {fileID: 3043330722615193626, guid: a1100e8d7c793442b98fa263257fb393, type: 3}
+    - ClubId: sw
+      Model: {fileID: 8684278686115553809, guid: 570379733b46b40c1a0532078213a00f, type: 3}
+    - ClubId: lw
+      Model: {fileID: 3225918932859355825, guid: 9f581e59d67dd49c6b894c055c16be2e, type: 3}
+    - ClubId: putter
+      Model: {fileID: 7592332488271759597, guid: c3e79e852a7424af4ba46e7b62686814, type: 3}

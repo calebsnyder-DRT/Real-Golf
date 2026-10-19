@@ -15,6 +15,8 @@ namespace Puttshack.Runtime.Views
         /// <summary>Visual-only enlargement so the ball stays readable on a cabinet display (64 mm vs. the real 42.67 mm).</summary>
         public const float VisualScale = 1.5f;
         private static readonly float BallRadius = (float)SolverParameters.Default.BallRadius;
+        /// <summary>Must match the end of the solver's drop samples, or a holed ball pops at the end of playback.</summary>
+        private static readonly float HoledSink = (float)SolverParameters.Default.Cup.DropDepthM;
 
         private ShotResult _playing;
         private float _time;
@@ -71,7 +73,7 @@ namespace Puttshack.Runtime.Views
             if (_playing == null) return;
             ShotResult r = _playing;
             PlaceAt(r.FinalPosition);
-            if (r.Outcome == ShotOutcome.Holed) transform.position += Vector3.down * 0.06f;
+            if (r.Outcome == ShotOutcome.Holed) transform.position += Vector3.down * HoledSink;
         }
 
         /// <summary>Returns true when playback has reached the final sample.</summary>
@@ -92,7 +94,7 @@ namespace Puttshack.Runtime.Views
                 bool holed = _playing.Outcome == ShotOutcome.Holed;
                 _trail.emitting = false;
                 _playing = null;
-                if (holed) transform.position += Vector3.down * 0.06f;
+                if (holed) transform.position += Vector3.down * HoledSink;
                 return true;
             }
             return false;
@@ -224,6 +226,8 @@ namespace Puttshack.Runtime.Views
         Putting,
         Follow,
         Result,
+        /// <summary>Slow, low orbit around a golfer (the focus) who faces along the aim; starts in front of them.</summary>
+        Celebration,
     }
 
     /// <summary>Camera reads shot state only; it never changes a trajectory to keep the ball on screen.</summary>
@@ -239,6 +243,7 @@ namespace Puttshack.Runtime.Views
         private Transform _follow;
         private Vector3 _velocity;
         private float _orbit;
+        private float _celebrationOrbit;
 
         public Camera Camera => _camera;
 
@@ -272,6 +277,8 @@ namespace Puttshack.Runtime.Views
         {
             if (_camera == null) return;
             if (Mode == CameraMode.Attract || Mode == CameraMode.Flyover) _orbit += UnityEngine.Time.deltaTime * (ReducedMotion ? 2f : 6f);
+            if (Mode == CameraMode.Celebration) _celebrationOrbit += UnityEngine.Time.deltaTime * (ReducedMotion ? 2f : 7f);
+            else _celebrationOrbit = 0f;
             ComputeGoal(out Vector3 pos, out Vector3 look);
             float smooth = Mode == CameraMode.Follow ? 0.35f : 0.6f;
             if (ReducedMotion) smooth *= 1.5f;
@@ -309,6 +316,13 @@ namespace Puttshack.Runtime.Views
                     Vector3 target = _follow != null ? _follow.position : _focus;
                     pos = target - _aim * 9f + Vector3.up * 7f + Vector3.Cross(Vector3.up, _aim) * 4f;
                     look = target;
+                    break;
+                }
+                case CameraMode.Celebration:
+                {
+                    Quaternion rot = Quaternion.AngleAxis(_celebrationOrbit - 25f, Vector3.up);
+                    pos = _focus + rot * (_aim * 4.8f) + Vector3.up * 1.6f;
+                    look = _focus + Vector3.up * 1.15f;
                     break;
                 }
                 default:

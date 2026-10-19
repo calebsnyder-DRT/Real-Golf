@@ -1,0 +1,60 @@
+{
+  "Id": "h08-the-chasm",
+  "Version": "pebble-0.1",
+  "Name": "The Chasm",
+  "Number": 8,
+  "Par": 4,
+  "YardageYd": 409,
+  "DefaultSurface": "LightRough",
+  "WindMps": [1.2, 0, -0.9],
+  "Briefing": {
+    "Hazard": "A blind drive up the hill, then the approach carries the chasm: anything short or right is in the Pacific.",
+    "SafePlan": "3-wood to the top of the plateau, then aim the approach at the left half of the green.",
+    "SuggestedClubId": "wood3"
+  },
+  "Terrain": [
+    { "Notes": "Tee pad by the 7 green.", "Kind": "Plateau", "Center": [20, -755], "Inner": 6.5, "Outer": 12, "Height": 0.9 },
+    { "Notes": "Landing plateau the drive climbs to.", "Kind": "Plateau", "Center": [140, -612], "Inner": 30, "Outer": 85, "Height": 8.0 },
+    { "Notes": "Clifftop across the chasm.", "Kind": "Plateau", "Center": [165, -440], "Inner": 30, "Outer": 80, "Height": 5.0 },
+    { "Notes": "Green pad, tilted back to front.", "Kind": "Plateau", "Center": [160, -425], "Inner": 12, "Outer": 26, "Height": 0.8 },
+    { "Kind": "Tilt", "Center": [160, -425], "Inner": 12, "Outer": 26, "Slope": [-0.004, 0.012] }
+  ],
+  "Surfaces": [
+    { "Id": "coastal-scrub", "Surface": "DeepRough", "Priority": 12, "Shape": { "Kind": "InlandStrip", "Path": "CliffEdge", "Width": 5.0, "MinX": 4, "MinZ": -800, "MaxZ": -380 } },
+    {
+      "Id": "fairway", "Surface": "Fairway", "Priority": 20,
+      "Shape": { "Kind": "Loop", "Samples": 6, "Control": [[55, -700], [90, -690], [130, -660], [165, -630], [172, -600], [158, -585], [128, -585], [100, -610], [70, -650], [50, -685]] }
+    },
+    {
+      "Id": "approach", "Surface": "Fairway", "Priority": 20,
+      "Shape": { "Kind": "Loop", "Samples": 6, "Control": [[140, -470], [165, -472], [182, -462], [178, -447], [160, -444], [142, -452]] }
+    },
+    { "Id": "green", "Surface": "Green", "Priority": 40, "Shape": { "Kind": "Ellipse", "Center": [160, -425], "Radii": [12, 10], "Segments": 48, "Rotation": 0.3 } },
+    { "Id": "bunker-fairway-left", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [95, -630], "Radii": [6.0, 3.0], "Segments": 32, "Rotation": 0.7 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "bunker-green-front", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [163, -441], "Radii": [3.0, 1.6], "Segments": 28, "Rotation": 0 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "bunker-green-left", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [145, -440], "Radii": [4.5, 2.4], "Segments": 32, "Rotation": 0.4 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "bunker-green-right", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [176, -420], "Radii": [4.5, 2.6], "Segments": 32, "Rotation": 1.5 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "bunker-green-back", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [155, -410], "Radii": [5.0, 2.2], "Segments": 32, "Rotation": 0.2 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "tee", "Surface": "Tee", "Priority": 50, "Shape": { "Kind": "Rect", "Min": [15, -760], "Max": [25, -750] } }
+  ],
+  "Hazards": [
+    {
+      "Id": "the-chasm", "DropPointId": "drop-chasm", "WaterLevelM": "Sea",
+      "Shape": { "Kind": "Sea", "Path": "CliffEdge", "MinX": 4, "MinZ": -800, "MaxZ": -380, "Close": [[4, -800], [260, -800], [260, -380]] }
+    }
+  ],
+  "Drops": [
+    { "Id": "drop-chasm", "HazardId": "the-chasm", "At": [150, -575] }
+  ],
+  "Trees": [
+    { "Id": "cypress-tee", "At": [42, -760], "Trunk": [0.5, 3.4], "Canopy": [5.5, 9.5] },
+    { "Id": "pine-left-1", "At": [72, -575], "Trunk": [0.4, 5], "Canopy": [4.5, 15] },
+    { "Id": "pine-head", "At": [70, -515], "Trunk": [0.45, 5.5], "Canopy": [5, 16] },
+    { "Id": "cypress-green-back", "At": [172, -400], "Trunk": [0.5, 3.6], "Canopy": [6, 10.5] },
+    { "Id": "cypress-green-left", "At": [132, -414], "Trunk": [0.5, 3.2], "Canopy": [5.5, 9] }
+  ],
+  "PlayableBoundary": { "Kind": "Polygon", "Points": [[10, -705], [-15, -798], [260, -798], [260, -380], [110, -380], [62, -470], [62, -650]] },
+  "Tee": [20, -755],
+  "Route": [[140, -605]],
+  "Cup": [159, -424]
+}

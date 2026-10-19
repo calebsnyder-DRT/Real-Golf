@@ -1,0 +1,55 @@
+{
+  "Id": "h05-arrowhead-point",
+  "Version": "pebble-0.4",
+  "Name": "Arrowhead Point",
+  "Number": 5,
+  "Par": 3,
+  "YardageYd": 121,
+  "DefaultSurface": "LightRough",
+  "WindMps": [1.6, 0, 0.3],
+  "Briefing": {
+    "Hazard": "Carmel Bay wraps behind and left of the green: long or left is in the penalty area.",
+    "SafePlan": "Take one more club into the breeze and aim at the right-centre of the green.",
+    "SuggestedClubId": "iron9"
+  },
+  "Terrain": [
+    { "Notes": "Raised tee box.", "Kind": "Plateau", "Center": [102, -106], "Inner": 10, "Outer": 34, "Height": 2.6 },
+    { "Notes": "Tee pad.", "Kind": "Plateau", "Center": [100, -104], "Inner": 6.5, "Outer": 12, "Height": 0.9 },
+    { "Notes": "Native gully the tee shot carries.", "Kind": "Plateau", "Center": [52, -112], "Inner": 8, "Outer": 30, "Height": -1.8 },
+    { "Notes": "Green on the point, tilted.", "Kind": "Plateau", "Center": [-10, -122], "Inner": 13, "Outer": 28, "Height": 1.1 },
+    { "Kind": "Tilt", "Center": [-10, -122], "Inner": 13, "Outer": 28, "Slope": [-0.011, 0.005] }
+  ],
+  "Surfaces": [
+    { "Id": "native-gully", "Surface": "DeepRough", "Priority": 10, "Shape": { "Kind": "Ellipse", "Center": [54, -114], "Radii": [24, 15], "Segments": 40, "Rotation": 0.15 } },
+    { "Id": "coastal-scrub", "Surface": "DeepRough", "Priority": 12, "Shape": { "Kind": "InlandStrip", "Path": "CliffEdge", "Width": 4.0, "MinZ": -172, "MaxZ": -84 } },
+    {
+      "Id": "approach", "Surface": "Fairway", "Priority": 20,
+      "Shape": { "Kind": "Loop", "Samples": 6, "Control": [[4, -131], [24, -134], [40, -128], [44, -118], [36, -110], [18, -109], [4, -113]] }
+    },
+    { "Id": "green", "Surface": "Green", "Priority": 40, "Shape": { "Kind": "Ellipse", "Center": [-10, -122], "Radii": [11.5, 10], "Segments": 48, "Rotation": 0.35 } },
+    { "Id": "bunker-front-left", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [3, -135], "Radii": [5.0, 2.6], "Segments": 32, "Rotation": 0.5 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "bunker-front-right", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [2, -108], "Radii": [5.5, 2.8], "Segments": 32, "Rotation": -0.5 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "bunker-back-left", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [-21, -136], "Radii": [3.5, 2.0], "Segments": 28, "Rotation": 0.9 }, "Bowl": { "Inner": 1.5, "Height": -0.6 } },
+    { "Id": "tee", "Surface": "Tee", "Priority": 50, "Shape": { "Kind": "Rect", "Min": [95, -109], "Max": [105, -99] } }
+  ],
+  "Hazards": [
+    {
+      "Id": "carmel-bay", "DropPointId": "drop-bay", "WaterLevelM": "Sea",
+      "Shape": { "Kind": "Sea", "Path": "CliffEdge", "MinZ": -172, "MaxZ": -84, "Close": [[-140, -84], [-140, -172]] }
+    }
+  ],
+  "Drops": [
+    { "Id": "drop-bay", "HazardId": "carmel-bay", "At": [10, -121] }
+  ],
+  "Trees": [
+    { "Id": "cypress-headland", "At": [-24, -110], "Trunk": [0.55, 3.2], "Canopy": [6.5, 9] },
+    { "Id": "cypress-green-left", "At": [-12, -147], "Trunk": [0.5, 3.4], "Canopy": [6, 10] },
+    { "Id": "pine-left-1", "At": [28, -152], "Trunk": [0.4, 5], "Canopy": [4.5, 15] },
+    { "Id": "pine-left-2", "At": [62, -146], "Trunk": [0.45, 5.5], "Canopy": [5, 16] },
+    { "Id": "oak-tee-left", "At": [90, -134], "Trunk": [0.55, 3.2], "Canopy": [6, 8.5] },
+    { "Id": "cypress-tee-back", "At": [116, -112], "Trunk": [0.5, 3.6], "Canopy": [5.5, 10] }
+  ],
+  "PlayableBoundary": { "Kind": "Rect", "Min": [-70, -170], "Max": [150, -86] },
+  "Tee": [100, -104],
+  "Cup": [-9, -121]
+}

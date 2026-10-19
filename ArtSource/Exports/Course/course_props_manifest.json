@@ -1,0 +1,570 @@
+{
+ "Cart": {
+  "file": "ArtSource/Exports/Course/Cart/GolfCart.fbx",
+  "tris": 13472,
+  "size_blender_xyz": [
+   1.281,
+   2.499,
+   1.802
+  ],
+  "objects": {
+   "Cart_Body": {
+    "type": "MESH",
+    "tris": 6268,
+    "unity_pos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "Wheel_FL": {
+    "type": "MESH",
+    "tris": 1632,
+    "unity_pos": [
+     -0.5,
+     0.23,
+     0.82
+    ]
+   },
+   "Wheel_FR": {
+    "type": "MESH",
+    "tris": 1632,
+    "unity_pos": [
+     0.5,
+     0.23,
+     0.82
+    ]
+   },
+   "Wheel_RL": {
+    "type": "MESH",
+    "tris": 1632,
+    "unity_pos": [
+     -0.5,
+     0.23,
+     -0.82
+    ]
+   },
+   "Wheel_RR": {
+    "type": "MESH",
+    "tris": 1632,
+    "unity_pos": [
+     0.5,
+     0.23,
+     -0.82
+    ]
+   },
+   "Steering_Wheel": {
+    "type": "MESH",
+    "tris": 676,
+    "unity_pos": [
+     -0.28,
+     1.02,
+     0.12
+    ]
+   },
+   "Seat_Driver": {
+    "type": "EMPTY",
+    "tris": 0,
+    "unity_pos": [
+     -0.29,
+     0.81,
+     -0.28
+    ]
+   },
+   "Seat_Passenger": {
+    "type": "EMPTY",
+    "tris": 0,
+    "unity_pos": [
+     0.29,
+     0.81,
+     -0.28
+    ]
+   },
+   "Hand_L": {
+    "type": "EMPTY",
+    "tris": 0,
+    "unity_pos": [
+     -0.4445,
+     1.0991,
+     0.1806
+    ]
+   },
+   "Hand_R": {
+    "type": "EMPTY",
+    "tris": 0,
+    "unity_pos": [
+     -0.1155,
+     1.0991,
+     0.1806
+    ]
+   },
+   "Foot_L": {
+    "type": "EMPTY",
+    "tris": 0,
+    "unity_pos": [
+     -0.37,
+     0.3998,
+     0.4631
+    ]
+   },
+   "Foot_R": {
+    "type": "EMPTY",
+    "tris": 0,
+    "unity_pos": [
+     -0.18,
+     0.3998,
+     0.4631
+    ]
+   },
+   "Steering_Up": {
+    "type": "EMPTY",
+    "tris": 0,
+    "unity_pos": [
+     -0.28,
+     1.1019,
+     0.0626
+    ]
+   },
+   "Bag_Mount": {
+    "type": "EMPTY",
+    "tris": 0,
+    "unity_pos": [
+     0.0,
+     0.65,
+     -0.9
+    ]
+   }
+  },
+  "materials": [
+   "Cart_Accent",
+   "Cart_Dark",
+   "Cart_Light",
+   "Cart_Metal",
+   "Cart_Paint",
+   "Cart_Rim",
+   "Cart_Roof",
+   "Cart_Seat",
+   "Cart_Tire"
+  ]
+ },
+ "Bench": {
+  "file": "ArtSource/Exports/Course/Props/Bench.fbx",
+  "tris": 1712,
+  "size_blender_xyz": [
+   1.6,
+   0.654,
+   0.91
+  ],
+  "objects": {
+   "Bench": {
+    "type": "MESH",
+    "tris": 1712,
+    "unity_pos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "materials": [
+   "Prop_Iron",
+   "Prop_Wood"
+  ]
+ },
+ "BallWasher": {
+  "file": "ArtSource/Exports/Course/Props/BallWasher.fbx",
+  "tris": 844,
+  "size_blender_xyz": [
+   0.34,
+   0.34,
+   1.362
+  ],
+  "objects": {
+   "BallWasher": {
+    "type": "MESH",
+    "tris": 844,
+    "unity_pos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "materials": [
+   "Prop_Accent",
+   "Prop_Iron",
+   "Prop_Metal",
+   "Prop_Plastic",
+   "Prop_Wood"
+  ]
+ },
+ "TrashBin": {
+  "file": "ArtSource/Exports/Course/Props/TrashBin.fbx",
+  "tris": 1606,
+  "size_blender_xyz": [
+   0.594,
+   0.594,
+   0.83
+  ],
+  "objects": {
+   "TrashBin": {
+    "type": "MESH",
+    "tris": 1606,
+    "unity_pos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "materials": [
+   "Prop_Accent",
+   "Prop_Iron",
+   "Prop_Metal",
+   "Prop_Wood"
+  ]
+ },
+ "TeeSign": {
+  "file": "ArtSource/Exports/Course/Props/TeeSign.fbx",
+  "tris": 520,
+  "size_blender_xyz": [
+   0.74,
+   0.161,
+   1.03
+  ],
+  "objects": {
+   "TeeSign": {
+    "type": "MESH",
+    "tris": 520,
+    "unity_pos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "Sign_Label": {
+    "type": "EMPTY",
+    "tris": 0,
+    "unity_pos": [
+     0.0,
+     0.735,
+     0.047
+    ]
+   }
+  },
+  "materials": [
+   "Prop_Accent",
+   "Prop_Wood",
+   "Sign_Face"
+  ]
+ },
+ "YardagePost": {
+  "file": "ArtSource/Exports/Course/Props/YardagePost.fbx",
+  "tris": 216,
+  "size_blender_xyz": [
+   0.112,
+   0.112,
+   0.45
+  ],
+  "objects": {
+   "YardagePost": {
+    "type": "MESH",
+    "tris": 216,
+    "unity_pos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "materials": [
+   "Prop_Wood",
+   "Yard_Cap"
+  ]
+ },
+ "BunkerRake": {
+  "file": "ArtSource/Exports/Course/Props/BunkerRake.fbx",
+  "tris": 364,
+  "size_blender_xyz": [
+   0.56,
+   1.485,
+   0.083
+  ],
+  "objects": {
+   "BunkerRake": {
+    "type": "MESH",
+    "tris": 364,
+    "unity_pos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "materials": [
+   "Prop_Accent",
+   "Prop_Metal",
+   "Prop_Plastic"
+  ]
+ },
+ "Pine_A": {
+  "file": "ArtSource/Exports/Course/Vegetation/Pine_A.fbx",
+  "tris": 6805,
+  "size_blender_xyz": [
+   11.408,
+   9.656,
+   14.054
+  ],
+  "objects": {
+   "Pine_A": {
+    "type": "MESH",
+    "tris": 6805,
+    "unity_pos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "materials": [
+   "PB_Bark",
+   "PB_Foliage"
+  ]
+ },
+ "Pine_B": {
+  "file": "ArtSource/Exports/Course/Vegetation/Pine_B.fbx",
+  "tris": 6413,
+  "size_blender_xyz": [
+   11.565,
+   11.136,
+   15.57
+  ],
+  "objects": {
+   "Pine_B": {
+    "type": "MESH",
+    "tris": 6413,
+    "unity_pos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "materials": [
+   "PB_Bark",
+   "PB_Foliage"
+  ]
+ },
+ "Oak_A": {
+  "file": "ArtSource/Exports/Course/Vegetation/Oak_A.fbx",
+  "tris": 4261,
+  "size_blender_xyz": [
+   12.328,
+   11.787,
+   8.819
+  ],
+  "objects": {
+   "Oak_A": {
+    "type": "MESH",
+    "tris": 4261,
+    "unity_pos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "materials": [
+   "PB_Bark",
+   "PB_Foliage"
+  ]
+ },
+ "Oak_B": {
+  "file": "ArtSource/Exports/Course/Vegetation/Oak_B.fbx",
+  "tris": 4261,
+  "size_blender_xyz": [
+   13.712,
+   12.252,
+   9.968
+  ],
+  "objects": {
+   "Oak_B": {
+    "type": "MESH",
+    "tris": 4261,
+    "unity_pos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "materials": [
+   "PB_Bark",
+   "PB_Foliage"
+  ]
+ },
+ "Shrub_A": {
+  "file": "ArtSource/Exports/Course/Vegetation/Shrub_A.fbx",
+  "tris": 880,
+  "size_blender_xyz": [
+   1.409,
+   1.373,
+   1.134
+  ],
+  "objects": {
+   "Shrub_A": {
+    "type": "MESH",
+    "tris": 880,
+    "unity_pos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "materials": [
+   "PB_Foliage"
+  ]
+ },
+ "Shrub_B": {
+  "file": "ArtSource/Exports/Course/Vegetation/Shrub_B.fbx",
+  "tris": 1120,
+  "size_blender_xyz": [
+   2.219,
+   1.738,
+   0.764
+  ],
+  "objects": {
+   "Shrub_B": {
+    "type": "MESH",
+    "tris": 1120,
+    "unity_pos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "materials": [
+   "PB_Foliage"
+  ]
+ },
+ "Shrub_C": {
+  "file": "ArtSource/Exports/Course/Vegetation/Shrub_C.fbx",
+  "tris": 1248,
+  "size_blender_xyz": [
+   1.383,
+   1.273,
+   1.819
+  ],
+  "objects": {
+   "Shrub_C": {
+    "type": "MESH",
+    "tris": 1248,
+    "unity_pos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "materials": [
+   "PB_Bark",
+   "PB_Foliage"
+  ]
+ },
+ "Grass_A": {
+  "file": "ArtSource/Exports/Course/Vegetation/Grass_A.fbx",
+  "tris": 252,
+  "size_blender_xyz": [
+   0.481,
+   0.544,
+   0.384
+  ],
+  "objects": {
+   "Grass_A": {
+    "type": "MESH",
+    "tris": 252,
+    "unity_pos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "materials": [
+   "PB_Grass"
+  ]
+ },
+ "Grass_B": {
+  "file": "ArtSource/Exports/Course/Vegetation/Grass_B.fbx",
+  "tris": 336,
+  "size_blender_xyz": [
+   0.643,
+   0.708,
+   0.588
+  ],
+  "objects": {
+   "Grass_B": {
+    "type": "MESH",
+    "tris": 336,
+    "unity_pos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "materials": [
+   "PB_Grass"
+  ]
+ },
+ "IcePlant_A": {
+  "file": "ArtSource/Exports/Course/Vegetation/IcePlant_A.fbx",
+  "tris": 2320,
+  "size_blender_xyz": [
+   2.487,
+   2.147,
+   0.352
+  ],
+  "objects": {
+   "IcePlant_A": {
+    "type": "MESH",
+    "tris": 2320,
+    "unity_pos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "materials": [
+   "PB_Flower",
+   "PB_IcePlant"
+  ]
+ },
+ "Flowers_A": {
+  "file": "ArtSource/Exports/Course/Vegetation/Flowers_A.fbx",
+  "tris": 1326,
+  "size_blender_xyz": [
+   0.445,
+   0.569,
+   0.649
+  ],
+  "objects": {
+   "Flowers_A": {
+    "type": "MESH",
+    "tris": 1326,
+    "unity_pos": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "materials": [
+   "PB_Flower2",
+   "PB_Foliage"
+  ]
+ }
+}

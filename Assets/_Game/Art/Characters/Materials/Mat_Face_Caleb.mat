@@ -12,6 +12,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _DETAIL_NORMAL
   - _MODE_SKIN
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -25,44 +26,44 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: da912b5d8b6dd4166a0e8a9720a19a96, type: 3}
+        m_Texture: {fileID: 2800000, guid: 8eb8b4d70c90a4de998ab0d746e57e29, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: e955e2df5ad8f4114a38f8a6462d80c0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailNormalMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: a5e0da077b56b4c14be49915b0895ec4, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskMap:
-        m_Texture: {fileID: 2800000, guid: c8e307f40961648098d188181ab9e493, type: 3}
+        m_Texture: {fileID: 2800000, guid: 980f9242203ce4fbab3c66b65df5a761, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _AlphaClip: 0
-    - _BumpScale: 1
-    - _CavityStrength: 0
+    - _BumpScale: 0.8
+    - _CavityStrength: 0.8
     - _Cull: 2
     - _Cutoff: 0.5
-    - _DetailNormalScale: 0.4
-    - _DetailTiling: 24
+    - _DetailNormalScale: 0.3
+    - _DetailTiling: 40
     - _Metallic: 0
     - _Mode: 1
     - _OcclusionStrength: 1
     - _SecondLobeMix: 0.1
-    - _SecondLobeSmoothness: 0.3
+    - _SecondLobeSmoothness: 0.4
     - _SheenRoughness: 0.5
-    - _Smoothness: 0.42
-    - _Transmission: 0.4
-    - _UseDetail: 0
-    - _Wrap: 0.4
+    - _Smoothness: 0.72
+    - _Transmission: 0.8
+    - _UseDetail: 1
+    - _Wrap: 0.5
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _ScatterColor: {r: 1, g: 0.55, b: 0.4, a: 1}
+    - _ScatterColor: {r: 1, g: 0.45, b: 0.3, a: 1}
     - _SheenColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _TransmissionColor: {r: 1, g: 0.38, b: 0.24, a: 1}
+    - _TransmissionColor: {r: 1, g: 0.34, b: 0.2, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

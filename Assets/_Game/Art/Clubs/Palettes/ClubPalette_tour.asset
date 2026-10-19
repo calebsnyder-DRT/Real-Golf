@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 109adf594bbd94f61bffdccf3d355489, type: 3}
+  m_Name: ClubPalette_tour
+  m_EditorClassIdentifier: Puttshack.Runtime::Puttshack.Runtime.Clubs.ClubPalette
+  Id: tour
+  DisplayName: Tour Chrome
+  Head: {fileID: 2100000, guid: c3129b98011274975a4e56a33a111b8d, type: 2}
+  FaceIron: {fileID: 2100000, guid: 390cd1c14664249c6b3cc07260a64495, type: 2}
+  FaceWood: {fileID: 2100000, guid: a8da3951854c54bac8aa9be6236ae6e8, type: 2}
+  FacePutter: {fileID: 2100000, guid: f39185e13368b4f908d35b1c969a1daf, type: 2}
+  Accent: {fileID: 2100000, guid: 3e1fcb132f785432b8b9c1ad64abec29, type: 2}
+  Crown: {fileID: 2100000, guid: 32360d69593c545b2a255eca6f1a6e1f, type: 2}
+  ShaftSteel: {fileID: 2100000, guid: 4575c2bc2ddef4f92a3b5f91251a56db, type: 2}
+  ShaftGraphite: {fileID: 2100000, guid: bd31fb612f02047b88671725bae3ab74, type: 2}
+  Grip: {fileID: 2100000, guid: e83d5473adbe14245aad6788e05a97b2, type: 2}
+  Trim: {fileID: 2100000, guid: b11e5dbc861bb4928a97df5c4a8aadbf, type: 2}
+  Decal: {fileID: 2100000, guid: 15c1dec4f3e3341729e88f9e7d5567c8, type: 2}

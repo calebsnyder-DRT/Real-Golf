@@ -46,6 +46,7 @@ namespace Puttshack.Shop
                     ColorIndex = p.ColorIndex,
                     Withdrawn = p.Withdrawn,
                     Loadout = CosmeticCatalog.LoadoutOf(p),
+                    Profile = ProfileCatalog.ProfileOf(p),
                 });
             }
             Origin = origin;

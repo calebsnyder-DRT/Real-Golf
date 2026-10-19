@@ -18,6 +18,9 @@ Shader "Puttshack/Foliage"
         _TranslucencyColor ("Translucency", Color) = (0.45, 0.55, 0.15, 1)
         _Translucency ("Translucency Strength", Range(0, 2)) = 0.6
         _Sheen ("Sheen", Range(0, 0.2)) = 0.035
+        _WindDirection ("Wind Direction (xz)", Vector) = (1, 0, 0.35, 0)
+        _WindStrength ("Wind Sway (m)", Range(0, 0.4)) = 0.09
+        _WindSpeed ("Wind Speed", Float) = 1.1
     }
     SubShader
     {
@@ -39,7 +42,26 @@ Shader "Puttshack/Foliage"
             half4 _TranslucencyColor;
             half _Translucency;
             half _Sheen;
+            float4 _WindDirection;
+            float _WindStrength;
+            float _WindSpeed;
         CBUFFER_END
+
+        // Canopy sway: outer, sun-tipped pads (vertex colour R = exposure, G = tip) move most; gusts roll across the
+        // course as a travelling wave so neighbouring trees move together but not in lockstep.
+        float3 SwayAt(float3 positionWS, half4 color, float time)
+        {
+            float2 dir = normalize(_WindDirection.xz + 1e-5);
+            float phase = dot(positionWS.xz, dir) * 0.045 + dot(positionWS.xz, float2(0.11, 0.07));
+            float t = time * _WindSpeed;
+            float gust = 0.6 + 0.4 * sin(t * 0.37 + dot(positionWS.xz, dir) * 0.012);
+            float sway = (sin(t + phase) * 0.7 + sin(t * 2.3 + phase * 1.9) * 0.3) * gust;
+            float flutter = sin(t * 7.0 + dot(positionWS, float3(1.7, 2.3, 1.3))) * 0.12;
+            float w = _WindStrength * saturate(color.r) * (0.35 + 0.65 * saturate(color.g));
+            return float3(dir.x, 0, dir.y) * (sway + flutter) * w + float3(0, flutter * w * 0.4, 0);
+        }
+
+        float3 Sway(float3 positionWS, half4 color) { return SwayAt(positionWS, color, _Time.y); }
         ENDHLSL
 
         Pass
@@ -54,9 +76,16 @@ Shader "Puttshack/Foliage"
             #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
             #pragma multi_compile _ _CLUSTER_LIGHT_LOOP
+            #pragma multi_compile_fragment _ _LIGHT_COOKIES
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #pragma multi_compile_fog
+            #pragma multi_compile_instancing
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ProbeVolumeVariants.hlsl"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #include "CourseGI.hlsl"
 
             TEXTURE2D(_ClumpNormal); SAMPLER(sampler_ClumpNormal);
             TEXTURE2D(_ClumpNoise);
@@ -66,6 +95,7 @@ Shader "Puttshack/Foliage"
                 float4 positionOS : POSITION;
                 float3 normalOS : NORMAL;
                 half4 color : COLOR;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct Varyings
@@ -75,22 +105,29 @@ Shader "Puttshack/Foliage"
                 half3 normalWS : TEXCOORD1;
                 half4 color : TEXCOORD2;
                 half fogFactor : TEXCOORD3;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             Varyings vert(Attributes input)
             {
                 Varyings output;
-                VertexPositionInputs positions = GetVertexPositionInputs(input.positionOS.xyz);
-                output.positionCS = positions.positionCS;
-                output.positionWS = positions.positionWS;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz) + Sway(TransformObjectToWorld(input.positionOS.xyz), input.color);
+                output.positionCS = TransformWorldToHClip(positionWS);
+                output.positionWS = positionWS;
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
                 output.color = input.color;
-                output.fogFactor = ComputeFogFactor(positions.positionCS.z);
+                output.fogFactor = ComputeFogFactor(output.positionCS.z);
                 return output;
             }
 
             half4 frag(Varyings input) : SV_Target
             {
+                UNITY_SETUP_INSTANCE_ID(input);
+                #if defined(LOD_FADE_CROSSFADE)
+                    LODFadeCrossFade(input.positionCS);
+                #endif
                 float3 p = input.positionWS;
                 half3 n = normalize(input.normalWS);
                 half3 V = GetWorldSpaceNormalizeViewDir(p);
@@ -125,7 +162,7 @@ Shader "Puttshack/Foliage"
                     ssaoDirect = ssao.directAmbientOcclusion;
                 #endif
 
-                Light light = GetMainLight(TransformWorldToShadowCoord(p));
+                Light light = GetMainLight(TransformWorldToShadowCoord(p), p, half4(1, 1, 1, 1));
                 half shadow = light.shadowAttenuation * light.distanceAttenuation;
                 half ndl = dot(N, light.direction);
                 half wrap = saturate((ndl + _Wrap) / (1 + _Wrap));
@@ -140,7 +177,7 @@ Shader "Puttshack/Foliage"
                 half3 H = normalize(light.direction + V);
                 half3 sheen = light.color * pow(saturate(dot(N, H)), 24) * _Sheen * shadow * ao;
 
-                half3 ambient = SampleSH(N) * albedo * ao * ssaoIndirect;
+                half3 ambient = CourseBakedGI(p, N, V, input.positionCS.xy) * albedo * ao * ssaoIndirect;
                 half3 color = ambient + direct + trans + sheen;
                 color = MixFog(color, InitializeInputDataFog(float4(p, 1), input.fogFactor));
                 return half4(color, 1);
@@ -160,18 +197,22 @@ Shader "Puttshack/Foliage"
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+            #pragma multi_compile_instancing
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
             float3 _LightDirection;
             float3 _LightPosition;
 
-            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; };
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; half4 color : COLOR; UNITY_VERTEX_INPUT_INSTANCE_ID };
             struct Varyings { float4 positionCS : SV_POSITION; };
 
             Varyings vert(Attributes input)
             {
                 Varyings output;
+                UNITY_SETUP_INSTANCE_ID(input);
                 float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
+                positionWS += Sway(positionWS, input.color);
                 float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
                 #if _CASTING_PUNCTUAL_LIGHT_SHADOW
                     float3 lightDirectionWS = normalize(_LightPosition - positionWS);
@@ -196,18 +237,32 @@ Shader "Puttshack/Foliage"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+            #pragma multi_compile_instancing
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
 
-            struct Attributes { float4 positionOS : POSITION; };
-            struct Varyings { float4 positionCS : SV_POSITION; };
+            struct Attributes { float4 positionOS : POSITION; half4 color : COLOR; UNITY_VERTEX_INPUT_INSTANCE_ID };
+            struct Varyings { float4 positionCS : SV_POSITION; UNITY_VERTEX_INPUT_INSTANCE_ID };
 
             Varyings vert(Attributes input)
             {
                 Varyings output;
-                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
+                output.positionCS = TransformWorldToHClip(positionWS + Sway(positionWS, input.color));
                 return output;
             }
 
-            half frag(Varyings input) : SV_Target { return 0; }
+            half frag(Varyings input) : SV_Target
+            {
+                UNITY_SETUP_INSTANCE_ID(input);
+                #if defined(LOD_FADE_CROSSFADE)
+                    LODFadeCrossFade(input.positionCS);
+                #endif
+                return 0;
+            }
             ENDHLSL
         }
 
@@ -220,21 +275,116 @@ Shader "Puttshack/Foliage"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+            #pragma multi_compile_instancing
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
 
-            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; };
-            struct Varyings { float4 positionCS : SV_POSITION; half3 normalWS : TEXCOORD0; };
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; half4 color : COLOR; UNITY_VERTEX_INPUT_INSTANCE_ID };
+            struct Varyings { float4 positionCS : SV_POSITION; half3 normalWS : TEXCOORD0; UNITY_VERTEX_INPUT_INSTANCE_ID };
 
             Varyings vert(Attributes input)
             {
                 Varyings output;
-                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
+                output.positionCS = TransformWorldToHClip(positionWS + Sway(positionWS, input.color));
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
                 return output;
             }
 
             half4 frag(Varyings input) : SV_Target
             {
+                UNITY_SETUP_INSTANCE_ID(input);
+                #if defined(LOD_FADE_CROSSFADE)
+                    LODFadeCrossFade(input.positionCS);
+                #endif
                 return half4(NormalizeNormalPerPixel(input.normalWS), 0);
+            }
+            ENDHLSL
+        }
+
+        // Per-object motion vectors that include the wind sway (previous frame's sway at _LastTimeParameters), so
+        // temporal AA reprojects swaying canopies instead of smearing them. Renderers need Motion Vectors = Per Object.
+        Pass
+        {
+            Name "MotionVectors"
+            Tags { "LightMode" = "MotionVectors" }
+            ColorMask RG
+
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+            #pragma multi_compile_instancing
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MotionVectorsCommon.hlsl"
+
+            struct Attributes { float4 positionOS : POSITION; float3 positionOld : TEXCOORD4; half4 color : COLOR; UNITY_VERTEX_INPUT_INSTANCE_ID };
+            struct Varyings
+            {
+                float4 positionCS : SV_POSITION;
+                float4 positionCSNoJitter : TEXCOORD0;
+                float4 previousPositionCSNoJitter : TEXCOORD1;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            Varyings vert(Attributes input)
+            {
+                Varyings output;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
+                positionWS += Sway(positionWS, input.color);
+                output.positionCS = TransformWorldToHClip(positionWS);
+                output.positionCSNoJitter = mul(_NonJitteredViewProjMatrix, float4(positionWS, 1));
+                float4 previousOS = unity_MotionVectorsParams.x == 1 ? float4(input.positionOld, 1) : input.positionOS;
+                float3 previousWS = mul(UNITY_PREV_MATRIX_M, previousOS).xyz;
+                previousWS += SwayAt(previousWS, input.color, _LastTimeParameters.x);
+                output.previousPositionCSNoJitter = mul(_PrevViewProjMatrix, float4(previousWS, 1));
+                return output;
+            }
+
+            float4 frag(Varyings input) : SV_Target
+            {
+                UNITY_SETUP_INSTANCE_ID(input);
+                #if defined(LOD_FADE_CROSSFADE)
+                    LODFadeCrossFade(input.positionCS);
+                #endif
+                return float4(CalcNdcMotionVectorFromCsPositions(input.positionCSNoJitter, input.previousPositionCSNoJitter), 0, 0);
+            }
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "Meta"
+            Tags { "LightMode" = "Meta" }
+            Cull Off
+
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MetaInput.hlsl"
+
+            struct Attributes { float4 positionOS : POSITION; float2 uv1 : TEXCOORD1; float2 uv2 : TEXCOORD2; half4 color : COLOR; };
+            struct Varyings { float4 positionCS : SV_POSITION; half4 color : TEXCOORD0; };
+
+            Varyings vert(Attributes input)
+            {
+                Varyings output;
+                output.positionCS = UnityMetaVertexPosition(input.positionOS.xyz, input.uv1, input.uv2);
+                output.color = input.color;
+                return output;
+            }
+
+            half4 frag(Varyings input) : SV_Target
+            {
+                UnityMetaInput meta = (UnityMetaInput)0;
+                meta.Albedo = lerp(_BaseColor.rgb, _TipColor.rgb, saturate(input.color.g * 0.7)) * lerp(1, input.color.r, _OcclusionStrength);
+                return UnityMetaFragment(meta);
             }
             ENDHLSL
         }

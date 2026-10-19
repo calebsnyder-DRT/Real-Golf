@@ -23,6 +23,8 @@ namespace Puttshack.Simulation
         public double TreeTangentialRetention = 0.6;
         /// <summary>TUNE. Fraction of remaining landing spin kept after each ground impact.</summary>
         public double SpinRetentionPerImpact = 0.35;
+        /// <summary>TUNE. Cup capture forgiveness on top of each hole's cup profile.</summary>
+        public CupCaptureParameters Cup = new CupCaptureParameters();
 
         public static readonly SolverParameters Default = new SolverParameters();
     }
@@ -43,6 +45,8 @@ namespace Puttshack.Simulation
             var gravity = new Vec3d(0, -p.Gravity, 0);
             Vec3d cup = hole.CupM;
             CupProfile cupProfile = hole.Cup;
+            CupCaptureParameters capture = p.Cup;
+            double captureRadius = CupCapture.CaptureRadius(cupProfile, capture);
 
             var result = new ShotResult();
             Vec3d origin = intent.OriginM;
@@ -159,8 +163,8 @@ namespace Puttshack.Simulation
                             spin *= p.SpinRetentionPerImpact;
                             double rebound = -vn * surface.Restitution;
 
-                            if (Vec3d.HorizontalDistance(pos, cup) <= cupProfile.CaptureRadius && vt.Length < cupProfile.CaptureSpeed)
-                                return Holed(result, cup, r, world, carry, roll + Vec3d.HorizontalDistance(prev, pos), apexY - (origin.y + r), t);
+                            if (CupCapture.Drops(Vec3d.HorizontalDistance(pos, cup), vt.Length, cupProfile, capture))
+                                return Holed(result, p, pos, vt, cup, r, world, carry, roll + Vec3d.HorizontalDistance(prev, pos), apexY - (origin.y + r), t);
 
                             if (rebound < p.RollTransitionSpeed)
                             {
@@ -193,7 +197,11 @@ namespace Puttshack.Simulation
                     if (speed < p.StopSpeed)
                     {
                         if (downhill.Length <= Math.Max(surface.HoldingAcceleration, surface.RollingResistance))
+                        {
+                            if (CupCapture.DropsAtRest(pos, cup, cupProfile, capture))
+                                return Holed(result, p, pos, Vec3d.Zero, cup, r, world, carry, roll, apexY - (origin.y + r), t);
                             return Finish(result, ShotOutcome.Rest, pos, r, world, carry, roll, apexY - (origin.y + r), t, ShotEventType.Rest);
+                        }
                         v += downhill * dt;
                     }
                     else
@@ -202,6 +210,7 @@ namespace Puttshack.Simulation
                         Vec3d vNew = v + (downhill - v / speed * decel) * dt;
                         v = Vec3d.Dot(vNew, v) <= 0 ? Vec3d.Zero : vNew;
                     }
+                    v += CupCapture.RimAssist(pos, v.Length, cup, cupProfile, capture) * dt;
 
                     Vec3d next = pos + v * dt;
                     next.y = world.GroundHeight(next.x, next.z) + r;
@@ -216,15 +225,15 @@ namespace Puttshack.Simulation
                     }
 
                     double closest = ClosestApproach(pos, next, cup, out double closestT);
-                    if (closest <= cupProfile.CaptureRadius && lipArmed)
+                    if (closest <= captureRadius && lipArmed)
                     {
-                        double speedAtCup = v.Length;
-                        if (speedAtCup < cupProfile.CaptureSpeed)
-                            return Holed(result, cup, r, world, carry, roll + Vec3d.HorizontalDistance(pos, next) * closestT, apexY - (origin.y + r), t);
+                        if (CupCapture.Drops(LineOffset(pos, next, cup, closest), v.Length, cupProfile, capture))
+                            return Holed(result, p, Vec3d.Lerp(pos, next, closestT), v, cup, r, world, carry,
+                                roll + Vec3d.HorizontalDistance(pos, next) * closestT, apexY - (origin.y + r), t);
 
                         lipArmed = false;
                         double side = Math.Sign((next.x - pos.x) * (cup.z - pos.z) - (next.z - pos.z) * (cup.x - pos.x));
-                        double deflection = -side * 0.35 * (1 - closest / cupProfile.CaptureRadius);
+                        double deflection = -side * 0.35 * (1 - closest / captureRadius);
                         v = v.RotateYaw(deflection) * cupProfile.LipSpeedRetention;
                         result.Events.Add(new ShotEvent(t, ShotEventType.LipOut, Base(next, r), surfaceId));
                     }
@@ -283,10 +292,14 @@ namespace Puttshack.Simulation
             return tangential * p.TreeTangentialRetention - normal * (vn * p.TreeRestitution);
         }
 
-        private static ShotResult Holed(ShotResult result, Vec3d cup, double r, ICollisionWorld world, double carry, double roll, double apex, double t)
+        /// <summary>Plays the drop from <paramref name="entry"/> (ball centre where it was caught) and finishes at the cup centre.</summary>
+        private static ShotResult Holed(ShotResult result, SolverParameters p, Vec3d entry, Vec3d velocity, Vec3d cup, double r,
+            ICollisionWorld world, double carry, double roll, double apex, double t)
         {
-            Vec3d cupCenter = new Vec3d(cup.x, world.GroundHeight(cup.x, cup.z) + r, cup.z);
-            return Finish(result, ShotOutcome.Holed, cupCenter, r, world, carry, roll, apex, t, ShotEventType.Cup);
+            Vec3d cupBase = new Vec3d(cup.x, world.GroundHeight(cup.x, cup.z), cup.z);
+            double settled = CupCapture.AppendDrop(result.Samples, t, Base(entry, r), velocity, cupBase, world.Hole.Cup, p.Cup,
+                p.Gravity, p.Dt * p.SampleEvery * 0.5);
+            return Finish(result, ShotOutcome.Holed, cupBase + Vec3d.Up * r, r, world, carry, roll, apex, settled, ShotEventType.Cup);
         }
 
         private static ShotResult Finish(ShotResult result, ShotOutcome outcome, Vec3d center, double r, ICollisionWorld world,
@@ -330,6 +343,19 @@ namespace Puttshack.Simulation
             double px = a.x + dx * tAlong - c.x;
             double pz = a.z + dz * tAlong - c.z;
             return Math.Sqrt(px * px + pz * pz);
+        }
+
+        /// <summary>
+        /// Horizontal distance from <paramref name="c"/> to the ball's line of travel. The step that first reaches the
+        /// capture radius sees the cup at the rim even on a centred putt; the line offset is how far off-centre it is rolling.
+        /// </summary>
+        private static double LineOffset(Vec3d a, Vec3d b, Vec3d c, double fallback)
+        {
+            double dx = b.x - a.x;
+            double dz = b.z - a.z;
+            double len = Math.Sqrt(dx * dx + dz * dz);
+            if (len < 1e-7) return fallback;
+            return Math.Abs(dx * (c.z - a.z) - dz * (c.x - a.x)) / len;
         }
 
         private static Vec3d ProjectOnPlane(Vec3d v, Vec3d n) => v - n * Vec3d.Dot(v, n);

@@ -11,15 +11,20 @@ namespace Puttshack.Runtime.Course
     /// <summary>
     /// Builds a hole's visuals from the same <see cref="HoleDefinition"/> and analytic terrain the solver uses.
     /// The editor baker calls this once and saves the result as assets; the runtime only calls it as a fallback.
+    /// With the whole course given, the hole draws only its share of the course-wide ground grid (<see cref="CourseTiling"/>)
+    /// and of the cart path, so all hole prefabs can be shown together without overlaps.
     /// </summary>
-    public static class CourseVisualBuilder
+    public static partial class CourseVisualBuilder
     {
         public const float GroundSpacing = 0.8f;
         public const float GroundMargin = 30f;
 
-        public static BakedHole Build(HoleDefinition hole, CourseVisualAssets assets, Transform parent)
+        public static BakedHole Build(HoleDefinition hole, CourseVisualAssets assets, Transform parent) => Build(hole, null, assets, parent);
+
+        public static BakedHole Build(HoleDefinition hole, CourseDefinition course, CourseVisualAssets assets, Transform parent)
         {
             var world = new AnalyticWorld(hole);
+            CourseTiling tiling = TilingFor(course, hole, out int index);
             var root = new GameObject($"Hole {hole.Number:00} - {hole.Name}");
             root.transform.SetParent(parent, false);
 
@@ -28,7 +33,10 @@ namespace Puttshack.Runtime.Course
             baked.HoleVersion = hole.Version;
             baked.ContentHash = hole.ContentHash;
 
-            AddMesh(root.transform, "Ground", BuildGroundMesh(hole, world), assets.Ground, receiveShadows: true, castShadows: false);
+            var masks = new SurfaceMasks(hole);
+            AddMesh(root.transform, "Ground", BuildGroundMesh(hole, world, tiling, index, masks), assets.Ground, receiveShadows: true, castShadows: false);
+            Mesh lips = BuildBunkerLips(hole, world, masks);
+            if (lips != null) AddMesh(root.transform, "Bunker Lips", lips, assets.Ground, receiveShadows: true, castShadows: true);
 
             // Sea hazards (flat WaterLevelM) are drawn by the baked coastal environment; ponds drape on the terrain.
             var hazardPolygons = new List<List<Vec2d>>();
@@ -39,12 +47,7 @@ namespace Puttshack.Runtime.Course
             Mesh water = BuildOverlayMesh($"{hole.Id}_water", hole, world, hazardPolygons, 0.05f, true);
             if (water != null) AddMesh(root.transform, "Water", water, assets.Water, receiveShadows: false, castShadows: false);
 
-            var pathPolygons = new List<List<Vec2d>>();
-            foreach (SurfaceRegion region in hole.Surfaces)
-            {
-                if (region.Surface == SurfaceId.CartPath) pathPolygons.Add(region.Polygon);
-            }
-            Mesh path = BuildOverlayMesh($"{hole.Id}_cartpath", hole, world, pathPolygons, 0.02f, false);
+            Mesh path = BuildCartPathMesh(hole, world, tiling, index);
             if (path != null) AddMesh(root.transform, "Cart Path", path, assets.CartPath, receiveShadows: true, castShadows: false);
 
             var trees = new GameObject("Trees").transform;
@@ -53,62 +56,96 @@ namespace Puttshack.Runtime.Course
 
             baked.Tee = BuildTee(hole, world, assets, root.transform);
             baked.Cup = BuildCupAndFlag(hole, world, assets, root.transform);
-            BuildBoundaryStakes(hole, world, assets, root.transform);
+            BuildBoundaryStakes(hole, world, assets, root.transform, tiling, index);
             BuildPenaltyStakes(hole, world, assets, root.transform);
+            BuildProps(hole, world, assets, root.transform);
+            BuildScatter(hole, world, assets, root.transform, tiling, index, masks);
+            BuildGroves(hole, world, assets, root.transform, tiling, index);
             return baked;
         }
 
-        public static Mesh BuildGroundMesh(HoleDefinition hole, ICollisionWorld world)
-        {
-            GetBounds(hole, GroundMargin, out float minX, out float minZ, out float maxX, out float maxZ);
-            int nx = Mathf.CeilToInt((maxX - minX) / GroundSpacing) + 1;
-            int nz = Mathf.CeilToInt((maxZ - minZ) / GroundSpacing) + 1;
+        private static readonly Dictionary<string, CourseTiling> TilingCache = new Dictionary<string, CourseTiling>();
 
-            var vertices = new Vector3[nx * nz];
-            var normals = new Vector3[nx * nz];
-            var colors = new Color32[nx * nz];
-            var stripes = new Vector2[nx * nz];
-            var masksA = new Vector2[nx * nz];
-            var masksB = new Vector2[nx * nz];
-            var masks = new SurfaceMasks(hole);
-            for (int iz = 0; iz < nz; iz++)
+        /// <summary>The course-wide grid when the hole is part of <paramref name="course"/>; otherwise the hole on its own.</summary>
+        public static CourseTiling TilingFor(CourseDefinition course, HoleDefinition hole, out int index)
+        {
+            index = course != null ? course.Holes.FindIndex(h => h.Id == hole.Id) : -1;
+            if (index < 0)
             {
-                for (int ix = 0; ix < nx; ix++)
-                {
-                    double x = minX + ix * GroundSpacing;
-                    double z = minZ + iz * GroundSpacing;
-                    int i = iz * nx + ix;
-                    vertices[i] = new Vector3((float)x, (float)world.GroundHeight(x, z), (float)z);
-                    normals[i] = world.GroundNormal(x, z).ToUnity();
-                    colors[i] = SurfaceWeights(world.InBounds(x, z) ? world.SurfaceAt(x, z) : SurfaceId.DeepRough);
-                    stripes[i] = masks.Stripe(x, z);
-                    masks.Sample(x, z, world.InBounds(x, z), out masksA[i], out masksB[i]);
-                }
+                index = 0;
+                return new CourseTiling(new[] { hole }, GroundSpacing, GroundMargin);
+            }
+            string key = course.ContentHash ?? course.Version;
+            if (!TilingCache.TryGetValue(key, out CourseTiling tiling))
+            {
+                tiling = new CourseTiling(course.Holes, GroundSpacing, GroundMargin);
+                TilingCache[key] = tiling;
+            }
+            return tiling;
+        }
+
+        public static Mesh BuildGroundMesh(HoleDefinition hole, ICollisionWorld world) =>
+            BuildGroundMesh(hole, world, new CourseTiling(new[] { hole }, GroundSpacing, GroundMargin), 0, new SurfaceMasks(hole));
+
+        /// <summary>The hole's cells of the course grid, vertices shared within the hole and identical to its neighbours' on seams.</summary>
+        private static Mesh BuildGroundMesh(HoleDefinition hole, ICollisionWorld world, CourseTiling tiling, int index, SurfaceMasks masks)
+        {
+            int nx = tiling.Nx, nz = tiling.Nz;
+            var map = new int[nx * nz];
+            for (int i = 0; i < map.Length; i++) map[i] = -1;
+
+            var vertices = new List<Vector3>();
+            var normals = new List<Vector3>();
+            var colors = new List<Color32>();
+            var stripes = new List<Vector2>();
+            var masksA = new List<Vector2>();
+            var masksB = new List<Vector2>();
+            var along = new List<Vector2>();
+            var triangles = new List<int>();
+            Vector2 mow = masks.Along;
+
+            int Vertex(int ix, int iz)
+            {
+                int key = iz * nx + ix;
+                if (map[key] >= 0) return map[key];
+                double x = tiling.MinX + ix * GroundSpacing;
+                double z = tiling.MinZ + iz * GroundSpacing;
+                bool inBounds = world.InBounds(x, z);
+                vertices.Add(new Vector3((float)x, (float)world.GroundHeight(x, z), (float)z));
+                normals.Add(world.GroundNormal(x, z).ToUnity());
+                colors.Add(SurfaceWeights(inBounds ? world.SurfaceAt(x, z) : SurfaceId.DeepRough));
+                stripes.Add(masks.Stripe(x, z));
+                masks.Sample(x, z, inBounds, out Vector2 a, out Vector2 b);
+                masksA.Add(a);
+                masksB.Add(b);
+                along.Add(mow);
+                map[key] = vertices.Count - 1;
+                return map[key];
             }
 
-            var triangles = new int[(nx - 1) * (nz - 1) * 6];
-            int t = 0;
             for (int iz = 0; iz < nz - 1; iz++)
             {
                 for (int ix = 0; ix < nx - 1; ix++)
                 {
-                    int a = iz * nx + ix;
-                    int b = a + 1;
-                    int c = a + nx;
-                    int d = c + 1;
-                    triangles[t++] = a; triangles[t++] = c; triangles[t++] = b;
-                    triangles[t++] = b; triangles[t++] = c; triangles[t++] = d;
+                    if (tiling.CellOwner(ix, iz) != index) continue;
+                    int a = Vertex(ix, iz);
+                    int b = Vertex(ix + 1, iz);
+                    int c = Vertex(ix, iz + 1);
+                    int d = Vertex(ix + 1, iz + 1);
+                    triangles.Add(a); triangles.Add(c); triangles.Add(b);
+                    triangles.Add(b); triangles.Add(c); triangles.Add(d);
                 }
             }
 
             var mesh = new Mesh { name = $"{hole.Id}_ground", indexFormat = IndexFormat.UInt32 };
-            mesh.vertices = vertices;
-            mesh.normals = normals;
-            mesh.colors32 = colors;
-            mesh.uv = stripes;
-            mesh.uv2 = masksA;
-            mesh.uv3 = masksB;
-            mesh.triangles = triangles;
+            mesh.SetVertices(vertices);
+            mesh.SetNormals(normals);
+            mesh.SetColors(colors);
+            mesh.SetUVs(0, stripes);
+            mesh.SetUVs(1, masksA);
+            mesh.SetUVs(2, masksB);
+            mesh.SetUVs(3, along);
+            mesh.SetTriangles(triangles, 0);
             mesh.RecalculateBounds();
             return mesh;
         }
@@ -116,7 +153,8 @@ namespace Puttshack.Runtime.Course
         /// <summary>
         /// Per-vertex signed distances (meters, negative inside, clamped to +-<see cref="MaskRange"/>) to the green, bunker,
         /// fairway/tee and deep-rough regions, so the ground shader draws crisp outlines that follow the gameplay polygons
-        /// instead of the 0.8 m grid. UV0 carries mowing-stripe coordinates along and across the line of play.
+        /// instead of the 0.8 m grid. UV0 carries mowing-stripe coordinates along and across the line of play; UV3 the
+        /// mowing direction, so stripes flip light and dark with the view like bent grass.
         /// </summary>
         private sealed class SurfaceMasks
         {
@@ -147,6 +185,10 @@ namespace Puttshack.Runtime.Course
                 _along = len > 1e-6 ? new Vec2d(dx / len, dz / len) : new Vec2d(0, 1);
             }
 
+            public Vector2 Along => new Vector2((float)_along.x, (float)_along.z);
+
+            public IReadOnlyList<List<Vec2d>> Bunkers => _bunker;
+
             public Vector2 Stripe(double x, double z)
             {
                 double ox = x - _origin.x, oz = z - _origin.z;
@@ -158,6 +200,10 @@ namespace Puttshack.Runtime.Course
                 a = new Vector2(Distance(_green, x, z), Distance(_bunker, x, z));
                 b = new Vector2(Distance(_fairway, x, z), inBounds ? Distance(_deep, x, z) : -MaskRange);
             }
+
+            public float GreenDistance(double x, double z) => Distance(_green, x, z);
+            public float BunkerDistance(double x, double z) => Distance(_bunker, x, z);
+            public float FairwayDistance(double x, double z) => Distance(_fairway, x, z);
 
             private static float Distance(List<List<Vec2d>> polygons, double x, double z)
             {
@@ -173,7 +219,6 @@ namespace Puttshack.Runtime.Course
             }
         }
 
-        /// <summary>Grid-cell overlay draped on the terrain for cells whose center satisfies <paramref name="inside"/>.</summary>
         /// <summary>
         /// Terrain-draped overlay for the given polygons. Grid cells crossing an edge are clipped to the polygon so the
         /// outline follows the exact gameplay boundary. Edge tint (vertex color R) fades over <see cref="EdgeTintWidth"/>.
@@ -352,7 +397,7 @@ namespace Puttshack.Runtime.Course
                 float yaw = cypress ? (index * 23f) % 50f - 25f : (index * 137.5f) % 360f;
                 instance.transform.rotation = Quaternion.Euler(0, yaw, 0);
                 FitHeight(instance, (float)tree.CanopyHeight);
-                if (cypress) assets.ApplyFoliage(instance);
+                assets.ApplyFoliage(instance);
                 return;
             }
 
@@ -373,11 +418,12 @@ namespace Puttshack.Runtime.Course
             var tee = new GameObject("Tee").transform;
             tee.SetParent(parent, false);
             tee.position = hole.TeeM.ToUnity();
+            Vector3 fwd = PlayDirection(hole);
+            Vector3 right = Vector3.Cross(Vector3.up, fwd);
             foreach (float side in new[] { -3f, 3f })
             {
-                double x = hole.TeeM.x + side;
-                double z = hole.TeeM.z + 2.5;
-                var ground = new Vector3((float)x, (float)world.GroundHeight(x, z), (float)z);
+                Vector3 at = hole.TeeM.ToUnity() + right * side + fwd * 2.5f;
+                var ground = new Vector3(at.x, (float)world.GroundHeight(at.x, at.z), at.z);
                 if (assets.TeeMarkerModel != null)
                 {
                     // Turned peg ~10 cm tall with its base at the pivot.
@@ -393,35 +439,24 @@ namespace Puttshack.Runtime.Course
             return tee;
         }
 
-        private static Transform BuildCupAndFlag(HoleDefinition hole, ICollisionWorld world, CourseVisualAssets assets, Transform parent)
+        /// <summary>Horizontal direction from the tee along the first leg of the play route.</summary>
+        public static Vector3 PlayDirection(HoleDefinition hole)
         {
-            var cup = new GameObject("Cup").transform;
-            cup.SetParent(parent, false);
-            Vector3 p = hole.CupM.ToUnity();
-            p.y = (float)world.GroundHeight(hole.CupM.x, hole.CupM.z);
-            cup.position = p;
-
-            GameObject hole3d = Primitive(PrimitiveType.Cylinder, "Cup Liner", cup, assets.Cup, false);
-            float d = (float)hole.Cup.CupRadius * 2;
-            hole3d.transform.localScale = new Vector3(d, 0.004f, d);
-            hole3d.transform.localPosition = new Vector3(0, 0.004f, 0);
-
-            GameObject pole = Primitive(PrimitiveType.Cylinder, "Flagstick", cup, assets.FlagPole, true);
-            pole.transform.localScale = new Vector3(0.025f, 1.15f, 0.025f);
-            pole.transform.localPosition = new Vector3(0, 1.15f, 0);
-
-            GameObject cloth = Primitive(PrimitiveType.Cube, "Flag", cup, assets.FlagCloth, true);
-            cloth.transform.localScale = new Vector3(0.55f, 0.36f, 0.01f);
-            cloth.transform.localPosition = new Vector3(0.29f, 2.1f, 0);
-            return cup;
+            Vector3 tee = hole.TeeM.ToUnity();
+            Vector3 next = hole.PlayRouteM.Count > 1 ? hole.PlayRouteM[1].ToUnity() : hole.CupM.ToUnity();
+            Vector3 d = next - tee;
+            d.y = 0;
+            return d.sqrMagnitude > 1e-6f ? d.normalized : Vector3.forward;
         }
 
-        private static void BuildBoundaryStakes(HoleDefinition hole, ICollisionWorld world, CourseVisualAssets assets, Transform parent)
+        private static void BuildBoundaryStakes(HoleDefinition hole, ICollisionWorld world, CourseVisualAssets assets, Transform parent, CourseTiling tiling, int index)
         {
             var stakes = new GameObject("Out Of Bounds Stakes").transform;
             stakes.SetParent(parent, false);
             IReadOnlyList<Vec2d> poly = hole.PlayableBoundary;
             const double spacing = 8.0;
+            // Edges shared with a neighbouring hole are internal to the course and carry no stakes.
+            const double neighbourGap = 16.0;
             for (int i = 0; i < poly.Count; i++)
             {
                 Vec2d a = poly[i];
@@ -434,6 +469,7 @@ namespace Puttshack.Runtime.Course
                     double x = a.x + (b.x - a.x) * f;
                     double z = a.z + (b.z - a.z) * f;
                     if (world.HazardAt(x, z) != null || BelowSea(hole, world, x, z)) continue;
+                    if (tiling.DistanceToOtherHole(index, x, z) < neighbourGap) continue;
                     GameObject stake = Primitive(PrimitiveType.Cylinder, "Stake", stakes, assets.BoundaryStake, true);
                     stake.transform.localScale = new Vector3(0.06f, 0.45f, 0.06f);
                     stake.transform.position = new Vector3((float)x, (float)world.GroundHeight(x, z) + 0.45f, (float)z);
@@ -484,7 +520,7 @@ namespace Puttshack.Runtime.Course
             {
                 if (hazard.WaterLevelM.HasValue && world.GroundHeight(x, z) < hazard.WaterLevelM.Value + 0.5) return true;
             }
-            return false;
+            return world.GroundHeight(x, z) < GrayboxCourse.SeaLevelM + 0.5;
         }
 
         private static void AddMesh(Transform parent, string name, Mesh mesh, Material material, bool receiveShadows, bool castShadows)
@@ -532,23 +568,6 @@ namespace Puttshack.Runtime.Course
             for (int i = 1; i < renderers.Length; i++) bounds.Encapsulate(renderers[i].bounds);
             if (bounds.size.y < 1e-3f) return;
             instance.transform.localScale *= targetHeight / bounds.size.y;
-        }
-
-        private static void GetBounds(HoleDefinition hole, float margin, out float minX, out float minZ, out float maxX, out float maxZ)
-        {
-            minX = minZ = float.MaxValue;
-            maxX = maxZ = float.MinValue;
-            foreach (Vec2d p in hole.PlayableBoundary)
-            {
-                minX = Mathf.Min(minX, (float)p.x);
-                minZ = Mathf.Min(minZ, (float)p.z);
-                maxX = Mathf.Max(maxX, (float)p.x);
-                maxZ = Mathf.Max(maxZ, (float)p.z);
-            }
-            minX -= margin;
-            minZ -= margin;
-            maxX += margin;
-            maxZ += margin;
         }
 
         private static void DestroyAny(UnityEngine.Object o)

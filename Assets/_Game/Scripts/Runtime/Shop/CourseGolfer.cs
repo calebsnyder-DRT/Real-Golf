@@ -1,5 +1,6 @@
 using Puttshack.Content;
 using Puttshack.Domain;
+using Puttshack.Runtime.Clubs;
 using UnityEngine;
 
 namespace Puttshack.Runtime.Shop
@@ -22,8 +23,25 @@ namespace Puttshack.Runtime.Shop
         private string _dressedKey;
         private int _swungShot = -1;
         private int _reactedShot = -1;
+        private int _colorIndex;
+        private HeldClubView _heldClub;
 
         private GolferMotion Motion => Appearance != null ? Appearance.GetComponent<GolferMotion>() : null;
+
+        /// <summary>Swaps the shooter's own club set (<see cref="ClubLibrary"/>) into the golfer's hands.</summary>
+        private HeldClubView HeldClub
+        {
+            get
+            {
+                if (_heldClub == null && Appearance != null)
+                {
+                    _heldClub = Appearance.GetComponent<HeldClubView>();
+                    if (_heldClub == null) _heldClub = Appearance.gameObject.AddComponent<HeldClubView>();
+                    _heldClub.Appearance = Appearance;
+                }
+                return _heldClub;
+            }
+        }
 
         public void Show(bool visible)
         {
@@ -39,6 +57,7 @@ namespace Puttshack.Runtime.Shop
         public void Stand(Vector3 ballPosition, Vector3 aimForward, PlayerState player, string clubId, bool address, bool wait = false)
         {
             Dress(player);
+            if (player != null) _colorIndex = player.ColorIndex;
             Vector3 fwd = new Vector3(aimForward.x, 0f, aimForward.z).normalized;
             if (fwd.sqrMagnitude < 0.5f) fwd = Vector3.forward;
             Vector3 left = Vector3.Cross(fwd, Vector3.up);
@@ -59,6 +78,7 @@ namespace Puttshack.Runtime.Shop
                 Bag.transform.rotation = Quaternion.LookRotation(-fwd, Vector3.up);
             }
             if (motion == null) return;
+            HeldClub?.Hold(wait ? null : clubId, _colorIndex);
             if (wait) motion.Wait();
             else if (address && clubId != null) motion.Address(clubId);
         }
@@ -69,6 +89,7 @@ namespace Puttshack.Runtime.Shop
             GolferMotion motion = Motion;
             if (shot?.Intent == null || motion == null || !gameObject.activeInHierarchy || shot.ShotId == _swungShot) return 0f;
             _swungShot = shot.ShotId;
+            HeldClub?.Hold(shot.Intent.ClubId, _colorIndex);
             return motion.Swing(shot.Intent.ClubId);
         }
 
@@ -84,11 +105,12 @@ namespace Puttshack.Runtime.Shop
         {
             if (player == null || Appearance == null) return;
             Loadout look = CosmeticCatalog.LoadoutOf(player);
-            int character = GolferAppearance.CharacterOf(player);
-            string key = player.Id + "|" + GolferAppearance.Key(look, character) + "|" + look.Bag;
+            PlayerProfile profile = ProfileCatalog.ProfileOf(player);
+            int character = GolferAppearance.CharacterOf(profile);
+            string key = player.Id + "|" + GolferAppearance.Key(look, character, profile) + "|" + look.Bag;
             if (key == _dressedKey) return;
             int before = Appearance.Shown;
-            Appearance.Apply(look, character);
+            Appearance.Apply(look, character, profile);
             GolferMotion motion = Motion;
             if (Appearance.Shown != before && motion != null) motion.Refresh();
             if (Bag != null) Bag.ShowBag(look.Bag);

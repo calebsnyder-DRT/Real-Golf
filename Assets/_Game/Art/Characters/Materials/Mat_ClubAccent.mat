@@ -44,7 +44,7 @@ Material:
     m_Floats:
     - _AlphaClip: 0
     - _BumpScale: 1
-    - _CavityStrength: 0
+    - _CavityStrength: 1
     - _Cull: 2
     - _Cutoff: 0.5
     - _DetailNormalScale: 0.4

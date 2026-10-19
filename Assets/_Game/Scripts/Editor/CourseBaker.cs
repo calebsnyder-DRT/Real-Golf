@@ -55,22 +55,29 @@ namespace Puttshack.EditorTools
             Debug.Log("[Puttshack] Batch bake complete.");
         }
 
-        public static List<GameObject> BakeCourse()
+        public static List<GameObject> BakeCourse() => BakeHoles(null);
+
+        /// <summary>Bakes only the holes whose ids are listed (all when null), so each editor call stays short.</summary>
+        public static List<GameObject> BakeHoles(ICollection<string> holeIds)
         {
             CourseDefinition course = GrayboxCourse.Create();
             EnsureFolder(MeshFolder);
             EnsureFolder(MaterialFolder);
 
             CourseVisualAssets assets = CourseVisualAssets.CreateDefault();
+            assets.SignFont = HudFonts.CondensedBold;
             PersistMaterials(assets);
+            EnsureGrassMaterial();
 
             var prefabs = new List<GameObject>();
             foreach (HoleDefinition hole in course.Holes)
             {
-                BakedHole built = CourseVisualBuilder.Build(hole, assets, null);
+                if (holeIds != null && !holeIds.Contains(hole.Id)) continue;
+                BakedHole built = CourseVisualBuilder.Build(hole, course, assets, null);
                 try
                 {
                     PersistMeshes(hole, built.gameObject);
+                    CourseEnvironmentBaker.MarkStatic(built.gameObject);
                     string prefabPath = $"{BakedRoot}/{hole.Id}.prefab";
                     GameObject prefab = PrefabUtility.SaveAsPrefabAsset(built.gameObject, prefabPath, out bool ok);
                     if (!ok || prefab == null) throw new IOException($"Could not save {prefabPath}.");
@@ -121,8 +128,8 @@ namespace Puttshack.EditorTools
             var courseRoot = new GameObject("Course").transform;
             for (int i = 0; i < prefabs.Count; i++)
             {
-                var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefabs[i], courseRoot);
-                instance.SetActive(i == 0);
+                // Every hole stays visible: neighbours share one ground grid and are seen from each other's tees.
+                PrefabUtility.InstantiatePrefab(prefabs[i], courseRoot);
             }
 
             var host = new GameObject("Game Host").AddComponent<GameHost>();
@@ -131,6 +138,7 @@ namespace Puttshack.EditorTools
             CourseGolferBaker.PlaceInScene(scene);
             CourseEnvironmentBaker.PlaceInScene(scene);
             HudBaker.PlaceInScene(scene);
+            PlayerSetupUIBuilder.PlaceInScene(scene);
 
             EnsureFolder(Path.GetDirectoryName(ScenePath).Replace('\\', '/'));
             if (!EditorSceneManager.SaveScene(scene, ScenePath)) throw new IOException($"Could not save {ScenePath}.");
@@ -214,6 +222,21 @@ namespace Puttshack.EditorTools
         }
 
         /// <summary>Saves each generated material as an asset, updating an existing asset in place so references survive.</summary>
+        /// <summary>
+        /// The instanced grass field's material (<see cref="GrassField.MaterialResource"/>); without it the bake skips the
+        /// grass. Created once with the shader's defaults, then left alone so tuning in the inspector survives re-bakes.
+        /// </summary>
+        private static void EnsureGrassMaterial()
+        {
+            string path = $"Assets/_Game/Resources/{GrassField.MaterialResource}.mat";
+            if (AssetDatabase.LoadAssetAtPath<Material>(path) != null) return;
+            Shader shader = Shader.Find("Puttshack/GrassInstanced");
+            if (shader == null) throw new IOException("Missing shader Puttshack/GrassInstanced (Assets/_Game/Shaders/Nature/GrassInstanced.shader).");
+            EnsureFolder(Path.GetDirectoryName(path).Replace('\\', '/'));
+            AssetDatabase.CreateAsset(new Material(shader) { name = "GrassInstanced", enableInstancing = true }, path);
+            AssetDatabase.SaveAssets();
+        }
+
         private static void PersistMaterials(CourseVisualAssets assets)
         {
             assets.Ground = Persist(assets.Ground);
@@ -228,6 +251,8 @@ namespace Puttshack.EditorTools
             assets.BoundaryStake = Persist(assets.BoundaryStake);
             assets.PenaltyStake = Persist(assets.PenaltyStake);
             assets.Foliage = Persist(assets.Foliage);
+            if (assets.Grass != null) assets.Grass = Persist(assets.Grass);
+            if (assets.CupInterior != null) assets.CupInterior = Persist(assets.CupInterior);
         }
 
         private static Material Persist(Material generated)
@@ -271,6 +296,14 @@ namespace Puttshack.EditorTools
                     mesh.name = name;
                     AssetDatabase.CreateAsset(mesh, path);
                 }
+            }
+
+            // Meshes this hole no longer produces (fewer ground-cover tiles, removed props) would otherwise linger.
+            foreach (string guid in AssetDatabase.FindAssets($"{hole.Id}_ t:Mesh", new[] { MeshFolder }))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                string name = Path.GetFileNameWithoutExtension(path);
+                if (name.StartsWith(hole.Id + "_", System.StringComparison.Ordinal) && !used.Contains(name)) AssetDatabase.DeleteAsset(path);
             }
         }
 

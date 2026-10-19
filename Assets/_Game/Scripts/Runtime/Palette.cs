@@ -15,14 +15,15 @@ namespace Puttshack.Runtime
         public static readonly Color Warning = Hex(0xD9822B);
         public static readonly Color Danger = Hex(0xC2412D);
 
+        /// <summary>Player identities from the 2026 brand palette (cool blue, vivid magenta and sun ramps).</summary>
         private static readonly Color[] Players =
         {
-            Hex(0x2F6FD6), // Caleb - blue
-            Hex(0xE8872A), // Maya - orange
-            Hex(0x3E9B4F), // Jordan - green
-            Hex(0xD9B021), // Sam - gold
-            Hex(0x8A4FC7), // Nia - purple
-            Hex(0x1FA59A), // Leo - teal
+            Hex(0x00C1DE), // Caleb - aqua
+            Hex(0xF45197), // Maya - pink
+            Hex(0xFFC829), // Jordan - sun
+            Hex(0xE969B0), // Sam - hot pink
+            Hex(0x0091B3), // Nia - blue
+            Hex(0x863399), // Leo - plum
         };
 
         public static Color Player(int colorIndex) => Players[((colorIndex % Players.Length) + Players.Length) % Players.Length];

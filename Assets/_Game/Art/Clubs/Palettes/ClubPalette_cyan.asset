@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 109adf594bbd94f61bffdccf3d355489, type: 3}
+  m_Name: ClubPalette_cyan
+  m_EditorClassIdentifier: Puttshack.Runtime::Puttshack.Runtime.Clubs.ClubPalette
+  Id: cyan
+  DisplayName: Puttshack Cyan
+  Head: {fileID: 2100000, guid: df23018806d954a78be984e667ded2ca, type: 2}
+  FaceIron: {fileID: 2100000, guid: d529cbe569e89402199b457114cccb5c, type: 2}
+  FaceWood: {fileID: 2100000, guid: ebe73e0d6279a41f6865ae5e3848a7ce, type: 2}
+  FacePutter: {fileID: 2100000, guid: eb81ebc57c14d44ef89e3bff0d01a472, type: 2}
+  Accent: {fileID: 2100000, guid: ad113c353bb624d899cda7811e0c5181, type: 2}
+  Crown: {fileID: 2100000, guid: 6b610d315385846289e0a2af9daabbcd, type: 2}
+  ShaftSteel: {fileID: 2100000, guid: dc31b259ec6d64e4b81a52e227345dae, type: 2}
+  ShaftGraphite: {fileID: 2100000, guid: 97cc9b144372941da80d842cd3de4a62, type: 2}
+  Grip: {fileID: 2100000, guid: 1c0ae64092e954c1092a1c52192cd50d, type: 2}
+  Trim: {fileID: 2100000, guid: 0121a38632d9c4c31be60b58be44f123, type: 2}
+  Decal: {fileID: 2100000, guid: 1ea22727c6f9446e79706b1842f83700, type: 2}

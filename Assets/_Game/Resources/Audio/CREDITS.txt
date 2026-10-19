@@ -1,0 +1,132 @@
+Real-Golf - in-game audio
+=========================
+
+Built by ArtSource/Audio/tools/build_golf_audio.py; the machine-readable manifest (with processing notes) is
+ArtSource/Audio/audio_manifest.json. Everything here is CC0 or public domain: attribution is not required and
+is given as a courtesy. Files named *_ph_* are procedural PLACEHOLDERS synthesised by the script - replace them
+with recorded sounds when available, keeping the filename prefix (it is the GolfSoundBank cue key).
+
+Sources
+-------
+  Kenney (https://kenney.nl): Impact Sounds, Music Jingles, Interface Sounds packs - CC0 1.0
+  Wikimedia Commons (licence per file page, checked Oct 2026):
+    [CC0] Ocean Waves on a Tropical Beach.ogg - J.D. Savanyu (User:Jarrod_stanley)
+    [PD ] On a pebble beach.ogg - earthcalling
+    [PD ] Gull 1.ogg - avphillips
+    [PD ] Gull 2.ogg - avphillips
+    [PD ] Gentle breeze and birds singing.ogg - ezwa
+    [CC0] Sound Effects - Applause after a concert.ogg - Amada44
+    [CC0] 277021 sandermotions applause-2.wav - Sandermotions
+    [PD ] Applause i.ogg - thore
+    [PD ] Applause ii.ogg - thore
+    [PD ] Clapping hurray.ogg - starlite
+    [PD ] Slow starting applause.ogg - stephan
+    [PD ] Ohhh ahhh.ogg - starlite
+    [PD ] Festival concert people crowd.ogg - stephan
+
+Files
+-----
+  Ambience/surf_bed_01.ogg                     CC0         Wikimedia Commons: File:Ocean Waves on a Tropical Beach.ogg
+  Ambience/surf_shore_01.ogg                   PD          Wikimedia Commons: File:On a pebble beach.ogg
+  Ambience/birds_01.ogg                        PD          Wikimedia Commons: File:Gentle breeze and birds singing.ogg
+  Ambience/gull_01.ogg                         PD          Wikimedia Commons: File:Gull 1.ogg
+  Ambience/gull_02.ogg                         PD          Wikimedia Commons: File:Gull 1.ogg
+  Ambience/gull_03.ogg                         PD          Wikimedia Commons: File:Gull 1.ogg
+  Ambience/gull_04.ogg                         PD          Wikimedia Commons: File:Gull 1.ogg
+  Ambience/gull_05.ogg                         PD          Wikimedia Commons: File:Gull 1.ogg
+  Ambience/gull_06.ogg                         PD          Wikimedia Commons: File:Gull 1.ogg
+  Ambience/gull_07.ogg                         PD          Wikimedia Commons: File:Gull 1.ogg
+  Ambience/gull_08.ogg                         PD          Wikimedia Commons: File:Gull 2.ogg
+  Ambience/wind_ph_01.wav                      PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ambience/cart_hum_ph_01.wav                  PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Crowd/murmur_01.ogg                          PD          Wikimedia Commons: File:Festival concert people crowd.ogg
+  Crowd/applause_small_01.ogg                  PD          Wikimedia Commons: File:Applause ii.ogg
+  Crowd/applause_small_02.ogg                  CC0         Wikimedia Commons: File:277021 sandermotions applause-2.wav
+  Crowd/applause_big_01.ogg                    PD          Wikimedia Commons: File:Applause i.ogg
+  Crowd/applause_big_02.ogg                    CC0         Wikimedia Commons: File:Sound Effects - Applause after a concert.ogg
+  Crowd/cheer_01.ogg                           PD          Wikimedia Commons: File:Clapping hurray.ogg
+  Crowd/ovation_01.ogg                         PD          Wikimedia Commons: File:Slow starting applause.ogg
+  Crowd/ooh_01.ogg                             PD          Wikimedia Commons: File:Ohhh ahhh.ogg
+  Crowd/ooh_02.ogg                             PD          Wikimedia Commons: File:Ohhh ahhh.ogg
+  Crowd/aww_ph_01.wav                          PLACEHOLDER Wikimedia Commons: File:Ohhh ahhh.ogg (pitch-glided down: derived placeholder)
+  Ball/strike_driver_ph_01.wav                 PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_driver_ph_02.wav                 PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_driver_ph_03.wav                 PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_wood_ph_01.wav                   PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_wood_ph_02.wav                   PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_wood_ph_03.wav                   PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_iron_ph_01.wav                   PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_iron_ph_02.wav                   PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_iron_ph_03.wav                   PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_iron_ph_04.wav                   PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_wedge_ph_01.wav                  PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_wedge_ph_02.wav                  PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_wedge_ph_03.wav                  PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_putter_ph_01.wav                 PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_putter_ph_02.wav                 PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_putter_ph_03.wav                 PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_putter_ph_04.wav                 PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_sand_ph_01.wav                   PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_sand_ph_02.wav                   PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_sand_ph_03.wav                   PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_rough_ph_01.wav                  PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_rough_ph_02.wav                  PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/strike_rough_ph_03.wav                  PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/whoosh_ph_01.wav                        PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/whoosh_ph_02.wav                        PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/whoosh_ph_03.wav                        PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/whoosh_ph_04.wav                        PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/land_fairway_01.ogg                     CC0         Kenney Impact Sounds pack: footstep_grass_000.ogg
+  Ball/land_fairway_02.ogg                     CC0         Kenney Impact Sounds pack: footstep_grass_001.ogg
+  Ball/land_fairway_03.ogg                     CC0         Kenney Impact Sounds pack: footstep_grass_002.ogg
+  Ball/land_fairway_04.ogg                     CC0         Kenney Impact Sounds pack: footstep_grass_003.ogg
+  Ball/land_rough_01.ogg                       CC0         Kenney Impact Sounds pack: footstep_grass_001.ogg
+  Ball/land_rough_02.ogg                       CC0         Kenney Impact Sounds pack: footstep_grass_003.ogg
+  Ball/land_rough_03.ogg                       CC0         Kenney Impact Sounds pack: footstep_grass_004.ogg
+  Ball/land_bunker_01.ogg                      CC0         Kenney Impact Sounds pack: footstep_snow_000.ogg
+  Ball/land_bunker_02.ogg                      CC0         Kenney Impact Sounds pack: footstep_snow_001.ogg
+  Ball/land_bunker_03.ogg                      CC0         Kenney Impact Sounds pack: footstep_snow_002.ogg
+  Ball/land_bunker_04.ogg                      CC0         Kenney Impact Sounds pack: footstep_snow_003.ogg
+  Ball/land_cartpath_01.ogg                    CC0         Kenney Impact Sounds pack: impactGeneric_light_000.ogg
+  Ball/land_cartpath_02.ogg                    CC0         Kenney Impact Sounds pack: impactGeneric_light_001.ogg
+  Ball/land_cartpath_03.ogg                    CC0         Kenney Impact Sounds pack: impactGeneric_light_002.ogg
+  Ball/land_green_01.ogg                       CC0         Kenney Impact Sounds pack: impactSoft_medium_000.ogg
+  Ball/land_green_02.ogg                       CC0         Kenney Impact Sounds pack: impactSoft_medium_001.ogg
+  Ball/tree_hit_01.ogg                         CC0         Kenney Impact Sounds pack: impactWood_light_000.ogg
+  Ball/tree_hit_02.ogg                         CC0         Kenney Impact Sounds pack: impactWood_light_001.ogg
+  Ball/tree_hit_03.ogg                         CC0         Kenney Impact Sounds pack: impactWood_light_002.ogg
+  Ball/tree_hit_04.ogg                         CC0         Kenney Impact Sounds pack: impactWood_light_003.ogg
+  Ball/club_change_01.ogg                      CC0         Kenney Impact Sounds pack: impactMetal_light_000.ogg
+  Ball/club_change_02.ogg                      CC0         Kenney Impact Sounds pack: impactMetal_light_001.ogg
+  Ball/club_change_03.ogg                      CC0         Kenney Impact Sounds pack: impactMetal_light_002.ogg
+  Ball/land_green_ph_01.wav                    PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/land_green_ph_02.wav                    PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/land_green_ph_03.wav                    PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/land_fairway_ph_01.wav                  PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/land_fairway_ph_02.wav                  PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/land_rough_ph_01.wav                    PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/land_rough_ph_02.wav                    PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/land_cartpath_ph_01.wav                 PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/land_cartpath_ph_02.wav                 PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/cup_drop_ph_01.wav                      PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/cup_drop_ph_02.wav                      PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/cup_drop_ph_03.wav                      PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/lip_out_ph_01.wav                       PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/lip_out_ph_02.wav                       PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/splash_ph_01.wav                        PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/splash_ph_02.wav                        PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/roll_green_ph_01.wav                    PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/roll_fairway_ph_01.wav                  PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Ball/roll_cartpath_ph_01.wav                 PLACEHOLDER Procedural (ArtSource/Audio/tools/build_golf_audio.py)
+  Stingers/stinger_ace_01.ogg                  CC0         Kenney Music Jingles pack: jingles_PIZZI03.ogg
+  Stingers/stinger_round_01.ogg                CC0         Kenney Music Jingles pack: jingles_PIZZI13.ogg
+  Stingers/stinger_eagle_01.ogg                CC0         Kenney Music Jingles pack: jingles_PIZZI16.ogg
+  Stingers/stinger_birdie_01.ogg               CC0         Kenney Music Jingles pack: jingles_PIZZI10.ogg
+  Stingers/stinger_par_01.ogg                  CC0         Kenney Music Jingles pack: jingles_PIZZI08.ogg
+  Stingers/stinger_bogey_01.ogg                CC0         Kenney Music Jingles pack: jingles_PIZZI05.ogg
+  Stingers/stinger_double_01.ogg               CC0         Kenney Music Jingles pack: jingles_PIZZI07.ogg
+  UI/ui_select_01.ogg                          CC0         Kenney Interface Sounds pack: select_002.ogg
+  UI/ui_select_02.ogg                          CC0         Kenney Interface Sounds pack: select_005.ogg
+  UI/ui_confirm_01.ogg                         CC0         Kenney Interface Sounds pack: confirmation_002.ogg
+  UI/ui_back_01.ogg                            CC0         Kenney Interface Sounds pack: back_002.ogg
+  UI/ui_title_01.ogg                           CC0         Kenney Interface Sounds pack: maximize_006.ogg

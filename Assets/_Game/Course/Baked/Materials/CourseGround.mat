@@ -70,14 +70,19 @@ Material:
     m_Ints: []
     m_Floats:
     - _BeachTop: -7.4
+    - _DryStrength: 0.35
+    - _FirstCutWidth: 1.8
+    - _GrassSheen: 0.35
     - _GreenStripeStrength: 0.05
     - _GreenStripeWidth: 1.8
     - _MacroStrength: 0.35
     - _NormalStrength: 0.6
+    - _RakeStrength: 0.07
     - _RockScale: 0.11
     - _RockSlope: 0.74
     - _SeaLevel: -10
     - _StripeStrength: 0.09
+    - _StripeViewGain: 1.8
     - _StripeWidth: 5.5
     - _TextureStrength: 0.55
     - _Tiling: 0.12
@@ -87,7 +92,9 @@ Material:
     - _BunkerTint: {r: 0.96, g: 0.92, b: 0.82, a: 1}
     - _CollarTint: {r: 0.45, g: 0.7, b: 0.26999995, a: 1}
     - _DeepRoughTint: {r: 0.35999998, g: 0.41999996, b: 0.19999996, a: 1}
+    - _DryTint: {r: 0.62, g: 0.54999995, b: 0.29999998, a: 1}
     - _FairwayTint: {r: 0.41999996, g: 0.65999997, b: 0.23999995, a: 1}
+    - _FirstCutTint: {r: 0.39999998, g: 0.6, b: 0.22999996, a: 1}
     - _GreenTint: {r: 0.35999998, g: 0.65999997, b: 0.24999997, a: 1}
     - _RockTint: {r: 0.6, g: 0.56999993, b: 0.53, a: 1}
     - _RoughTint: {r: 0.35999998, g: 0.52, b: 0.19999996, a: 1}

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 109adf594bbd94f61bffdccf3d355489, type: 3}
+  m_Name: ClubPalette_midnight
+  m_EditorClassIdentifier: Puttshack.Runtime::Puttshack.Runtime.Clubs.ClubPalette
+  Id: midnight
+  DisplayName: Midnight
+  Head: {fileID: 2100000, guid: 70a54ec8ba9cf497bbb0b72ea546c49a, type: 2}
+  FaceIron: {fileID: 2100000, guid: 4c675096bd9204f64a697e9143cfabef, type: 2}
+  FaceWood: {fileID: 2100000, guid: d8747493ac55047a09c821078fea6b15, type: 2}
+  FacePutter: {fileID: 2100000, guid: 18a179e7ab1214e9e8fdbcca2a4cddfd, type: 2}
+  Accent: {fileID: 2100000, guid: b67f6e5cf7b4443b9a3219dd66a3bc99, type: 2}
+  Crown: {fileID: 2100000, guid: 4c9889371da31451ebab5760110e1d48, type: 2}
+  ShaftSteel: {fileID: 2100000, guid: ae6c1d014c45549759c7d3e2b1d46377, type: 2}
+  ShaftGraphite: {fileID: 2100000, guid: e003f4fde7c5340d5a2562deef4fa937, type: 2}
+  Grip: {fileID: 2100000, guid: c61b6122269b14505b145a1b41ad174b, type: 2}
+  Trim: {fileID: 2100000, guid: bf264f3c4187b4c96af6704ca1ab92bf, type: 2}
+  Decal: {fileID: 2100000, guid: 9b9ad4bba7dd84f0b8e82e300f63d129, type: 2}

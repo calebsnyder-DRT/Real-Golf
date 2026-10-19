@@ -25,11 +25,11 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 1ad95134d7fcb4a7991b7373be9093d9, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 2d0b63aa9b66845598f0eb729e8d8029, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailNormalMap:
@@ -44,7 +44,7 @@ Material:
     m_Floats:
     - _AlphaClip: 0
     - _BumpScale: 1
-    - _CavityStrength: 0
+    - _CavityStrength: 1
     - _Cull: 2
     - _Cutoff: 0.5
     - _DetailNormalScale: 0.4
@@ -54,15 +54,15 @@ Material:
     - _OcclusionStrength: 1
     - _SecondLobeMix: 0.15
     - _SecondLobeSmoothness: 0.45
-    - _SheenRoughness: 0.6
-    - _Smoothness: 0.26
+    - _SheenRoughness: 0.4
+    - _Smoothness: 0.3
     - _Transmission: 1
     - _UseDetail: 0
-    - _Wrap: 0.3
+    - _Wrap: 0.35
     m_Colors:
     - _BaseColor: {r: 0.9098039, g: 0.41568628, b: 0.34509805, a: 1}
     - _ScatterColor: {r: 1, g: 0.41999996, b: 0.25999996, a: 1}
-    - _SheenColor: {r: 0.16, g: 0.16, b: 0.16, a: 1}
+    - _SheenColor: {r: 0.22, g: 0.22, b: 0.22, a: 1}
     - _TransmissionColor: {r: 1, g: 0.31999996, b: 0.17999998, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

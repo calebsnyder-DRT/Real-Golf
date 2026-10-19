@@ -1,0 +1,930 @@
+{
+ "dir": "YBot",
+ "character": {
+  "id": "4f5d21e1-4ccc-41f1-b35b-fb2547bd8493",
+  "name": "Y Bot"
+ },
+ "ok": [
+  {
+   "file": "Golf_Chip_Swing.fbx",
+   "id": "c9c77904-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Chip",
+   "description": "Golf Swing Chip Shot",
+   "inplace": false,
+   "params": [
+    [
+     "Swing",
+     -1
+    ],
+    [
+     "Body Posture",
+     0
+    ],
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_Chip_Swing2.fbx",
+   "id": "c9c9d262-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Chip",
+   "description": "Golf Swing Chip Shot",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_Chip_Short.fbx",
+   "id": "c9ca5964-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Chip",
+   "description": "Short Chip Shot",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_Chip_Medium.fbx",
+   "id": "c9ca5a94-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Chip",
+   "description": "Medium Chip Shot",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_Chip_Big.fbx",
+   "id": "c9ca5bbf-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Chip",
+   "description": "Big Chip Shot",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_Putt_Swing.fbx",
+   "id": "c9c9de66-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Putt",
+   "description": "Golf Swing Putt Shot",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_Putt_Short.fbx",
+   "id": "c9ca62c6-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Putt",
+   "description": "Short Putting Shot",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_Putt_Medium.fbx",
+   "id": "c9ca643c-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Putt",
+   "description": "Medium Putting Shot",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_Putt_Long.fbx",
+   "id": "c9ca65b8-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Putt",
+   "description": "Long Putting Shot",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_Drive_Swing.fbx",
+   "id": "c9c9e81d-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Drive",
+   "description": "Golf Swing Drive Shot",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_Drive_Long.fbx",
+   "id": "c9c78858-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Drive",
+   "description": "Long Distance Golf Drive",
+   "inplace": false,
+   "params": [
+    [
+     "Style",
+     0
+    ],
+    [
+     "Swing Rate",
+     1
+    ],
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_Drive_Short.fbx",
+   "id": "c9ca5e77-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Drive",
+   "description": "Short Driving Shot",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_Drive_Medium.fbx",
+   "id": "c9ca5fe2-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Drive",
+   "description": "Medium Drive",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_Drive_Standard.fbx",
+   "id": "c9ca5d02-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Drive",
+   "description": "Standard Drive",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_Drive_Big.fbx",
+   "id": "c9ca614b-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Drive",
+   "description": "Big Drive",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_DriveSetup_1.fbx",
+   "id": "c9ca6731-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Drive Setup",
+   "description": "Drive Pre-Shot Setup",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_DriveSetup_2.fbx",
+   "id": "c9ca68b5-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Drive Setup",
+   "description": "Drive Pre-Shot Setup",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_TeeUp_1.fbx",
+   "id": "c9ca6b7d-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Tee Up",
+   "description": "Placing Tee Into The Ground",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_TeeUp_2.fbx",
+   "id": "c9ca6a2d-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Tee Up",
+   "description": "Placing Tee Into The Ground",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_PrePutt_Looking.fbx",
+   "id": "c9ca7c38-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Pre-Putt",
+   "description": "Putt Pre-Shot Looking Routine",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_PrePutt_Grading.fbx",
+   "id": "c9ca7d50-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Pre-Putt",
+   "description": "Putt Pre-Shot Grading Routine",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_PuttVictory_Emotional.fbx",
+   "id": "c9ca726a-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Putt Victory",
+   "description": "Post-Putting Emotional Victory Gesture",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_PuttVictory_1.fbx",
+   "id": "c9ca6df5-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Putt Victory",
+   "description": "Post-Putting Victory Gesture Var 1",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_PuttVictory_2.fbx",
+   "id": "c9ca6f2d-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Putt Victory",
+   "description": "Post-Putting Victory Gesture Var 2",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_PuttingVictory.fbx",
+   "id": "c9ca6cc3-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Putting Victory",
+   "description": "Putt Post-Shot Victory Gesture",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_PuttFailure_1.fbx",
+   "id": "c9ca7048-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Putt Failure",
+   "description": "Post-Putting Failed Shot Gesture Var 1",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_PuttFailure_2.fbx",
+   "id": "c9ca7157-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Putt Failure",
+   "description": "Post-Putting Failed Shot Gesture Var 2",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_BadShot_1.fbx",
+   "id": "c9ca7385-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Bad Shot",
+   "description": "Bad Shot Reaction Var 1",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_BadShot_2.fbx",
+   "id": "c9ca75b2-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Bad Shot",
+   "description": "Bad Shot Reaction Var 2",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_BadShot_3.fbx",
+   "id": "c9ca76d1-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Bad Shot",
+   "description": "Bad Shot Reaction Var 3",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_PostSwing_Victory.fbx",
+   "id": "c9ca7b19-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Post-Swing",
+   "description": "Post-Swing Victory Stance",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_PostSwing_Stance.fbx",
+   "id": "c9ca7a0c-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Post-Swing",
+   "description": "Post-Swing Stance",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_PostShot_1.fbx",
+   "id": "c9ca77de-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Post Shot",
+   "description": "Post-Shot Course Correction Var 1",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Golf_PostShot_2.fbx",
+   "id": "c9ca78f8-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Golf Post Shot",
+   "description": "Post-Shot Course Correction Var 2",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Idle_Standard.fbx",
+   "id": "c9c972d1-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Idle",
+   "description": "Standing Idle",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Idle_Breathing.fbx",
+   "id": "c9c6d0d5-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Breathing Idle",
+   "description": "Breathing Idle",
+   "inplace": false,
+   "params": [
+    [
+     "Body Type",
+     -1
+    ],
+    [
+     "Sway",
+     1
+    ],
+    [
+     "Breathing",
+     1
+    ],
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Idle_Happy.fbx",
+   "id": "c9ccf37e-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Happy Idle",
+   "description": "Happy Idle Variation 1",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Idle_WeightShift.fbx",
+   "id": "c9c908f7-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Weight Shift",
+   "description": "Shifting Weight From Side To Side",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Idle_Bored.fbx",
+   "id": "c9c79d1f-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Bored",
+   "description": "Standing Around Bored Idle",
+   "inplace": false,
+   "params": [
+    [
+     "Look",
+     -1
+    ],
+    [
+     "Swing",
+     0
+    ],
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Idle_LookingAround.fbx",
+   "id": "c9c9dff0-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Looking Around",
+   "description": "Looking Around With Duel Wielded Pistols",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Idle_Thinking.fbx",
+   "id": "c9c990e8-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Thinking",
+   "description": "Thinking While Standing",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "React_Cheering.fbx",
+   "id": "c9c66dfd-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Cheering",
+   "description": "Male Cheering With Two Fists Pump",
+   "inplace": false,
+   "params": [
+    [
+     "Energy Level",
+     0
+    ],
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "React_FistPump.fbx",
+   "id": "c9c91378-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Fist Pump",
+   "description": "Pumping A Fist",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "React_Victory.fbx",
+   "id": "c9cb3a87-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Victory",
+   "description": "Victory From A Boxing Win",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "React_Clapping.fbx",
+   "id": "c9c60ef2-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Clapping",
+   "description": "Clap While Standing",
+   "inplace": false,
+   "params": [
+    [
+     "Intensity",
+     0
+    ],
+    [
+     "Height",
+     0
+    ],
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "React_Excited.fbx",
+   "id": "c9c9941c-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Excited",
+   "description": "Super Excited",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "React_Disappointed.fbx",
+   "id": "c9c6f852-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Disappointed",
+   "description": "Disappointed \"Awe-Shucks\"",
+   "inplace": false,
+   "params": [
+    [
+     "Disappointment",
+     0
+    ],
+    [
+     "Arms",
+     0
+    ],
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "React_Defeated.fbx",
+   "id": "c9c70794-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Defeated",
+   "description": "Showing Frustration After A Loss",
+   "inplace": false,
+   "params": [
+    [
+     "Energy",
+     0
+    ],
+    [
+     "Arm Height",
+     0
+    ],
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "React_HeadShake.fbx",
+   "id": "c9c90b3c-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Shaking Head No",
+   "description": "Shaking Head No Dismissively",
+   "inplace": false,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  },
+  {
+   "file": "Walk.fbx",
+   "id": "c9c99ece-b96c-11e4-a802-0aaa78deedf9",
+   "name": "Walking",
+   "description": "Walking With A Swagger",
+   "inplace": true,
+   "params": [
+    [
+     "Overdrive",
+     0
+    ]
+   ],
+   "trim": [
+    0,
+    100
+   ]
+  }
+ ],
+ "fail": [],
+ "preferences": {
+  "format": "fbx7_2019",
+  "skin": false,
+  "fps": 30,
+  "reducekf": 0
+ }
+}

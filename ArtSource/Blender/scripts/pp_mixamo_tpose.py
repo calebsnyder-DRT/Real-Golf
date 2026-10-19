@@ -1,11 +1,13 @@
-"""Re-exports Mixamo clips with the T-pose as their default pose (headless).
+"""Re-exports Mixamo clips with the T-pose as their default pose, plus one static reference skeleton (headless).
 
     Blender -b --factory-startup --python pp_mixamo_tpose.py -- [src_dir] [dst_dir]
 
-Mixamo's "Without Skin" FBX files carry the first animation frame as the joints' default pose, and Unity builds a
-clip's Humanoid avatar from that default pose, so a clip starting at address would treat the address as its T-pose
-and lose the spine bend and arm reach when retargeted. Blender reads the real T-pose rest from the file; writing the
-clip back out with the rest as the default pose and the animation as its take gives Unity a true T-pose reference.
+Mixamo's "Without Skin" FBX files carry the first animation frame as the joints' default pose. Blender reads the real
+T-pose rest from the file and writes each clip back out with the rest as the default pose and the animation as its take.
+That alone is not enough for Unity: it poses an imported model at the first frame of its take before building the
+Humanoid avatar, so a clip starting at address treats the address (knees bent ~30 degrees, hips low) as its T-pose and
+retargeting straightens the legs. YBot_Reference.fbx is the same skeleton at rest with no take; ProShopImportRules builds
+the one Y Bot avatar from it and every clip copies that avatar.
 Defaults: ArtSource/Mixamo/YBot -> ArtSource/Mixamo/YBot_TPose. Files whose output is newer are skipped.
 """
 import os
@@ -16,6 +18,7 @@ from mathutils import Matrix
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
+REFERENCE = "YBot_Reference.fbx"
 
 
 def convert(src, dst):
@@ -47,14 +50,36 @@ def convert(src, dst):
     print(f"[tpose] {os.path.basename(src)} frames {start}-{end} -> {dst}")
 
 
+def reference(src, dst):
+    """The skeleton at its T-pose rest with no animation at all."""
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    bpy.ops.import_scene.fbx(filepath=src, automatic_bone_orientation=False)
+    arm = next(o for o in bpy.context.scene.objects if o.type == "ARMATURE")
+    arm.animation_data_clear()
+    for a in list(bpy.data.actions):
+        bpy.data.actions.remove(a)
+    for pb in arm.pose.bones:
+        pb.matrix_basis = Matrix.Identity(4)
+    bpy.ops.object.select_all(action="DESELECT")
+    arm.select_set(True)
+    bpy.context.view_layer.objects.active = arm
+    bpy.ops.export_scene.fbx(filepath=dst, use_selection=True, object_types={"ARMATURE"}, apply_unit_scale=True,
+                             apply_scale_options="FBX_SCALE_ALL", axis_forward="-Z", axis_up="Y",
+                             use_armature_deform_only=False, add_leaf_bones=False, primary_bone_axis="Y",
+                             secondary_bone_axis="X", bake_anim=False, path_mode="STRIP")
+    print(f"[tpose] reference skeleton from {os.path.basename(src)} -> {dst}")
+
+
 def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     src_dir = argv[0] if argv else os.path.join(ROOT, "ArtSource", "Mixamo", "YBot")
     dst_dir = argv[1] if len(argv) > 1 else os.path.join(ROOT, "ArtSource", "Mixamo", "YBot_TPose")
     os.makedirs(dst_dir, exist_ok=True)
-    for f in sorted(os.listdir(src_dir)):
-        if not f.lower().endswith(".fbx"):
-            continue
+    clips = sorted(f for f in os.listdir(src_dir) if f.lower().endswith(".fbx"))
+    ref = os.path.join(dst_dir, REFERENCE)
+    if clips and not os.path.exists(ref):
+        reference(os.path.join(src_dir, clips[0]), ref)
+    for f in clips:
         src, dst = os.path.join(src_dir, f), os.path.join(dst_dir, f)
         if os.path.exists(dst) and os.path.getmtime(dst) >= os.path.getmtime(src):
             continue

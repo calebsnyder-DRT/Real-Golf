@@ -1,0 +1,406 @@
+{
+ "generator": "ArtSource/Blender/scripts/pp_nature.py",
+ "lod_screen_relative_heights": [
+  0.25,
+  0.1,
+  0.03,
+  0.004
+ ],
+ "materials": {
+  "PB_Leaf_Cypress": "Leaf_Cypress.png",
+  "PB_Leaf_Pine": "Leaf_Pine.png",
+  "PB_Leaf_Oak": "Leaf_Oak.png",
+  "PB_Bark_Tree": "Bark_Tree.png",
+  "PB_Impostor_Trees": "Impostor_Trees.png"
+ },
+ "vertex_color": "R occlusion, G tip tint, B wind sway weight, A leaf flutter weight",
+ "budgets_tris": {
+  "cypress": [
+   10000,
+   4000,
+   1500,
+   6
+  ],
+  "pine": [
+   10000,
+   4000,
+   1500,
+   6
+  ],
+  "oak": [
+   10000,
+   4000,
+   1500,
+   6
+  ]
+ },
+ "trees": {
+  "Cypress_A": {
+   "species": "cypress",
+   "height": 10.0,
+   "tris": [
+    4816,
+    2264,
+    808,
+    6
+   ],
+   "bark_winding_ok": 1.0,
+   "bounds_blender": [
+    [
+     -4.144,
+     -7.198,
+     -0.8
+    ],
+    [
+     9.266,
+     8.342,
+     10.535
+    ]
+   ],
+   "impostor_rects": [
+    [
+     0.0,
+     0.0,
+     0.25,
+     0.25
+    ],
+    [
+     0.25,
+     0.0,
+     0.5,
+     0.25
+    ],
+    [
+     0.5,
+     0.75,
+     0.625,
+     0.875
+    ]
+   ],
+   "over_budget": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "file": "Assets/_Game/Resources/Models/Course/Cypress/Cypress_A.fbx"
+  },
+  "Cypress_B": {
+   "species": "cypress",
+   "height": 10.0,
+   "tris": [
+    3390,
+    1658,
+    592,
+    6
+   ],
+   "bark_winding_ok": 1.0,
+   "bounds_blender": [
+    [
+     -6.976,
+     -6.532,
+     -0.8
+    ],
+    [
+     9.97,
+     5.809,
+     10.751
+    ]
+   ],
+   "impostor_rects": [
+    [
+     0.5,
+     0.0,
+     0.75,
+     0.25
+    ],
+    [
+     0.75,
+     0.0,
+     1.0,
+     0.25
+    ],
+    [
+     0.625,
+     0.75,
+     0.75,
+     0.875
+    ]
+   ],
+   "over_budget": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "file": "Assets/_Game/Resources/Models/Course/Cypress/Cypress_B.fbx"
+  },
+  "Cypress_C": {
+   "species": "cypress",
+   "height": 10.0,
+   "tris": [
+    4754,
+    2272,
+    794,
+    6
+   ],
+   "bark_winding_ok": 1.0,
+   "bounds_blender": [
+    [
+     -4.165,
+     -8.475,
+     -0.8
+    ],
+    [
+     8.624,
+     7.108,
+     10.055
+    ]
+   ],
+   "impostor_rects": [
+    [
+     0.0,
+     0.25,
+     0.25,
+     0.5
+    ],
+    [
+     0.25,
+     0.25,
+     0.5,
+     0.5
+    ],
+    [
+     0.5,
+     0.875,
+     0.625,
+     1.0
+    ]
+   ],
+   "over_budget": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "file": "Assets/_Game/Resources/Models/Course/Cypress/Cypress_C.fbx"
+  },
+  "Pine_A": {
+   "species": "pine",
+   "height": 14.0,
+   "tris": [
+    7572,
+    3936,
+    1602,
+    6
+   ],
+   "bark_winding_ok": 1.0,
+   "bounds_blender": [
+    [
+     -5.153,
+     -5.39,
+     -0.614
+    ],
+    [
+     5.337,
+     6.106,
+     15.372
+    ]
+   ],
+   "impostor_rects": [
+    [
+     0.5,
+     0.25,
+     0.75,
+     0.5
+    ],
+    [
+     0.75,
+     0.25,
+     1.0,
+     0.5
+    ],
+    [
+     0.625,
+     0.875,
+     0.75,
+     1.0
+    ]
+   ],
+   "over_budget": [
+    false,
+    false,
+    true,
+    false
+   ],
+   "file": "Assets/_Game/Resources/Models/Course/Vegetation/Pine_A.fbx"
+  },
+  "Pine_B": {
+   "species": "pine",
+   "height": 15.5,
+   "tris": [
+    7496,
+    3702,
+    1522,
+    6
+   ],
+   "bark_winding_ok": 1.0,
+   "bounds_blender": [
+    [
+     -5.607,
+     -5.894,
+     -0.691
+    ],
+    [
+     5.185,
+     5.948,
+     16.955
+    ]
+   ],
+   "impostor_rects": [
+    [
+     0.0,
+     0.5,
+     0.25,
+     0.75
+    ],
+    [
+     0.25,
+     0.5,
+     0.5,
+     0.75
+    ],
+    [
+     0.75,
+     0.75,
+     0.875,
+     0.875
+    ]
+   ],
+   "over_budget": [
+    false,
+    false,
+    true,
+    false
+   ],
+   "file": "Assets/_Game/Resources/Models/Course/Vegetation/Pine_B.fbx"
+  },
+  "Oak_A": {
+   "species": "oak",
+   "height": 8.0,
+   "tris": [
+    9270,
+    3180,
+    1410,
+    6
+   ],
+   "bark_winding_ok": 1.0,
+   "bounds_blender": [
+    [
+     -6.142,
+     -6.101,
+     -0.5
+    ],
+    [
+     6.296,
+     6.193,
+     8.756
+    ]
+   ],
+   "impostor_rects": [
+    [
+     0.5,
+     0.5,
+     0.75,
+     0.75
+    ],
+    [
+     0.75,
+     0.5,
+     1.0,
+     0.75
+    ],
+    [
+     0.875,
+     0.75,
+     1.0,
+     0.875
+    ]
+   ],
+   "over_budget": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "file": "Assets/_Game/Resources/Models/Course/Vegetation/Oak_A.fbx"
+  },
+  "Oak_B": {
+   "species": "oak",
+   "height": 9.2,
+   "tris": [
+    10722,
+    3704,
+    1628,
+    6
+   ],
+   "bark_winding_ok": 1.0,
+   "bounds_blender": [
+    [
+     -7.634,
+     -6.724,
+     -0.575
+    ],
+    [
+     7.358,
+     7.508,
+     10.311
+    ]
+   ],
+   "impostor_rects": [
+    [
+     0.0,
+     0.75,
+     0.25,
+     1.0
+    ],
+    [
+     0.25,
+     0.75,
+     0.5,
+     1.0
+    ],
+    [
+     0.75,
+     0.875,
+     0.875,
+     1.0
+    ]
+   ],
+   "over_budget": [
+    true,
+    false,
+    true,
+    false
+   ],
+   "file": "Assets/_Game/Resources/Models/Course/Vegetation/Oak_B.fbx"
+  }
+ },
+ "previews": [
+  "ArtSource/Review/Nature/Cypress_A.png",
+  "ArtSource/Review/Nature/Cypress_A_lods.png",
+  "ArtSource/Review/Nature/Cypress_B.png",
+  "ArtSource/Review/Nature/Cypress_B_lods.png",
+  "ArtSource/Review/Nature/Cypress_C.png",
+  "ArtSource/Review/Nature/Cypress_C_lods.png",
+  "ArtSource/Review/Nature/Pine_A.png",
+  "ArtSource/Review/Nature/Pine_A_lods.png",
+  "ArtSource/Review/Nature/Pine_B.png",
+  "ArtSource/Review/Nature/Pine_B_lods.png",
+  "ArtSource/Review/Nature/Oak_A.png",
+  "ArtSource/Review/Nature/Oak_A_lods.png",
+  "ArtSource/Review/Nature/Oak_B.png",
+  "ArtSource/Review/Nature/Oak_B_lods.png",
+  "ArtSource/Review/Nature/trees_lineup.png"
+ ]
+}

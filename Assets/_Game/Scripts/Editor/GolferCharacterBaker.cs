@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using Puttshack.Content;
@@ -14,13 +13,16 @@ using Object = UnityEngine.Object;
 namespace Puttshack.EditorTools
 {
     /// <summary>
-    /// Bakes the stylized golfers (ArtSource/Blender/scripts/pp_stylized_build.py, pp_stylized_rig.py) and their Mixamo
-    /// clips: copies the staged exports from ArtSource/Exports/Characters and the clips the controller uses from
-    /// ArtSource/Mixamo/YBot_TPose into Art/Characters, builds the skin / face / garment materials on Puttshack/Character/Lit,
-    /// remaps the FBX materials onto them, bakes a tinted variant of every garment base for each catalogue colour, runs the
-    /// Pro Shop bake (which rebuilds Caleb_Golfer.prefab), points the shared controller's states at the Humanoid clips, then
-    /// adds Maya's body, the per-club seats in the lead hand and the <see cref="GolferMotion"/> table to that prefab. Each
-    /// club is seated once at address (sole on the ground) and rides the hand from there; impact times are per clip.
+    /// Bakes the piece-built golfers (ArtSource/Blender/scripts/pp_golfer_build.py, pp_golfer_bake.py: face, eyes, brows,
+    /// lashes, hair, skin and every garment as its own mesh, all skinned to one shared rig) and their Mixamo clips: copies the
+    /// staged exports from ArtSource/Exports/Characters, and the clips the controller uses plus the Y Bot reference skeleton
+    /// from ArtSource/Mixamo/YBot_TPose, into Art/Characters; builds the skin / eye / hair / cloth materials on the
+    /// Puttshack/Character shaders, remaps the FBX materials onto them, bakes a tinted variant of every garment base for each
+    /// catalogue colour, runs the Pro Shop bake (which rebuilds Caleb_Golfer.prefab), points the shared controller's states
+    /// at the Humanoid clips, then adds Maya's body, the per-club seats in the lead hand, the right-hand grip IK and the
+    /// <see cref="GolferMotion"/> table to that prefab. Each club is seated at address (sole on the ground) and rides the lead
+    /// hand; impact is where the clubhead, at speed, passes the ball it addressed, the lead hand is drawn back onto its
+    /// address pose there (<see cref="GolferHandIK"/>) and the ball is placed where the face then meets it.
     /// </summary>
     public static class GolferCharacterBaker
     {
@@ -35,6 +37,8 @@ namespace Puttshack.EditorTools
         public const string SeatPrefix = "ClubGrip_";
         /// <summary>Visual ball radius on course (BallView draws the ball larger than regulation so it reads on screen).</summary>
         public const float BallRadius = 0.032f;
+        /// <summary>How far down the shaft the right palm closes, below the centre of the left hand's grip (metres).</summary>
+        public const float TrailGripGap = 0.085f;
 
         public static readonly string[] Names = { "Caleb", "Maya" };
         public static readonly string[] SlotParts =
@@ -44,40 +48,49 @@ namespace Puttshack.EditorTools
             "Club_Driver", "Club_Iron", "Club_Wedge", "Club_Putter",
         };
 
-        /// <summary>Controller state to Mixamo clip (ArtSource/Mixamo/YBot_TPose file name).</summary>
+        private sealed class Look
+        {
+            public Color Hair;
+            public Color HairSpec;
+            public Color Lash;
+            public float HairSmoothness;
+        }
+
+        // Tints match the Blender preview materials (pp_golfer.py CHARS hair_tint), converted from linear.
+        private static readonly Dictionary<string, Look> Looks = new Dictionary<string, Look>
+        {
+            ["Caleb"] = new Look { Hair = new Color(0.23f, 0.16f, 0.11f).gamma, HairSpec = new Color(0.62f, 0.48f, 0.36f), Lash = new Color(0.05f, 0.04f, 0.035f).gamma, HairSmoothness = 0.3f },
+            ["Maya"] = new Look { Hair = new Color(0.06f, 0.045f, 0.04f).gamma, HairSpec = new Color(0.42f, 0.34f, 0.3f), Lash = new Color(0.03f, 0.025f, 0.022f).gamma, HairSmoothness = 0.38f },
+        };
+
+        /// <summary>
+        /// Controller state to Mixamo clip (ArtSource/Mixamo/YBot_TPose file name). The swings are the takes whose lead hand
+        /// comes back nearest its address pose at impact (Golf_Drive_Swing's hands pass 11 cm high and Golf_Drive_Medium's
+        /// club 70 cm over the ball), so the strike only has to correct a few centimetres.
+        /// </summary>
         public static readonly (string State, string Clip)[] StateClips =
         {
             ("Idle", "Idle_Standard"),
-            ("Swing_Driver", "Golf_Drive_Swing"),
-            ("Swing_Iron", "Golf_Drive_Medium"),
-            ("Putt", "Golf_Putt_Swing"),
+            ("Swing_Driver", "Golf_Drive_Standard"),
+            ("Swing_Iron", "Golf_Drive_Standard"),
+            ("Swing_Wedge", "Golf_Chip_Swing2"),
+            ("Putt", "Golf_Putt_Medium"),
             ("React_Good", "React_FistPump"),
             ("React_Miss", "React_Disappointed"),
             ("Celebrate", "React_Victory"),
         };
 
-        /// <summary>
-        /// Seconds from the start of each swing clip to impact: the lead hand's low point on the downswing, read off the
-        /// Y Bot clips (ArtSource/Mixamo/YBot_TPose).
-        /// </summary>
-        public static readonly Dictionary<string, float> ImpactTimes = new Dictionary<string, float>
-        {
-            { "Golf_Drive_Swing", 1.18f },
-            { "Golf_Drive_Medium", 1.20f },
-            { "Golf_Putt_Swing", 1.30f },
-        };
-
         /// <summary>Address states hold the first frame of their swing, so the swing always starts from the stance.</summary>
         public static readonly (string State, string Swing)[] AddressStates =
         {
-            ("Address_Driver", "Swing_Driver"), ("Address_Iron", "Swing_Iron"), ("Putt_Address", "Putt"),
+            ("Address_Driver", "Swing_Driver"), ("Address_Iron", "Swing_Iron"), ("Address_Wedge", "Swing_Wedge"), ("Putt_Address", "Putt"),
         };
 
         private static readonly (string Model, string Address, string Swing)[] ClubStates =
         {
             ("Driver", "Address_Driver", "Swing_Driver"),
             ("Iron", "Address_Iron", "Swing_Iron"),
-            ("Wedge", "Address_Iron", "Swing_Iron"),
+            ("Wedge", "Address_Wedge", "Swing_Wedge"),
             ("Putter", "Putt_Address", "Putt"),
         };
 
@@ -144,20 +157,26 @@ namespace Puttshack.EditorTools
 
         // ---------------------------------------------------------------- Sync
 
+        /// <summary>Per-character exports of pp_golfer_build.py / pp_golfer_bake.py; every Shared/Textures PNG is staged too.</summary>
         private static readonly string[] StagedSuffixes =
         {
-            "_Modular.fbx", "_Head_Albedo.png", "_Head_Mask.png", "_Skin_Mask.png", "_Top_Mask.png", "_Bottom_Mask.png", "_skin.txt",
+            "_Modular.fbx", "_Face_Albedo.png", "_Face_Mask.png", "_Face_Normal.png", "_Skin_Albedo.png", "_Skin_Mask.png",
+            "_Skin_Normal.png", "_Eye_Albedo.png", "_Eye_Mask.png", "_Hair.png", "_Hair_Normal.png", "_Brow.png", "_Lash.png",
         };
 
-        private static bool IsStagedCharacterFile(string file)
+        /// <summary>Whether a path relative to the staging (or character) folder is one of the golfer exports.</summary>
+        private static bool IsStagedCharacterFile(string rel)
         {
-            string name = Path.GetFileName(file);
-            return Names.Any(n => StagedSuffixes.Any(s => name == n + s));
+            string[] parts = rel.Replace('\\', '/').Split('/');
+            string file = parts[parts.Length - 1];
+            if (parts.Length == 3 && parts[0] == "Shared" && parts[1] == "Textures") return file.EndsWith(".png", StringComparison.Ordinal);
+            return parts.Length >= 2 && Names.Contains(parts[0]) && StagedSuffixes.Any(s => file == parts[0] + s);
         }
 
         /// <summary>
-        /// Copies changed character exports (FBX, head albedo, AO masks, skin colour) and the Mixamo clips the controller
-        /// uses into the project, and drops imported clips no state uses any more; returns the number of files changed.
+        /// Copies changed character exports (FBX, textures) and the Mixamo clips the controller uses (after the reference
+        /// skeleton they copy their avatar from) into the project, drops textures and clips nothing uses any more, and
+        /// reimports clips imported with older settings; returns the number of files changed.
         /// </summary>
         public static int SyncStaged()
         {
@@ -168,15 +187,32 @@ namespace Puttshack.EditorTools
             {
                 foreach (string file in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
                 {
-                    if (!IsStagedCharacterFile(file)) continue;
                     string rel = file.Substring(source.Length + 1).Replace('\\', '/');
+                    if (!IsStagedCharacterFile(rel)) continue;
                     if (Copy(file, Path.Combine(project, CharacterDir, rel))) copied++;
+                }
+            }
+            foreach (string folder in Names.Select(n => $"{CharacterDir}/{n}/Textures").Append($"{CharacterDir}/Shared/Textures"))
+            {
+                if (!AssetDatabase.IsValidFolder(folder)) continue;
+                foreach (string guid in AssetDatabase.FindAssets("", new[] { folder }))
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                    if (AssetDatabase.IsValidFolder(path) || IsStagedCharacterFile(path.Substring(CharacterDir.Length + 1))) continue;
+                    AssetDatabase.DeleteAsset(path);
+                    copied++;
                 }
             }
 
             string clipSource = Path.Combine(project, ClipStagingDir);
             string clipTarget = Path.Combine(project, ProShopImportRules.AnimationRoot);
-            var used = new HashSet<string>();
+            string reference = Path.Combine(clipSource, ProShopImportRules.MixamoReferenceFile);
+            if (File.Exists(reference) && Copy(reference, Path.Combine(clipTarget, ProShopImportRules.MixamoReferenceFile)))
+            {
+                AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+                copied++;
+            }
+            var used = new HashSet<string> { Path.GetFileNameWithoutExtension(ProShopImportRules.MixamoReferenceFile) };
             foreach (var (_, clip) in StateClips)
             {
                 used.Add(clip);
@@ -232,16 +268,6 @@ namespace Puttshack.EditorTools
 
         private static Texture2D Tex(string rel) => AssetDatabase.LoadAssetAtPath<Texture2D>($"{CharacterDir}/{rel}.png");
 
-        /// <summary>Median face skin from the head projection (sRGB), so the body matches the painted face.</summary>
-        private static Color SkinColor(string name)
-        {
-            var text = AssetDatabase.LoadAssetAtPath<TextAsset>($"{CharacterDir}/{name}/Textures/{name}_skin.txt");
-            float[] rgb = text != null
-                ? text.text.Split((char[])null, StringSplitOptions.RemoveEmptyEntries).Select(s => float.Parse(s, CultureInfo.InvariantCulture)).ToArray()
-                : new float[0];
-            return rgb.Length >= 3 ? new Color(rgb[0], rgb[1], rgb[2]) : new Color(0.75f, 0.55f, 0.42f);
-        }
-
         private static Material Mat(string name, Shader shader)
         {
             string path = $"{MaterialDir}/{name}.mat";
@@ -254,6 +280,14 @@ namespace Puttshack.EditorTools
             m.shader = shader;
             m.shaderKeywords = new string[0];
             m.enableInstancing = true;
+            // Texture slots saved under an earlier shader would keep retired textures referenced.
+            var so = new SerializedObject(m);
+            SerializedProperty textures = so.FindProperty("m_SavedProperties.m_TexEnvs");
+            for (int i = textures.arraySize - 1; i >= 0; i--)
+            {
+                if (shader.FindPropertyIndex(textures.GetArrayElementAtIndex(i).FindPropertyRelative("first").stringValue) < 0) textures.DeleteArrayElementAtIndex(i);
+            }
+            so.ApplyModifiedPropertiesWithoutUndo();
             return m;
         }
 
@@ -269,7 +303,7 @@ namespace Puttshack.EditorTools
             m.SetFloat("_Metallic", 0f);
             m.SetFloat("_BumpScale", 1f);
             m.SetFloat("_OcclusionStrength", 1f);
-            m.SetFloat("_CavityStrength", 0f);
+            m.SetFloat("_CavityStrength", 1f);
             m.SetTexture("_BaseMap", null);
             m.SetTexture("_BumpMap", null);
             m.SetTexture("_MaskMap", null);
@@ -279,24 +313,24 @@ namespace Puttshack.EditorTools
             return m;
         }
 
-        /// <summary>Soft stylized skin: painted albedo, gentle wrap and a little red scatter, no pores.</summary>
-        private static void Skin(Material m)
+        private static void Detail(Material m, float strength, float tiling)
         {
-            m.SetFloat("_Smoothness", 0.42f);
-            m.SetColor("_ScatterColor", new Color(1f, 0.55f, 0.4f));
-            m.SetFloat("_Wrap", 0.4f);
-            m.SetFloat("_Transmission", 0.4f);
-            m.SetColor("_TransmissionColor", new Color(1f, 0.38f, 0.24f));
-            m.SetFloat("_SecondLobeSmoothness", 0.3f);
-            m.SetFloat("_SecondLobeMix", 0.1f);
+            m.SetFloat("_UseDetail", 1f);
+            m.EnableKeyword("_DETAIL_NORMAL");
+            m.SetTexture("_DetailNormalMap", Tex("Shared/Textures/Skin_Pores_Normal"));
+            m.SetFloat("_DetailNormalScale", strength);
+            m.SetFloat("_DetailTiling", tiling);
         }
 
-        private static void Cloth(Material m, float smoothness, float sheen, float sheenRoughness)
+        /// <summary>Textured garment: white albedo with its own weave, tinted per catalogue colour by BakeVariants.</summary>
+        private static void Cloth(Material m, string tex, float smoothness, float sheen, float sheenRoughness)
         {
+            m.SetTexture("_BaseMap", Tex($"Shared/Textures/{tex}_Albedo"));
+            m.SetTexture("_BumpMap", Tex($"Shared/Textures/{tex}_Normal"));
             m.SetFloat("_Smoothness", smoothness);
             m.SetColor("_SheenColor", new Color(sheen, sheen, sheen, 1f));
             m.SetFloat("_SheenRoughness", sheenRoughness);
-            m.SetFloat("_Wrap", 0.3f);
+            m.SetFloat("_Wrap", 0.35f);
         }
 
         private static Dictionary<string, Material> BakeMaterials()
@@ -310,59 +344,97 @@ namespace Puttshack.EditorTools
 
             foreach (string name in Names)
             {
-                // The head is one painted scan: face, hair and cap share its albedo and AO.
-                Texture2D head = Tex($"{name}/Textures/{name}_Head_Albedo");
-                Texture2D headAo = Tex($"{name}/Textures/{name}_Head_Mask");
-                Material face = Lit($"Mat_Face_{name}", "Skin");
-                face.SetTexture("_BaseMap", head);
-                face.SetTexture("_MaskMap", headAo);
-                Skin(face);
-                Keep(face);
-                Material hair = Lit($"Mat_Hair_{name}", "Standard");
-                hair.SetTexture("_BaseMap", head);
-                hair.SetTexture("_MaskMap", headAo);
-                hair.SetFloat("_Smoothness", 0.32f);
-                Keep(hair);
-                Material cap = Lit($"Mat_Cap_{name}", "Cloth");
-                cap.SetTexture("_BaseMap", head);
-                cap.SetTexture("_MaskMap", headAo);
-                Cloth(cap, 0.22f, 0.18f, 0.5f);
-                Keep(cap);
-
-                Material skin = Lit($"Mat_Skin_{name}", "Skin");
-                skin.SetColor("_BaseColor", SkinColor(name));
-                skin.SetTexture("_MaskMap", Tex($"{name}/Textures/{name}_Skin_Mask"));
-                Skin(skin);
-                Keep(skin);
-
-                // Garment bases: white with the body's own AO, tinted per catalogue colour by BakeVariants.
-                foreach ((string role, float smooth) in new[] { ("Top", 0.26f), ("Bottom", 0.2f) })
+                Look look = Looks[name];
+                // Face and body skin: painted albedo, baked AO / smoothness / thickness / cavity mask, crease normals, pores.
+                foreach (string part in new[] { "Skin", "Face" })
                 {
-                    Material m = Lit($"Mat_{role}_{name}", "Cloth");
-                    m.SetTexture("_MaskMap", Tex($"{name}/Textures/{name}_{role}_Mask"));
-                    Cloth(m, smooth, 0.16f, 0.6f);
+                    Material skin = Lit($"Mat_{part}_{name}", "Skin");
+                    skin.SetTexture("_BaseMap", Tex($"{name}/Textures/{name}_{part}_Albedo"));
+                    skin.SetTexture("_BumpMap", Tex($"{name}/Textures/{name}_{part}_Normal"));
+                    skin.SetTexture("_MaskMap", Tex($"{name}/Textures/{name}_{part}_Mask"));
+                    skin.SetFloat("_Smoothness", part == "Face" ? 0.72f : 0.8f);
+                    skin.SetFloat("_BumpScale", part == "Face" ? 0.8f : 1f);
+                    skin.SetColor("_ScatterColor", new Color(1f, 0.45f, 0.3f));
+                    skin.SetFloat("_Wrap", 0.5f);
+                    skin.SetFloat("_Transmission", 0.8f);
+                    skin.SetColor("_TransmissionColor", new Color(1f, 0.34f, 0.2f));
+                    skin.SetFloat("_SecondLobeSmoothness", 0.4f);
+                    skin.SetFloat("_SecondLobeMix", 0.1f);
+                    skin.SetFloat("_CavityStrength", 0.8f);
+                    Detail(skin, part == "Face" ? 0.3f : 0.4f, part == "Face" ? 40f : 28f);
+                    Keep(skin);
+                }
+
+                Material eye = Lit($"Mat_Eye_{name}", "Eye");
+                eye.SetTexture("_BaseMap", Tex($"{name}/Textures/{name}_Eye_Albedo"));
+                eye.SetTexture("_MaskMap", Tex($"{name}/Textures/{name}_Eye_Mask"));
+                eye.SetFloat("_Smoothness", 0.4f);
+                eye.SetColor("_BaseColor", new Color(0.9f, 0.88f, 0.86f));
+                Keep(eye);
+
+                Shader hair = Shader.Find("Puttshack/Character/Hair");
+                foreach ((string part, Color tint, float cutoff) in new[] { ("Hair", look.Hair, 0.5f), ("Brow", look.Hair, 0.4f), ("Lash", look.Lash, 0.5f) })
+                {
+                    Material m = Mat($"Mat_{part}_{name}", hair);
+                    m.SetTexture("_BaseMap", Tex($"{name}/Textures/{name}_{part}"));
+                    m.SetTexture("_BumpMap", part == "Hair" ? Tex($"{name}/Textures/{name}_Hair_Normal") : null);
+                    m.SetColor("_BaseColor", tint);
+                    m.SetFloat("_Cutoff", cutoff);
+                    m.SetFloat("_FringeCutoff", part == "Hair" ? 0.06f : 0.04f);
+                    m.SetFloat("_Smoothness", look.HairSmoothness);
+                    m.SetColor("_SpecColorA", part == "Hair" ? new Color(0.2f, 0.19f, 0.18f) : new Color(0.06f, 0.06f, 0.06f));
+                    m.SetColor("_SpecColorB", part == "Hair" ? look.HairSpec * 0.6f : new Color(0.04f, 0.04f, 0.04f));
+                    m.SetFloat("_ExponentA", 280f);
+                    m.SetFloat("_ExponentB", 60f);
+                    m.SetFloat("_Cull", (float)CullMode.Off);
                     Keep(m);
                 }
             }
 
-            Material collar = Lit("Mat_Collar_Polo", "Cloth");
-            Cloth(collar, 0.26f, 0.16f, 0.6f);
-            Keep(collar);
-            foreach (string sock in new[] { "Mat_Socks_Knit", "Mat_Socks_Band" })
+            Material cornea = Mat("Mat_Cornea", Shader.Find("Puttshack/Character/Cornea"));
+            cornea.SetFloat("_Smoothness", 0.96f);
+            cornea.SetFloat("_Catchlight", 1.2f);
+            Keep(cornea);
+
+            // Garments are shared by both bodies (MakeHuman clothes keep their UVs when fitted).
+            foreach ((string garment, string tex, float smooth, float sheen, float sheenRough) in new[]
             {
-                Material m = Lit(sock, "Cloth");
-                Cloth(m, 0.12f, 0.22f, 0.8f);
-                Keep(m);
-            }
-            foreach ((string flat, float smooth, float metal) in new[]
-            {
-                ("Mat_Logo_Polo", 0.3f, 0f), ("Mat_Logo_Tee", 0.3f, 0f), ("Mat_Shoes_Golf", 0.5f, 0f), ("Mat_ShoeAccent_Golf", 0.42f, 0f),
-                ("Mat_Sole_Golf", 0.25f, 0f), ("Mat_Belt_Leather", 0.45f, 0f), ("Mat_Buckle_Metal", 0.78f, 0.9f),
+                ("Mat_Top_Polo", "Polo", 0.3f, 0.22f, 0.4f), ("Mat_Collar_Polo", "Polo", 0.3f, 0.22f, 0.4f), ("Mat_Top_Tee", "Tee", 0.2f, 0.14f, 0.65f),
+                ("Mat_Bottom_Chinos", "Pants", 0.22f, 0.12f, 0.7f), ("Mat_Bottom_Shorts", "Pants", 0.22f, 0.12f, 0.7f),
+                ("Mat_Socks_Knit", "Socks", 0.1f, 0.25f, 0.8f), ("Mat_Socks_Band", "Socks", 0.1f, 0.25f, 0.8f),
             })
             {
-                Material m = Lit(flat, "Standard");
+                Material m = Lit(garment, "Cloth");
+                Cloth(m, tex, smooth, sheen, sheenRough);
+                Keep(m);
+            }
+            foreach ((string shoe, float smooth) in new[] { ("Mat_Shoes_Golf", 0.58f), ("Mat_ShoeAccent_Golf", 0.46f), ("Mat_Sole_Golf", 0.28f) })
+            {
+                Material m = Lit(shoe, "Standard");
+                m.SetTexture("_BaseMap", Tex("Shared/Textures/Shoes_Albedo"));
+                m.SetTexture("_BumpMap", Tex("Shared/Textures/Shoes_Normal"));
                 m.SetFloat("_Smoothness", smooth);
-                m.SetFloat("_Metallic", metal);
+                Keep(m);
+            }
+            Material belt = Lit("Mat_Belt_Leather", "Standard");
+            belt.SetTexture("_BaseMap", Tex("Shared/Textures/Belt_Albedo"));
+            belt.SetTexture("_BumpMap", Tex("Shared/Textures/Belt_Normal"));
+            belt.SetFloat("_Smoothness", 0.5f);
+            Keep(belt);
+            Material buckle = Lit("Mat_Buckle_Metal", "Standard");
+            buckle.SetColor("_BaseColor", new Color(0.8f, 0.8f, 0.82f));
+            buckle.SetFloat("_Metallic", 0.9f);
+            buckle.SetFloat("_Smoothness", 0.78f);
+            Keep(buckle);
+            foreach (string logo in new[] { "Mat_Logo_Polo", "Mat_Logo_Tee" })
+            {
+                Material m = Lit(logo, "Standard");
+                m.SetTexture("_BaseMap", Tex("Shared/Textures/Logo_Mask"));
+                m.SetFloat("_AlphaClip", 1f);
+                m.EnableKeyword("_ALPHATEST_ON");
+                m.SetFloat("_Cutoff", 0.5f);
+                m.SetFloat("_Smoothness", 0.35f);
+                m.renderQueue = (int)RenderQueue.AlphaTest;
                 Keep(m);
             }
 
@@ -383,7 +455,7 @@ namespace Puttshack.EditorTools
                 Keep(m);
             }
 
-            // Materials of the retired realistic golfers (eyes, hair cards, cornea) go with them.
+            // Materials of the retired stylized golfers (per-body tops and bottoms, caps) go with them.
             foreach (string guid in AssetDatabase.FindAssets("t:Material", new[] { MaterialDir }))
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
@@ -567,9 +639,15 @@ namespace Puttshack.EditorTools
                 else notes.Add($"Missing {ProShopImportRules.MayaModel}; Maya is shown as a stand-in.");
 
                 GameObjectUtility.RemoveMonoBehavioursWithMissingScript(root);
+                for (int body = 0; body < look.BodyCount; body++)
+                {
+                    Animator anim = look.AnimatorOf(body);
+                    if (anim != null && anim.GetComponent<GolferHandIK>() == null) anim.gameObject.AddComponent<GolferHandIK>();
+                }
                 GolferMotion motion = root.GetComponent<GolferMotion>() ?? root.AddComponent<GolferMotion>();
                 motion.Appearance = look;
                 motion.Clubs = MeasureClubs(look, clips, notes);
+                notes.AddRange(GolferLookBaker.Bake(look));
                 look.Apply(CosmeticCatalog.DefaultFor(0), 0);
                 PrefabUtility.SaveAsPrefabAsset(root, ProShopBaker.CalebPrefabPath, out bool ok);
                 if (!ok) throw new IOException($"Could not save {ProShopBaker.CalebPrefabPath}.");
@@ -584,9 +662,21 @@ namespace Puttshack.EditorTools
 
         private static string BodyName(int body) => Names[Mathf.Clamp(body, 0, Names.Length - 1)];
 
+        /// <summary>
+        /// Per club and body: seats the club at address, measures the right-hand grip and the lead hand's address pose for
+        /// <see cref="GolferHandIK"/>, finds impact on the clubhead's path through the swing and places the ball in front
+        /// of the face at impact with both hands on. Contact times are per body: the same clip on each skeleton meets the
+        /// ball a few milliseconds apart, which at clubhead speed is centimetres.
+        /// </summary>
         private static List<GolferMotion.ClubMotion> MeasureClubs(GolferAppearance look, Dictionary<string, AnimationClip> clips, List<string> notes)
         {
             var result = new List<GolferMotion.ClubMotion>();
+            for (int body = 0; body < look.BodyCount; body++)
+            {
+                Animator anim = look.AnimatorOf(body);
+                GolferHandIK ik = anim != null ? anim.GetComponent<GolferHandIK>() : null;
+                if (ik != null) ik.Grips.Clear();
+            }
             foreach (var spec in ClubStates)
             {
                 if (!clips.ContainsKey(spec.Address) || !clips.TryGetValue(spec.Swing, out AnimationClip swing))
@@ -594,13 +684,12 @@ namespace Puttshack.EditorTools
                     notes.Add($"No address/swing clips for the {spec.Model}.");
                     continue;
                 }
-                if (!ImpactTimes.TryGetValue(swing.name, out float contact)) notes.Add($"No impact time for {swing.name}.");
                 var m = new GolferMotion.ClubMotion
                 {
                     Model = spec.Model,
                     Address = spec.Address,
                     Swing = spec.Swing,
-                    Contact = contact,
+                    Contact = new float[look.BodyCount],
                     Ball = new Vector3[look.BodyCount],
                 };
                 for (int body = 0; body < look.BodyCount; body++)
@@ -613,9 +702,41 @@ namespace Puttshack.EditorTools
                         Animator anim = look.AnimatorOf(body);
                         PoseState(anim, spec.Address, 0f);
                         if (!SeatClub(anim, bodyRoot.transform, spec.Model, look.transform, notes)) continue;
-                        if (!ClubFace(bodyRoot.transform, spec.Model, look.transform, out Vector3 face, out float sole)) continue;
+                        if (!ClubFace(bodyRoot.transform, spec.Model, look.transform, out Vector3 addressFace, out float addressSole)) continue;
+                        var ik = anim.GetComponent<GolferHandIK>();
+                        Transform seat = ProShopBaker.FindDeep(bodyRoot.transform, SeatPrefix + spec.Model);
+                        Vector3 faceOnClub = seat.InverseTransformPoint(look.transform.TransformPoint(addressFace));
+                        TrailGrip(anim, seat, out Vector3 offset, out Quaternion rotation, out float turn);
+                        var grip = new GolferHandIK.Grip
+                        {
+                            Model = spec.Model,
+                            Seat = seat,
+                            Offset = offset,
+                            Rotation = rotation,
+                            Swing = spec.Swing,
+                        };
+
+                        float contact = Impact(anim, spec.Swing, swing.length, seat, faceOnClub, look.transform, addressFace, out float miss);
+                        if (contact > 0f)
+                        {
+                            PoseState(anim, spec.Swing, contact);
+                            Vector3 clipFace = FacePoint(seat, faceOnClub, look.transform);
+                            grip.Contact = contact;
+                            grip.LeadShift = anim.transform.InverseTransformVector(look.transform.TransformVector(addressFace - clipFace));
+                        }
+                        ik.Grips.Add(grip);
+                        if (contact <= 0f)
+                        {
+                            notes.Add($"{BodyName(body)}'s {spec.Model} never gets up to speed in {swing.name}.");
+                            continue;
+                        }
+                        PoseHeld(anim, spec.Swing, contact, spec.Model);
+                        Vector3 face = FacePoint(seat, faceOnClub, look.transform);
+                        ClubFace(bodyRoot.transform, spec.Model, look.transform, out _, out float sole);
                         m.Ball[body] = new Vector3(face.x - BallRadius, 0f, face.z);
-                        if (Mathf.Abs(sole) > 0.02f) notes.Add($"{BodyName(body)}'s {spec.Model} sole sits {sole:0.000} m off the ground at address.");
+                        m.Contact[body] = contact;
+                        float gap = GripGap(anim, ik, spec.Model, spec.Swing, swing.length);
+                        notes.Add($"{BodyName(body)} {spec.Model}: impact {contact:0.000} s, face passes {miss:0.000} m from address on the clip alone and {(face - addressFace).magnitude:0.000} m with the strike, sole {addressSole:0.000} m at address / {sole:0.000} m at impact, right hand turned {turn:0} deg onto the grip, worst grip gap {gap:0.000} m.");
                     }
                     finally
                     {
@@ -664,6 +785,92 @@ namespace Puttshack.EditorTools
             Vector3 along = middle.position - wrist.position;
             Vector3 palm = Vector3.Cross(index.position - little.position, along).normalized * (lead ? 1f : -1f);
             return wrist.position + along * 0.75f + palm * (along.magnitude * 0.25f);
+        }
+
+        /// <summary>
+        /// <see cref="PoseState"/> with the club in hand: the right hand closes on the grip of <paramref name="model"/> and the
+        /// lead hand eases onto the ball around impact (or the right hand lets go when null), as <see cref="GolferMotion"/>
+        /// holds it in play.
+        /// </summary>
+        public static void PoseHeld(Animator anim, string state, float seconds, string model)
+        {
+            PoseState(anim, state, seconds);
+            var ik = anim.GetComponent<GolferHandIK>();
+            if (ik == null) return;
+            if (model != null) ik.Hold(model);
+            else ik.Release();
+            ik.Snap();
+            ik.Apply();
+        }
+
+        /// <summary>
+        /// Right wrist pose in the seat's space that closes the right palm on the grip <see cref="TrailGripGap"/> below the
+        /// left hand: the address pose's hand, turned so its knuckle line (little to index finger) runs down the shaft.
+        /// </summary>
+        private static void TrailGrip(Animator anim, Transform seat, out Vector3 offset, out Quaternion rotation, out float turnDegrees)
+        {
+            Transform wrist = anim.GetBoneTransform(HumanBodyBones.RightHand);
+            Transform index = anim.GetBoneTransform(HumanBodyBones.RightIndexProximal);
+            Transform little = anim.GetBoneTransform(HumanBodyBones.RightLittleProximal);
+            Vector3 palm = GripPoint(anim, false);
+            Quaternion turn = Quaternion.FromToRotation(index.position - little.position, seat.up);
+            turnDegrees = Quaternion.Angle(Quaternion.identity, turn);
+            Vector3 wristPos = seat.position + seat.up * TrailGripGap - turn * (palm - wrist.position);
+            offset = seat.InverseTransformPoint(wristPos);
+            rotation = Quaternion.Inverse(seat.rotation) * (turn * wrist.rotation);
+        }
+
+        /// <summary>
+        /// Seconds into the swing at impact, on the clip alone: where the clubface passes closest to where it addressed the
+        /// ball while moving at least half its top speed (the strike, not the address hover, the takeaway or the finish),
+        /// interpolated between samples. 0 if the clubhead never moves.
+        /// </summary>
+        private static float Impact(Animator anim, string swingState, float length, Transform seat, Vector3 faceOnClub, Transform root, Vector3 addressFace, out float miss)
+        {
+            const float step = 1f / 120f;
+            int n = Mathf.FloorToInt(length / step) + 1;
+            var face = new Vector3[n];
+            for (int i = 0; i < n; i++)
+            {
+                PoseState(anim, swingState, i * step);
+                face[i] = FacePoint(seat, faceOnClub, root);
+            }
+            var speed = new float[n];
+            float top = 0f;
+            for (int i = 1; i < n - 1; i++)
+            {
+                speed[i] = (face[i + 1] - face[i - 1]).magnitude / (2f * step);
+                top = Mathf.Max(top, speed[i]);
+            }
+            miss = float.MaxValue;
+            float contact = 0f;
+            for (int i = 1; i < n - 1 && top > 0f; i++)
+            {
+                if (speed[i] < 0.5f * top) continue;
+                Vector3 path = face[i + 1] - face[i];
+                float s = path.sqrMagnitude > 1e-10f ? Mathf.Clamp01(Vector3.Dot(addressFace - face[i], path) / path.sqrMagnitude) : 0f;
+                float d = (face[i] + path * s - addressFace).magnitude;
+                if (d >= miss) continue;
+                miss = d;
+                contact = (i + s) * step;
+            }
+            return contact;
+        }
+
+        /// <summary>Largest distance over the swing between the right palm and its spot on the grip, with the hand IK on.</summary>
+        private static float GripGap(Animator anim, GolferHandIK ik, string model, string swingState, float length)
+        {
+            GolferHandIK.Grip grip = ik.Grips.Find(g => g.Model == model);
+            float worst = 0f;
+            for (float t = 0f; t <= length; t += 1f / 30f)
+            {
+                PoseHeld(anim, swingState, t, model);
+                Vector3 spot = grip.Seat.position + grip.Seat.up * TrailGripGap;
+                worst = Mathf.Max(worst, (GripPoint(anim, false) - spot).magnitude);
+            }
+            ik.Release();
+            ik.Snap();
+            return worst;
         }
 
         /// <summary>
@@ -747,6 +954,12 @@ namespace Puttshack.EditorTools
             return true;
         }
 
+        /// <summary>
+        /// Where the spot on the club that faced the ball at address is now, in golfer-root space. Tracked on the club
+        /// rather than re-measured, since the clip turns the face and its foremost point moves to the toe or heel.
+        /// </summary>
+        private static Vector3 FacePoint(Transform seat, Vector3 faceOnClub, Transform root) => root.InverseTransformPoint(seat.TransformPoint(faceOnClub));
+
         /// <summary>Front-centre of the club face and the sole height, in golfer-root space (target is root -X).</summary>
         private static bool ClubFace(Transform body, string model, Transform root, out Vector3 face, out float sole)
         {
@@ -783,13 +996,23 @@ namespace Puttshack.EditorTools
                 }
                 List<Renderer> parts = body == 0 ? look.Parts : look.Extra[body - 1].Parts;
                 var have = new HashSet<string>(parts.Where(r => r != null).Select(r => r.name));
-                foreach (string part in SlotParts.Append("Head_" + name))
+                foreach (string part in SlotParts.Concat(GolferAppearance.HeadPieces.Select(p => p + name)).Concat(Names.Select(n => GolferAppearance.HairPrefix + n)))
                 {
                     if (!have.Contains(part)) problems.Add($"{name} is missing {part}.");
                 }
+                Material skin = body == 0 ? look.Skin : look.Extra[body - 1].Skin;
+                if (!look.Tones.Any(t => t.Material != null && t.Material == skin)) problems.Add($"{name}'s skin has no baked tone (Puttshack > Characters > Bake Hair Styles).");
+                Renderer ownHair = parts.FirstOrDefault(r => r != null && r.name == GolferAppearance.HairPrefix + name);
+                if (ownHair != null && !look.Tones.Any(t => t.Material != null && t.Material == ownHair.sharedMaterial)) problems.Add($"{name}'s hair has no baked tone.");
                 Animator anim = look.AnimatorOf(body);
                 if (anim == null || anim.avatar == null || !anim.avatar.isHuman || !anim.avatar.isValid) problems.Add($"{name} has no valid Humanoid avatar.");
                 if (anim != null && anim.runtimeAnimatorController == null) problems.Add($"{name} has no controller.");
+                GolferHandIK ik = anim != null ? anim.GetComponent<GolferHandIK>() : null;
+                foreach (string model in new[] { "Driver", "Iron", "Wedge", "Putter" })
+                {
+                    if (ik == null || !ik.Grips.Any(g => g.Model == model && g.Seat != null)) problems.Add($"{name} has no right-hand grip on the {model}.");
+                    else if (!ik.Grips.Any(g => g.Model == model && g.Contact > 0f && !string.IsNullOrEmpty(g.Swing))) problems.Add($"{name} has no strike with the {model}.");
+                }
                 foreach (Renderer r in parts)
                 {
                     if (r == null) continue;
@@ -820,15 +1043,15 @@ namespace Puttshack.EditorTools
                 foreach (string model in new[] { "Driver", "Iron", "Wedge", "Putter" })
                 {
                     if (!motion.TryGet(model, out GolferMotion.ClubMotion m)) problems.Add($"No motion for the {model}.");
-                    else if (m.Contact <= 0.2f || m.Ball == null || m.Ball.Length < Names.Length)
-                        problems.Add($"{model} motion is not measured (contact {m.Contact:0.00} s).");
+                    else if (m.Contact == null || m.Contact.Length < Names.Length || m.Contact.Any(c => c <= 0.2f) || m.Ball == null || m.Ball.Length < Names.Length)
+                        problems.Add($"{model} motion is not measured (contact {string.Join(" / ", (m.Contact ?? new float[0]).Select(c => c.ToString("0.00")))} s).");
                 }
             }
             return problems;
         }
     }
 
-    /// <summary>Character textures: linear AO masks, sRGB painted albedo, 2k cap.</summary>
+    /// <summary>Character textures: normal maps, linear masks, coverage-preserving hair cards, 2k cap.</summary>
     internal sealed class GolferTextureRules : AssetPostprocessor
     {
         private void OnPreprocessTexture()
@@ -836,16 +1059,20 @@ namespace Puttshack.EditorTools
             if (!assetPath.StartsWith(GolferCharacterBaker.CharacterDir + "/", StringComparison.Ordinal) || !assetPath.Contains("/Textures/")) return;
             var importer = (TextureImporter)assetImporter;
             string file = Path.GetFileNameWithoutExtension(assetPath);
-            bool mask = file.EndsWith("_Mask", StringComparison.Ordinal);
-            importer.textureType = TextureImporterType.Default;
-            importer.sRGBTexture = !mask;
-            importer.alphaSource = mask ? TextureImporterAlphaSource.None : TextureImporterAlphaSource.FromInput;
-            importer.alphaIsTransparency = false;
+            bool normal = file.EndsWith("_Normal", StringComparison.Ordinal);
+            bool mask = file.EndsWith("_Mask", StringComparison.Ordinal) && file != "Logo_Mask";
+            bool cards = file.EndsWith("_Hair", StringComparison.Ordinal) || file.EndsWith("_Brow", StringComparison.Ordinal) || file.EndsWith("_Lash", StringComparison.Ordinal);
+            importer.textureType = normal ? TextureImporterType.NormalMap : TextureImporterType.Default;
+            importer.sRGBTexture = !normal && !mask;
+            importer.alphaSource = normal ? TextureImporterAlphaSource.None : TextureImporterAlphaSource.FromInput;
+            importer.alphaIsTransparency = cards || file == "Logo_Mask";
             importer.mipmapEnabled = true;
+            importer.mipMapsPreserveCoverage = cards;
+            importer.alphaTestReferenceValue = 0.5f;
             importer.maxTextureSize = 2048;
             importer.textureCompression = TextureImporterCompression.CompressedHQ;
             importer.anisoLevel = 4;
-            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.wrapMode = cards || file.Contains("_Eye_") ? TextureWrapMode.Clamp : TextureWrapMode.Repeat;
         }
     }
 }

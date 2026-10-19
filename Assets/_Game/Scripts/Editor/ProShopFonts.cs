@@ -17,13 +17,16 @@ namespace Puttshack.EditorTools
     {
         public const string AssetRoot = ProShopImportRules.FontRoot + "SDF/";
 
-        private const string Ascii =
+        internal const string Ascii =
             " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-        private const string Punctuation = "\u00b7\u2013\u2014\u2018\u2019\u201c\u201d\u2026\u2022\u00d7\u00b0";
+        internal const string Punctuation = "\u00b7\u2013\u2014\u2018\u2019\u201c\u201d\u2026\u2022\u00d7\u00b0";
         private const string Arrows = "\u2190\u2191\u2192\u2193";
 
         private const int SamplingSize = 84;
         private const int Padding = 9;
+
+        /// <summary>Arrow glyphs, the fallback for faces that lack them.</summary>
+        internal static TMP_FontAsset Symbols => Ensure("PuttshackDisplay-ExtraBold", Arrows, null);
 
         public static TMP_FontAsset Display => Load("PuttshackSlabCondensed-Black");
         public static TMP_FontAsset ExtraBold => Load("BarlowCondensed-ExtraBold");
@@ -42,7 +45,7 @@ namespace Puttshack.EditorTools
         public static void EnsureAll()
         {
             ProShopBaker.EnsureFolder(AssetRoot.TrimEnd('/'));
-            TMP_FontAsset symbols = Ensure("PuttshackDisplay-ExtraBold", Arrows, null);
+            TMP_FontAsset symbols = Symbols;
             var fallback = new[] { symbols };
             Ensure("PuttshackSlabCondensed-Black", Ascii + Punctuation, fallback);
             Ensure("BarlowCondensed-ExtraBold", Ascii + Punctuation, fallback);
@@ -79,20 +82,24 @@ namespace Puttshack.EditorTools
             return asset;
         }
 
-        private static TMP_FontAsset Ensure(string ttf, string characters, TMP_FontAsset[] fallbacks)
+        private static TMP_FontAsset Ensure(string ttf, string characters, TMP_FontAsset[] fallbacks) =>
+            Bake(ProShopImportRules.FontRoot + ttf + ".ttf", AssetPath(ttf), characters, fallbacks, SamplingSize, Padding);
+
+        /// <summary>Bakes <paramref name="sourceTtf"/> into a static SDF font asset at <paramref name="path"/>, or returns the existing one.</summary>
+        internal static TMP_FontAsset Bake(string sourceTtf, string path, string characters, TMP_FontAsset[] fallbacks, int samplingSize, int padding)
         {
-            string path = AssetPath(ttf);
             var existing = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(path);
             if (existing != null) return existing;
 
-            var font = AssetDatabase.LoadAssetAtPath<Font>(ProShopImportRules.FontRoot + ttf + ".ttf");
-            if (font == null) throw new FileNotFoundException("Pro Shop font source is missing", ProShopImportRules.FontRoot + ttf + ".ttf");
+            var font = AssetDatabase.LoadAssetAtPath<Font>(sourceTtf);
+            if (font == null) throw new FileNotFoundException("Font source is missing", sourceTtf);
+            string ttf = Path.GetFileNameWithoutExtension(sourceTtf);
 
             TMP_FontAsset asset = null;
             string missing = characters;
             foreach (int size in new[] { 1024, 2048 })
             {
-                asset = TMP_FontAsset.CreateFontAsset(font, SamplingSize, Padding, GlyphRenderMode.SDFAA, size, size, AtlasPopulationMode.Dynamic, false);
+                asset = TMP_FontAsset.CreateFontAsset(font, samplingSize, padding, GlyphRenderMode.SDFAA, size, size, AtlasPopulationMode.Dynamic, false);
                 if (asset == null) throw new InvalidOperationException("TextMeshPro could not load " + font.name);
                 asset.TryAddCharacters(characters, out missing, true);
                 if (string.IsNullOrEmpty(missing) || !RanOutOfRoom(font, missing)) break;

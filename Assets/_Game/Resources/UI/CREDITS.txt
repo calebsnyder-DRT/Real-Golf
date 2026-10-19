@@ -109,10 +109,9 @@ Not wired up yet
                     are for a settings screen and the pause menu.
     Bars/           intended for the three-click swing meter, which still draws
                     itself from solid-colour panels in GameHUD.
-    Audio/UI/       left in Art/, deliberately unmoved. GolfAudio synthesises
-                    every sound in the game on first use, and adding six .ogg
-                    files would be the first binary audio in the project; the
-                    menu is silent rather than quietly breaking that rule.
+    Audio/UI/       left in Art/ and unused. Game audio, UI clicks included,
+                    lives under Resources/Audio/ (see its CREDITS.txt) and is
+                    played by Scripts/Runtime/Audio.
     Sprites/        the sliders, checkboxes, text fields and ~170 other elements
                     have no screen to appear on yet.
 

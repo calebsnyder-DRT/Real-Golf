@@ -26,6 +26,7 @@ namespace Puttshack.Runtime.Shop
         private readonly string[] _wantedKeys = new string[Slots];
         private readonly Loadout[] _wantedLooks = new Loadout[Slots];
         private readonly int[] _wantedCharacter = new int[Slots];
+        private readonly PlayerProfile[] _wantedProfiles = new PlayerProfile[Slots];
         private int _staged = -1;
         private string _stagedKey;
         private bool _framed;
@@ -55,7 +56,7 @@ namespace Puttshack.Runtime.Shop
         public Texture Portrait(int index, Loadout look, bool standIn) => Portrait(index, look, standIn ? GolferAppearance.StandIn : 0);
 
         /// <summary>The player's portrait texture for a character index (see <see cref="GolferAppearance.CharacterOf"/>).</summary>
-        public Texture Portrait(int index, Loadout look, int character)
+        public Texture Portrait(int index, Loadout look, int character, PlayerProfile profile = null)
         {
             if (Camera == null || Subject == null || index < 0 || index >= Slots || look == null) return null;
             RenderTexture rt = _textures[index];
@@ -80,12 +81,13 @@ namespace Puttshack.Runtime.Shop
                 rt.Create();
                 _keys[index] = null;
             }
-            string key = GolferAppearance.Key(look, character);
+            string key = GolferAppearance.Key(look, character, profile);
             if (_wantedKeys[index] != key)
             {
                 _wantedKeys[index] = key;
                 _wantedLooks[index] = look.Clone();
                 _wantedCharacter[index] = character;
+                _wantedProfiles[index] = profile?.Clone();
             }
             return rt;
         }
@@ -109,7 +111,7 @@ namespace Puttshack.Runtime.Shop
             for (int i = 0; i < Slots; i++)
             {
                 if (_wantedKeys[i] == null || _wantedKeys[i] == _keys[i] || _textures[i] == null) continue;
-                Subject.Apply(_wantedLooks[i], _wantedCharacter[i]);
+                Subject.Apply(_wantedLooks[i], _wantedCharacter[i], _wantedProfiles[i]);
                 Animator posed = Subject.ShownAnimator != null ? Subject.ShownAnimator : SubjectAnimator;
                 if (posed != null && posed.isActiveAndEnabled) posed.Update(0f);
                 FrameHead(posed);

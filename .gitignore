@@ -38,3 +38,9 @@ __pycache__/
 /ArtSource/Blender/wip/
 /ArtSource/Review/
 /Assets/InitTestScene*.unity*
+
+# Tool-generated backups and caches (originals stay on the authoring machine)
+*_backup.blend
+/ArtSource/Backup/
+.ruff_cache/
+

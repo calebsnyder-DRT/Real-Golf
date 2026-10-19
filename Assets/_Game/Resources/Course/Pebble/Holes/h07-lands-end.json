@@ -1,0 +1,50 @@
+{
+  "Id": "h07-lands-end",
+  "Version": "pebble-0.1",
+  "Name": "Land's End",
+  "Number": 7,
+  "Par": 3,
+  "YardageYd": 107,
+  "DefaultSurface": "LightRough",
+  "WindMps": [1.8, 0, 0.8],
+  "Briefing": {
+    "Hazard": "A tiny green on the tip of the point: the ocean is long, left and right, and five bunkers ring it.",
+    "SafePlan": "Downhill, so club down and aim at the centre of the green. Short is the only safe miss.",
+    "SuggestedClubId": "pw"
+  },
+  "Terrain": [
+    { "Notes": "Tee pad on the headland.", "Kind": "Plateau", "Center": [-22, -668], "Inner": 6.5, "Outer": 12, "Height": 0.9 },
+    { "Notes": "Green pad on the point, tilted back to front.", "Kind": "Plateau", "Center": [-92, -738], "Inner": 10, "Outer": 24, "Height": 2.0 },
+    { "Kind": "Tilt", "Center": [-92, -738], "Inner": 10, "Outer": 24, "Slope": [-0.008, -0.006] }
+  ],
+  "Surfaces": [
+    { "Id": "coastal-scrub", "Surface": "DeepRough", "Priority": 12, "Shape": { "Kind": "InlandStrip", "Path": "CliffEdge", "Width": 4.0, "MaxX": 4, "MinZ": -800, "MaxZ": -645 } },
+    {
+      "Id": "approach", "Surface": "Fairway", "Priority": 20,
+      "Shape": { "Kind": "Loop", "Samples": 6, "Control": [[-52, -700], [-64, -716], [-76, -722], [-80, -714], [-70, -700], [-58, -694]] }
+    },
+    { "Id": "green", "Surface": "Green", "Priority": 40, "Shape": { "Kind": "Ellipse", "Center": [-92, -738], "Radii": [8.5, 7], "Segments": 48, "Rotation": 0.78 } },
+    { "Id": "bunker-front", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [-82.5, -728.5], "Radii": [4.5, 2.0], "Segments": 32, "Rotation": -0.78 }, "Bowl": { "Inner": 1.4, "Height": -0.5 } },
+    { "Id": "bunker-right", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [-101, -729], "Radii": [4.0, 2.0], "Segments": 32, "Rotation": 0.78 }, "Bowl": { "Inner": 1.4, "Height": -0.5 } },
+    { "Id": "bunker-left", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [-83, -747], "Radii": [4.0, 2.0], "Segments": 32, "Rotation": 0.78 }, "Bowl": { "Inner": 1.4, "Height": -0.5 } },
+    { "Id": "bunker-back", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [-93, -750], "Radii": [3.5, 1.8], "Segments": 28, "Rotation": 0.1 }, "Bowl": { "Inner": 1.4, "Height": -0.5 } },
+    { "Id": "bunker-back-right", "Surface": "Bunker", "Priority": 45, "Shape": { "Kind": "Ellipse", "Center": [-104, -740], "Radii": [3.5, 1.8], "Segments": 28, "Rotation": 1.5 }, "Bowl": { "Inner": 1.4, "Height": -0.5 } },
+    { "Id": "tee", "Surface": "Tee", "Priority": 50, "Shape": { "Kind": "Rect", "Min": [-27, -673], "Max": [-17, -663] } }
+  ],
+  "Hazards": [
+    {
+      "Id": "lands-end-sea", "DropPointId": "drop-point", "WaterLevelM": "Sea",
+      "Shape": { "Kind": "Sea", "Path": "CliffEdge", "MaxX": 4, "MinZ": -800, "MaxZ": -645, "Close": [[-140, -645], [-140, -800], [4, -800]] }
+    }
+  ],
+  "Drops": [
+    { "Id": "drop-point", "HazardId": "lands-end-sea", "At": [-64, -706] }
+  ],
+  "Trees": [
+    { "Id": "cypress-point", "At": [-104, -690], "Trunk": [0.55, 3.0], "Canopy": [6.5, 8.5] },
+    { "Id": "cypress-tee-left", "At": [-2, -690], "Trunk": [0.5, 3.4], "Canopy": [5.5, 9.5] }
+  ],
+  "PlayableBoundary": { "Kind": "Polygon", "Points": [[-130, -645], [4, -645], [4, -705], [-22, -798], [-130, -798]] },
+  "Tee": [-22, -668],
+  "Cup": [-91, -737]
+}

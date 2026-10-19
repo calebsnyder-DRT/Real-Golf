@@ -23,6 +23,16 @@ namespace Puttshack.Session
 
         private static readonly string[] DefaultNames = { "Caleb", "Maya", "Jordan", "Sam", "Nia", "Leo" };
 
+        /// <summary>The first default name not in <paramref name="taken"/>, for a player added to the roster.</summary>
+        public static string DefaultName(ICollection<string> taken)
+        {
+            foreach (string n in DefaultNames)
+            {
+                if (!taken.Contains(n)) return n;
+            }
+            return $"Player {taken.Count + 1}";
+        }
+
         private readonly CourseDefinition _course;
         private readonly ISessionStore _store;
         private readonly IMonotonicClock _clock;
@@ -359,6 +369,8 @@ namespace Puttshack.Session
                 return CommandReply.Reject(RejectReason.INVALID_VALUE, _data.Revision, "Missing command id.");
 
             string fingerprint = ContentHasher.Canonical(new { cmd.Type, cmd.Names, cmd.Assistance, cmd.PaceCapEnabled, cmd.ClubId, cmd.AimYawDeltaRad, cmd.AimTargetM, cmd.PuttScale, cmd.PlayerId, cmd.Loadout, cmd.ExpectedRevision });
+            // Appended only when present so fingerprints already in older journals still match their redeliveries.
+            if (cmd.Profiles != null) fingerprint += "|" + ContentHasher.Canonical(cmd.Profiles);
             if (_data.AppliedCommands.TryGetValue(cmd.CommandId, out string previous))
             {
                 return previous == fingerprint
@@ -398,7 +410,16 @@ namespace Puttshack.Session
                         if (name.Length == 0 || name.Length > MaxNameLength) return Invalid("Names must be 1-16 characters.");
                         names.Add(name);
                     }
-                    return Commit(cmd, fingerprint, d => d.Players = BuildRoster(names, d.Players));
+                    if (cmd.Profiles != null)
+                    {
+                        if (cmd.Profiles.Count != names.Count) return Invalid("Send one profile per player.");
+                        foreach (PlayerProfile profile in cmd.Profiles)
+                        {
+                            string problem = profile != null ? ProfileCatalog.Validate(profile) : null;
+                            if (problem != null) return Invalid(problem);
+                        }
+                    }
+                    return Commit(cmd, fingerprint, d => d.Players = BuildRoster(names, d.Players, cmd.Profiles));
                 }
 
                 case CommandType.SetLoadout:
@@ -716,20 +737,25 @@ namespace Puttshack.Session
             throw new InvalidOperationException($"Unknown player {playerId}.");
         }
 
-        /// <summary>Roster slots keep their identity colour and any loadout already saved in that slot.</summary>
-        private static List<PlayerState> BuildRoster(List<string> names, List<PlayerState> previous = null)
+        /// <summary>
+        /// Roster slots keep their identity colour, any loadout already saved in that slot and its golfer profile, unless
+        /// <paramref name="profiles"/> names a new one for the slot.
+        /// </summary>
+        private static List<PlayerState> BuildRoster(List<string> names, List<PlayerState> previous = null, List<PlayerProfile> profiles = null)
         {
             var roster = new List<PlayerState>(names.Count);
             for (int i = 0; i < names.Count; i++)
             {
-                Loadout kept = previous != null && i < previous.Count ? previous[i].Loadout : null;
+                PlayerState before = previous != null && i < previous.Count ? previous[i] : null;
+                PlayerProfile profile = profiles != null && i < profiles.Count ? profiles[i] : null;
                 roster.Add(new PlayerState
                 {
                     Id = i + 1,
                     RosterIndex = i,
                     Name = names[i],
                     ColorIndex = i,
-                    Loadout = kept?.Clone() ?? CosmeticCatalog.DefaultFor(i),
+                    Loadout = before?.Loadout?.Clone() ?? CosmeticCatalog.DefaultFor(i),
+                    Profile = profile?.Clone() ?? before?.Profile?.Clone() ?? ProfileCatalog.DefaultFor(i),
                 });
             }
             return roster;

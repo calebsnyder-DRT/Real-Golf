@@ -47,7 +47,7 @@ namespace Puttshack.EditorTools
         private static void RenderAll(string tag)
         {
             EditorSceneManager.OpenScene(ProShopBaker.PreviewScenePath);
-            var shop = Object.FindFirstObjectByType<ProShopController>();
+            var shop = Object.FindAnyObjectByType<ProShopController>();
             GolferAppearance golfer = shop != null ? shop.Golfer : null;
             if (golfer == null) throw new InvalidOperationException("The Pro Shop preview scene has no golfer.");
             string dir = Path.Combine(Path.GetDirectoryName(Application.dataPath), OutDir);
@@ -103,7 +103,7 @@ namespace Puttshack.EditorTools
         private static void RenderStates(string dir, string[] states, int frames)
         {
             EditorSceneManager.OpenScene(ProShopBaker.PreviewScenePath);
-            var shop = Object.FindFirstObjectByType<ProShopController>();
+            var shop = Object.FindAnyObjectByType<ProShopController>();
             GolferAppearance golfer = shop != null ? shop.Golfer : null;
             if (golfer == null) throw new InvalidOperationException("The Pro Shop preview scene has no golfer.");
             var controller = AssetDatabase.LoadAssetAtPath<UnityEditor.Animations.AnimatorController>(ProShopBaker.ControllerPath);
@@ -125,7 +125,7 @@ namespace Puttshack.EditorTools
                     AnimationClipSettings cs = AnimationUtility.GetAnimationClipSettings(clip);
                     var log = new System.Text.StringBuilder($"[Puttshack] Pose {name} {state} ({clip.name}, {clip.length:0.00} s, yaw {cs.orientationOffsetY}, feet {cs.heightFromFeet}):");
                     var times = Enumerable.Range(0, frames).Select(f => frames > 1 ? clip.length * f / (frames - 1) : 0f).ToList();
-                    if (club.Swing == state && club.Contact > 0f) times.Add(club.Contact);
+                    if (club.Swing == state && club.ContactOf(c) > 0f) times.Add(club.ContactOf(c));
                     for (int f = 0; f < times.Count; f++)
                     {
                         float t = times[f];
